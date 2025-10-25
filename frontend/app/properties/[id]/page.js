@@ -8,10 +8,19 @@ const Page = () => {
     const { id } = useParams()
     const [data, setData] = useState({})
 
+    const amenities = [
+        "24/7 Security",
+        "Swimming Pool",
+        "Gymnasium",
+        "Children's Play Area",
+        "Clubhouse",
+    ]
+
     useEffect(() => {
         const fetchData = async () => {
             const response = await getPropertyById(id);
             if (response.success) {
+                // setData({ ...response.data.property, amenities, bedrooms: 3, bathrooms: 2, parking: 1 });
                 setData(response.data.property);
             }
             else {
@@ -20,6 +29,26 @@ const Page = () => {
         }
         fetchData();
     }, [id]);
+
+    const handlePhoneClick = () => {
+        if (data.dealer?.phone) {
+            window.location.href = `tel:${data.dealer.phone}`;
+        }
+    };
+
+    const handleMessageClick = () => {
+        if (data.dealer?.phone) {
+            window.location.href = `sms:${data.dealer.phone}`;
+        }
+    };
+
+    const handleScheduleVisit = () => {
+        alert('Schedule Visit feature coming soon!');
+    };
+
+    const handleSaveProperty = () => {
+        alert('Property saved to your favorites!');
+    };
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('en-IN', {
@@ -42,7 +71,7 @@ const Page = () => {
     if (!data.title) {
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+                {/* <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div> */}
             </div>
         );
     }
@@ -203,19 +232,31 @@ const Page = () => {
                         </div>
 
                         <div className="space-y-3 mb-6">
-                            <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                            <button
+                                onClick={handlePhoneClick}
+                                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                            >
                                 📞 Call Now
                             </button>
-                            <button className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                            <button
+                                onClick={handleMessageClick}
+                                className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+                            >
                                 💬 Send Message
                             </button>
-                            <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                            <button
+                                onClick={handleScheduleVisit}
+                                className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            >
                                 📅 Schedule Visit
                             </button>
                         </div>
 
                         <div className="text-center">
-                            <button className="text-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2 mx-auto">
+                            <button
+                                onClick={handleSaveProperty}
+                                className="text-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2 mx-auto"
+                            >
                                 ❤️ Save Property
                             </button>
                         </div>
@@ -251,7 +292,7 @@ const Page = () => {
                         <div className="space-y-3">
                             {[1, 2, 3].map((item) => (
                                 <div key={item} className="flex gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                                    <div className="w-16 h-12 bg-gray-200 rounded flex-shrink-0"></div>
+                                    <img src={'/logos/default-property.jpg'} className="w-16 h-12 bg-gray-200 rounded flex-shrink-0" />
                                     <div className="flex-1">
                                         <div className="text-sm font-medium text-gray-800">Similar Property {item}</div>
                                         <div className="text-xs text-gray-500">2 BHK • {data.location}</div>

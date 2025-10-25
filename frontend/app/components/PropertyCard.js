@@ -38,7 +38,7 @@ export default function PropertyCard({ property }) {
                 </div>
 
                 {/* View Details Button */}
-                <Link href={`/property/${property.id}`} className="w-full text-center mt-2 sm:mt-3 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-sm sm:text-base">
+                <Link href={`/properties/${property.id}`} className="w-full text-center mt-2 sm:mt-3 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-sm sm:text-base">
                     View Details
                 </Link>
             </div>
@@ -55,7 +55,7 @@ export default function PropertyCard({ property }) {
 //                 <h2 className="font-bold text-xl">{title}</h2>
 //                 <p className="text-gray-600">{location}</p>
 //                 <p className="text-blue-600 font-semibold">₹ {price.toLocaleString()}</p>
-//                 <a href={`/property/${id}`} className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded">
+//                 <a href={`/properties/${id}`} className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded">
 //                     View Details
 //                 </a>
 //             </div>

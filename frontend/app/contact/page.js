@@ -6,6 +6,31 @@ import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 const Contact = () => {
     const [activeTab, setActiveTab] = useState('contact');
 
+    const [contactData, setContactData] = useState({
+        mainOffice: {
+            name: "Main Office - Roorkee",
+            address: "Himalayan Nest Real Estate\nMain Market, Roorkee\nUttarakhand - 247667, India",
+            description: "Primary office serving IIT Roorkee area and surrounding regions",
+            phone: ["+91 6398767183", "+91 9837975872"],
+            email: ["himalayannestrealestate@gmail.com"],
+            hours: "Opening Soon"
+        },
+        branches: [
+            // {
+            //     name: "Branch Office - Haridwar",
+            //     description: "Serving Haridwar and nearby spiritual destinations"
+            // },
+            // {
+            //     name: "Branch Office - Dehradun",
+            //     description: "Capital city office for premium properties"
+            // },
+            // {
+            //     name: "Service Area - Rishikesh",
+            //     description: "Yoga capital properties and riverside locations"
+            // }
+        ]
+    });
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
@@ -59,10 +84,8 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Address</h3>
-                                        <p className="text-sm sm:text-base text-gray-600">
-                                            Himalayan Nest Real Estate<br />
-                                            Main Market, Roorkee<br />
-                                            Uttarakhand - 247667, India
+                                        <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">
+                                            {contactData.mainOffice.address}
                                         </p>
                                     </div>
                                 </div>
@@ -74,8 +97,7 @@ const Contact = () => {
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Phone</h3>
                                         <p className="text-sm sm:text-base text-gray-600">
-                                            +91 98765 43210<br />
-                                            +91 87654 32109
+                                            {contactData.mainOffice.phone.join('\n')}
                                         </p>
                                     </div>
                                 </div>
@@ -87,8 +109,7 @@ const Contact = () => {
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Email</h3>
                                         <p className="text-sm sm:text-base text-gray-600">
-                                            info@himalayannest.com<br />
-                                            support@himalayannest.com
+                                            {contactData.mainOffice.email.join('\n')}
                                         </p>
                                     </div>
                                 </div>
@@ -99,9 +120,8 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Office Hours</h3>
-                                        <p className="text-sm sm:text-base text-gray-600">
-                                            Monday - Saturday: 9:00 AM - 7:00 PM<br />
-                                            Sunday: 10:00 AM - 5:00 PM
+                                        <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">
+                                            {contactData.mainOffice.hours}
                                         </p>
                                     </div>
                                 </div>
@@ -113,21 +133,15 @@ const Contact = () => {
                             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Our Locations</h2>
                             <div className="space-y-3 sm:space-y-4">
                                 <div className="border-l-4 border-green-500 pl-3 sm:pl-4">
-                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Main Office - Roorkee</h3>
-                                    <p className="text-gray-600 text-xs sm:text-sm">Primary office serving IIT Roorkee area and surrounding regions</p>
+                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{contactData.mainOffice.name}</h3>
+                                    <p className="text-gray-600 text-xs sm:text-sm">{contactData.mainOffice.description}</p>
                                 </div>
-                                <div className="border-l-4 border-green-500 pl-3 sm:pl-4">
-                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Branch Office - Haridwar</h3>
-                                    <p className="text-gray-600 text-xs sm:text-sm">Serving Haridwar and nearby spiritual destinations</p>
-                                </div>
-                                <div className="border-l-4 border-green-500 pl-3 sm:pl-4">
-                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Branch Office - Dehradun</h3>
-                                    <p className="text-gray-600 text-xs sm:text-sm">Capital city office for premium properties</p>
-                                </div>
-                                <div className="border-l-4 border-green-500 pl-3 sm:pl-4">
-                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Service Area - Rishikesh</h3>
-                                    <p className="text-gray-600 text-xs sm:text-sm">Yoga capital properties and riverside locations</p>
-                                </div>
+                                {contactData.branches.map((branch, index) => (
+                                    <div key={index} className="border-l-4 border-green-500 pl-3 sm:pl-4">
+                                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{branch.name}</h3>
+                                        <p className="text-gray-600 text-xs sm:text-sm">{branch.description}</p>
+                                    </div>
+                                ))}
                             </div>
 
                             <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-green-50 rounded-lg">
@@ -150,7 +164,7 @@ const Contact = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 
