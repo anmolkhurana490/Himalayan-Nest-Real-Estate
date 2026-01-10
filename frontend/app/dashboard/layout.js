@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }) {
 
     // Redirect non-dealers to login page
     useEffect(() => {
-        if (!loading && (!authChecked || user?.role !== "dealer")) {
+        if (!loading && (!authChecked || user?.role !== "seller")) {
             router.push("/login");
         }
     }, [user, loading, authChecked, router]);
