@@ -3,21 +3,22 @@
 
 "use client";
 import React, { useEffect, useState } from "react";
-import DashboardSidebar from "../components/dashboard/DashboardSidebar";
-import DashboardHeader from "../components/dashboard/DashboardHeader";
-import { useAppContext } from "../context/AppContext";
+import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
+import DashboardHeader from "@/features/dashboard/components/DashboardHeader";
+import { useAppStore } from "@/shared/stores/appStore";
 import { useRouter } from "next/navigation";
+import ROUTES from "@/config/constants/routes";
 
 export default function DashboardLayout({ children }) {
     const [activeTab, setActiveTab] = useState("overview"); // Current active dashboard section
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar toggle
-    const { user, authChecked, loading } = useAppContext(); // Authentication state
+    const { user, authChecked, loading } = useAppStore(); // Authentication state
     const router = useRouter();
 
     // Redirect non-dealers to login page
     useEffect(() => {
-        if (!loading && (!authChecked || user?.role === "customer")) {
-            router.push("/login");
+        if (!loading && !authChecked) {
+            router.push(ROUTES.LOGIN);
         }
     }, [user, loading, authChecked, router]);
 
@@ -28,11 +29,6 @@ export default function DashboardLayout({ children }) {
                 {/* Loading spinner placeholder */}
             </div>
         );
-    }
-
-    // Don't render dashboard for non-dealers
-    if (!authChecked || user?.role === "customer") {
-        return null;
     }
 
     return (

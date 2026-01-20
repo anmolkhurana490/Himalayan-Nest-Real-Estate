@@ -2,11 +2,10 @@
 // Provides global styling, fonts, context providers, and persistent UI elements
 
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar, { MobileMenu } from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
-import LoadingSpinner from "@/app/components/LoadingSpinner";
+import Navbar, { MobileMenu } from "@/shared/components/Navbar";
+import Footer from "@/shared/components/Footer";
+import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import "./styles/globals.css";
-import { AppProvider } from "@/app/context/AppContext";
 
 // Font configurations for consistent typography
 const geistSans = Geist({
@@ -38,25 +37,22 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 sm:pb-0`}
       >
-        {/* Global state provider for authentication and app state */}
-        <AppProvider>
-          {/* Persistent navigation header */}
-          <Navbar />
+        {/* Persistent navigation header */}
+        <Navbar />
 
-          {/* Main content area with bottom padding for mobile menu */}
-          <main>
-            {children}
-          </main>
+        {/* Main content area with bottom padding for mobile menu */}
+        <main>
+          {children}
+        </main>
 
-          {/* Mobile-only bottom navigation */}
-          <MobileMenu />
+        {/* Mobile-only bottom navigation */}
+        <MobileMenu />
 
-          {/* Site footer */}
-          <Footer />
+        {/* Site footer */}
+        <Footer />
 
-          {/* Global loading indicator */}
-          <LoadingSpinner />
-        </AppProvider>
+        {/* Global loading indicator */}
+        <LoadingSpinner />
       </body>
     </html>
   );
