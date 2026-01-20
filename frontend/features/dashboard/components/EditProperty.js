@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { updateProperty } from '../viewmodel/propertyViewModel';
+import { updateProperty } from '@/features/properties/viewmodel/propertyViewModel';
 import { PROPERTY_SUBTYPES, VALIDATION_LIMITS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
 import { Plus, X } from 'lucide-react';
 
