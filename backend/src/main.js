@@ -21,6 +21,11 @@ setupAppMiddlewares(app);
 registerRelations(); // Set up Sequelize model associations
 connectToDB(); // Connect to PostgreSQL database
 
+// Root Route (Debugging Purpose)
+app.get('/', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'Himalayan Nest Real Estate Backend is running!' });
+});
+
 // API Routes
 app.use('/api/v1', apiV1Routes); // API v1 routes
 
