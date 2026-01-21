@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/shared/stores/appStore'
 import { registerUser } from '../viewmodel/authViewModel'
+import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
 import { LoaderCircle } from 'lucide-react';
 
@@ -16,7 +17,7 @@ const RegisterView = () => {
         phone: '',
         password: '',
         confirmPassword: '',
-        userType: 'buyer',
+        userType: USER_ROLES.CUSTOMER,
         agreeToTerms: false
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,7 +96,7 @@ const RegisterView = () => {
                     phone: '',
                     password: '',
                     confirmPassword: '',
-                    userType: 'buyer',
+                    userType: USER_ROLES.CUSTOMER,
                     agreeToTerms: false
                 });
                 router.push(ROUTES.LOGIN);
@@ -223,10 +224,8 @@ const RegisterView = () => {
                                 onChange={handleChange}
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                             >
-                                <option value="buyer">Property Buyer</option>
-                                <option value="renter">Property Renter</option>
-                                <option value="seller">Property Seller/Owner</option>
-                                <option value="dealer">Real Estate Dealer/Agent</option>
+                                <option value={USER_ROLES.CUSTOMER}>Property Buyer/Seller</option>
+                                <option value={USER_ROLES.DEALER}>Real Estate Dealer/Agent</option>
                             </select>
                         </div>
 

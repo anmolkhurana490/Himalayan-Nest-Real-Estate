@@ -14,7 +14,7 @@ export const validate = (schema, source = 'body') => {
     return async (req, res, next) => {
         try {
             // Parse and validate the data
-            const validated = await schema.parseAsync(req[source]);
+            const validated = schema.parse(req[source]);
 
             // Replace the request data with validated data
             req[source] = validated;
@@ -23,7 +23,14 @@ export const validate = (schema, source = 'body') => {
         } catch (error) {
             // Handle Zod validation errors
             if (error instanceof z.ZodError) {
-                const errors = error.errors.map(err => {
+                if (error.errors === undefined) {
+                    error.errors = (msg => {
+                        try { return JSON.parse(msg) }
+                        catch { return [{ path: [], message: msg }] }
+                    })(error.message);
+                }
+
+                const errors = error.errors?.map(err => {
                     const path = err.path.join('.');
                     return `${path}: ${err.message}`;
                 });

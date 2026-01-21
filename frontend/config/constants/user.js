@@ -3,9 +3,8 @@
 
 // User Roles
 export const USER_ROLES = {
-    BUYER: 'buyer',
-    RENTER: 'renter',
-    SELLER: 'seller',
+    ADMIN: 'admin',
+    CUSTOMER: 'customer',
     DEALER: 'dealer',
 };
 
