@@ -8,6 +8,8 @@ import { registerUser } from '../viewmodel/authViewModel'
 import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
 import { LoaderCircle } from 'lucide-react';
+import { registerSchema } from '../validation'
+import { validateWithSchema } from '@/utils/validator';
 
 const RegisterView = () => {
     const [formData, setFormData] = useState({
@@ -57,25 +59,17 @@ const RegisterView = () => {
         setError('');
         setSuccess('');
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match!');
+        // Validate form data using Zod
+        const errors = validateWithSchema(registerSchema, formData);
+        if (errors.length > 0) {
+            setError(errors[0].message);
             return;
         }
-
-        if (passwordErrors.length > 0) {
-            setError('Please fix password requirements');
-            return;
-        }
-
-        if (!formData.agreeToTerms) {
-            setError('Please agree to the Terms of Service and Privacy Policy');
-            return;
-        }
-
-        setIsSubmitting(true);
-        setLoading(true);
 
         try {
+            setIsSubmitting(true);
+            setLoading(true);
+
             const registrationData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
@@ -106,7 +100,7 @@ const RegisterView = () => {
             }
         } catch (error) {
             console.error('Registration error:', error);
-            setError('An unexpected error occurred. Please try again.');
+            setError('Please check your input and try again');
         } finally {
             setIsSubmitting(false);
             setLoading(false);

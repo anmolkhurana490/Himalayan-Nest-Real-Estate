@@ -7,7 +7,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/shared/stores/appStore'
 import { loginUser } from '../viewmodel/authViewModel'
+import { loginSchema } from '../validation'
 import ROUTES from '@/config/constants/routes'
+import { validateWithSchema } from '@/utils/validator'
 
 const LoginView = () => {
     const [formData, setFormData] = useState({
@@ -30,11 +32,19 @@ const LoginView = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setLoading(true);
         setError('');
 
+        // Validate form data using Zod
+        const errors = validateWithSchema(loginSchema, formData);
+        if (errors.length > 0) {
+            setError(errors[0].message);
+            return;
+        }
+
         try {
+            setIsSubmitting(true);
+            setLoading(true);
+
             const result = await loginUser(formData);
 
             if (result && result.success) {

@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react'
 import { submitEnquiry } from '@/features/enquiry/viewmodel/enquiryViewModel'
+import { createEnquirySchema } from '@/features/enquiry/validation'
+import { validateWithSchema } from '@/utils/validator'
 import { LEGACY_PROPERTY_TYPES } from '@/config/constants/app'
 
 const EnquiryForm = ({ propertyId }) => {
@@ -25,10 +27,21 @@ const EnquiryForm = ({ propertyId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
         setMessage({ type: '', content: '' });
 
+        // Validate form data using Zod
+        const errors = validateWithSchema(createEnquirySchema, formData);
+        if (errors.length > 0) {
+            setMessage({
+                type: 'error',
+                content: errors[0].message
+            });
+            return;
+        }
+
         try {
+            setIsSubmitting(true);
+
             const enquiryData = {
                 ...formData,
                 propertyId

@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { updateProperty } from '@/features/properties/viewmodel/propertyViewModel';
+import { updatePropertySchema } from '@/features/properties/validation';
+import { validateWithSchema } from '@/utils/validator';
 import { PROPERTY_SUBTYPES, VALIDATION_LIMITS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
 import { Plus, X } from 'lucide-react';
 
@@ -93,10 +95,21 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
         setMessage({ type: '', content: '' });
 
+        // Validate form data using Zod
+        const errors = validateWithSchema(updatePropertySchema, formData);
+        if (errors.length > 0) {
+            setMessage({
+                type: 'error',
+                content: errors[0].message
+            });
+            return;
+        }
+
         try {
+            setIsSubmitting(true);
+
             const result = await updateProperty(
                 property.id,
                 formData,

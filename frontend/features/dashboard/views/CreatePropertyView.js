@@ -5,6 +5,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { createProperty } from '@/features/properties/viewmodel/propertyViewModel';
+import { createPropertySchema } from '@/features/properties/validation';
+import { validateWithSchema } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { PROPERTY_CATEGORIES_LIST, VALIDATION_LIMITS, ALLOWED_IMAGE_TYPES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
@@ -36,18 +38,6 @@ const CreatePropertyView = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file type
-            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-                alert(ERROR_MESSAGES.INVALID_FILE_TYPE);
-                return;
-            }
-
-            // Validate file size
-            if (file.size > VALIDATION_LIMITS.IMAGE_MAX_SIZE) {
-                alert(ERROR_MESSAGES.FILE_TOO_LARGE(VALIDATION_LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)));
-                return;
-            }
-
             setFormData(prev => ({
                 ...prev,
                 image: file
@@ -73,21 +63,16 @@ const CreatePropertyView = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate required fields
-        if (!formData.title || !formData.description || !formData.price ||
-            !formData.location || !formData.category) {
-            alert('Please fill in all required fields');
+        // Validate form data using Zod
+        const errors = validateWithSchema(createPropertySchema, formData);
+        if (errors.length > 0) {
+            alert(errors[0].message);
             return;
         }
-
-        if (!formData.image) {
-            alert('Please select a property image');
-            return;
-        }
-
-        setLoading(true);
 
         try {
+            setLoading(true);
+
             const result = await createProperty(formData);
 
             if (result && result.success) {
