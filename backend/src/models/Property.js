@@ -1,4 +1,5 @@
 import { DataTypes } from "sequelize";
+import { CATEGORY_VALUES, PURPOSE_VALUES } from '../constants/property.js';
 
 const PropertyModel = (sequelize) => {
     const Property = sequelize.define("Properties", {
@@ -19,12 +20,12 @@ const PropertyModel = (sequelize) => {
         category: {
             type: DataTypes.STRING,
             allowNull: false,
-            values: ['flat', 'house', 'plot', 'pg', 'farmhouse', 'villa', 'office', 'shop', 'other'],
+            values: CATEGORY_VALUES,
         },
         purpose: {
             type: DataTypes.STRING,
             allowNull: false,
-            values: ['rent', 'sale'],
+            values: PURPOSE_VALUES,
         },
         price: {
             type: DataTypes.FLOAT,

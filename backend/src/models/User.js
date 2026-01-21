@@ -1,4 +1,5 @@
 import { DataTypes } from "sequelize";
+import { ROLE_VALUES } from '../constants/roles.js';
 
 const UserModel = (sequelize) => {
     const User = sequelize.define("Users", {
@@ -27,7 +28,7 @@ const UserModel = (sequelize) => {
         },
         role: {
             type: DataTypes.STRING,
-            values: ['customer', 'admin', 'dealer'],
+            values: ROLE_VALUES,
         },
         bio: {
             type: DataTypes.TEXT,
