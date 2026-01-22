@@ -125,6 +125,7 @@ const Navbar = () => {
                         </button>
                     </div>
 
+                    {isMenuOpen && <div className="sm:hidden fixed w-screen h-screen inset-0 bg-black opacity-25 z-40" onClick={toggleMenu} />}
                     <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} user={user} handleLogout={handleLogout} />
                 </div>
             </div>
@@ -136,7 +137,7 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen, user, handleLogout }) =>
     const [subMenuOpen, setSubMenuOpen] = useState(false);
 
     return (
-        <div className={`sm:hidden absolute top-16 left-0 right-0 bg-white border-t shadow-lg overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-screen' : 'max-h-0'}`}>
+        <div className={`sm:hidden absolute top-16 left-0 right-0 z-50 bg-white border-t shadow-lg overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-screen' : 'max-h-0'}`}>
             <div className="px-4 py-3 space-y-2">
                 <Link href={ROUTES.HOME} onClick={() => setIsMenuOpen(false)} className="block py-2 text-gray-700 hover:text-green-700 font-medium">
                     <House className="inline mr-2 h-5 w-5" />
