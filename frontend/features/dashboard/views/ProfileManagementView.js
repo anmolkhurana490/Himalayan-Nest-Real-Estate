@@ -3,13 +3,14 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useAppStore } from '@/shared/stores/appStore';
-import { updateUserProfile } from '@/features/auth/viewmodel/authViewModel';
+import { useAuthStore } from '@/shared/stores/authStore';
+import { useAuthViewModel } from '@/features/auth/viewmodel/authViewModel';
 import { User, Mail, Phone, MapPin, Building, Save } from 'lucide-react';
 
 const ProfileManagementView = () => {
-    const user = useAppStore((state) => state.user);
-    const setUser = useAppStore((state) => state.setUser);
+    const user = useAuthStore((state) => state.user);
+    const setUser = useAuthStore((state) => state.setUser);
+    const { updateUserProfile, error: viewModelError, success: viewModelSuccess, isSubmitting } = useAuthViewModel();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -18,7 +19,6 @@ const ProfileManagementView = () => {
         address: '',
         company: ''
     });
-    const [loading, setLoading] = useState(false);
     const [isChanged, setIsChanged] = useState(false);
 
     useEffect(() => {
@@ -50,8 +50,6 @@ const ProfileManagementView = () => {
             return;
         }
 
-        setLoading(true);
-
         try {
             const result = await updateUserProfile(formData);
 
@@ -66,8 +64,6 @@ const ProfileManagementView = () => {
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('An error occurred while updating your profile');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -226,17 +222,17 @@ const ProfileManagementView = () => {
                     <button
                         type="button"
                         onClick={handleReset}
-                        disabled={!isChanged || loading}
+                        disabled={!isChanged || isSubmitting}
                         className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Reset
                     </button>
                     <button
                         type="submit"
-                        disabled={!isChanged || loading}
+                        disabled={!isChanged || isSubmitting}
                         className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                     >
-                        {loading ? (
+                        {isSubmitting ? (
                             <>
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                 Saving...

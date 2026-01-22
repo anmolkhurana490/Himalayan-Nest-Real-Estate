@@ -4,7 +4,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { createProperty } from '@/features/properties/viewmodel/propertyViewModel';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { createPropertySchema } from '@/features/properties/validation';
 import { validateWithSchema } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,7 @@ import { X, Upload, MapPin, Home, IndianRupee, FileText, Tag } from 'lucide-reac
 
 const CreatePropertyView = () => {
     const router = useRouter();
+    const { createProperty, error: viewModelError, success: viewModelSuccess, isSubmitting } = usePropertyViewModel();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -23,7 +24,6 @@ const CreatePropertyView = () => {
         image: null
     });
     const [imagePreview, setImagePreview] = useState(null);
-    const [loading, setLoading] = useState(false);
 
     const categories = PROPERTY_CATEGORIES_LIST;
 
@@ -71,8 +71,6 @@ const CreatePropertyView = () => {
         }
 
         try {
-            setLoading(true);
-
             const result = await createProperty(formData);
 
             if (result && result.success) {

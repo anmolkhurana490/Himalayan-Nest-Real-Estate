@@ -1,11 +1,12 @@
 "use client";
 import React, { useState } from 'react'
-import { submitEnquiry } from '@/features/enquiry/viewmodel/enquiryViewModel'
+import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel'
 import { createEnquirySchema } from '@/features/enquiry/validation'
 import { validateWithSchema } from '@/utils/validator'
 import { LEGACY_PROPERTY_TYPES } from '@/config/constants/app'
 
 const EnquiryForm = ({ propertyId }) => {
+    const { submitEnquiry, error: viewModelError, success: viewModelSuccess, isSubmitting } = useEnquiryViewModel();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,7 +16,6 @@ const EnquiryForm = ({ propertyId }) => {
         budget: ''
     });
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ type: '', content: '' });
 
     const handleChange = (e) => {
@@ -40,8 +40,6 @@ const EnquiryForm = ({ propertyId }) => {
         }
 
         try {
-            setIsSubmitting(true);
-
             const enquiryData = {
                 ...formData,
                 propertyId

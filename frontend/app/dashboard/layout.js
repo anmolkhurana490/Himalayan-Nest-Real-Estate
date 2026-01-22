@@ -5,31 +5,12 @@
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
 import DashboardHeader from "@/features/dashboard/components/DashboardHeader";
-import { useAppStore } from "@/shared/stores/appStore";
-import { useRouter } from "next/navigation";
-import ROUTES from "@/config/constants/routes";
+import { withProtectedRoute } from "@/shared/components/RouteProtection";
+import { USER_ROLES } from "@/config/constants/user";
 
-export default function DashboardLayout({ children }) {
+function DashboardLayout({ children }) {
     const [activeTab, setActiveTab] = useState("overview"); // Current active dashboard section
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar toggle
-    const { user, authChecked, loading } = useAppStore(); // Authentication state
-    const router = useRouter();
-
-    // Redirect non-dealers to login page
-    useEffect(() => {
-        if (!loading && !authChecked) {
-            router.push(ROUTES.LOGIN);
-        }
-    }, [user, loading, authChecked, router]);
-
-    // Show loading state while checking authentication
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                {/* Loading spinner placeholder */}
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -57,7 +38,6 @@ export default function DashboardLayout({ children }) {
                     {/* Dashboard Header with user info and mobile menu button */}
                     <DashboardHeader
                         setIsSidebarOpen={setIsSidebarOpen}
-                        user={user}
                     />
 
                     {/* Page Content Area */}
@@ -67,3 +47,8 @@ export default function DashboardLayout({ children }) {
         </div>
     );
 }
+
+// Protect dashboard with role-based access (dealers and admins only)
+export default withProtectedRoute(DashboardLayout, {
+    allowedRoles: [USER_ROLES.DEALER, USER_ROLES.ADMIN]
+});

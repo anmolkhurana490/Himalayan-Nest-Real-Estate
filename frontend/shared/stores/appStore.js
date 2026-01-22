@@ -1,42 +1,19 @@
-// Global App Store - State management using Zustand
-// Manages user authentication state and loading state
+// App Store - Global application state management using Zustand
+// Manages global loading state and other app-wide states
 
 import { create } from 'zustand';
-import { getFromStorage, setInStorage, removeFromStorage } from '@/utils/storage';
 
 export const useAppStore = create((set, get) => ({
-    // User state
-    user: null,
-    authChecked: false,
-
-    // Loading state
+    // Global loading state
     loading: false,
 
     // Actions
-    setUser: (user) => {
-        set({ user });
-        if (user) {
-            setInStorage('user', user);
-        } else {
-            removeFromStorage('user');
-        }
-    },
-
-    setAuthChecked: (checked) => set({ authChecked: checked }),
-
     setLoading: (loading) => set({ loading }),
 
-    clearUser: () => {
-        set({ user: null });
-        removeFromStorage('user');
-    },
+    // Start loading
+    startLoading: () => set({ loading: true }),
 
-    // Initialize user from storage
-    initializeAuth: async () => {
-        const storedUser = getFromStorage('user');
-        if (storedUser) {
-            set({ user: storedUser });
-        }
-        set({ authChecked: true, loading: false });
-    },
+    // Stop loading
+    stopLoading: () => set({ loading: false }),
 }));
+

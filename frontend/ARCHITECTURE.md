@@ -21,8 +21,8 @@ View → ViewModel → Repository → Backend API
 frontend/
 ├── app/                          # Next.js routing (re-exports views)
 ├── config/                       # Application configuration
-│   ├── apiConfig.js             # Axios setup & interceptors
-│   ├── appConfig.js             # App-wide constants
+│   ├── api.config.js             # Axios setup & interceptors
+│   ├── app.config.js             # App-wide constants
 │   └── constants/
 │       ├── apis.js              # API endpoint constants
 │       └── routes.js            # Route path constants
@@ -51,7 +51,7 @@ frontend/
 
 ```javascript
 // Config & Constants
-import api from '@/config/apiConfig';
+import api from '@/config/api.config';
 import { AUTH_ENDPOINTS } from '@/config/constants/apis';
 import ROUTES from '@/config/constants/routes';
 

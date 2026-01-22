@@ -4,13 +4,15 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { useAppStore } from '@/shared/stores/appStore';
 import ROUTES from '@/config/constants/routes';
 import { ChevronDown, Menu } from 'lucide-react';
 
-const DashboardHeader = ({ setIsSidebarOpen, user }) => {
+const DashboardHeader = ({ setIsSidebarOpen }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // User dropdown menu toggle
-    const { setUser, setLoading } = useAppStore(); // Global user state
+    const user = useAuthStore((state) => state.user);
+    const clearUser = useAuthStore((state) => state.clearUser);
     const router = useRouter();
 
     // Logout functionality (currently commented out)

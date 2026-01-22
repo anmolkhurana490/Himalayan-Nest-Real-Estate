@@ -7,7 +7,7 @@ import { verifyToken } from '../utils/jwtHandlers.js';
 // Main authentication middleware - validates JWT token from cookies
 const AuthMiddleware = async (req, res, next) => {
     // Extract access token from HTTP-only cookie
-    const token = req.cookies['access-token'];
+    const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ message: 'Access denied, no token provided' });
     }

@@ -3,12 +3,13 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { getMyProperties } from '@/features/properties/viewmodel/propertyViewModel';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { BriefcaseBusiness, Building, Circle, CircleCheck, Eye, MessageCircleMore, Plus } from 'lucide-react';
 
 const DashboardOverviewView = () => {
+    const { getMyProperties } = usePropertyViewModel();
     const [stats, setStats] = useState({
         totalProperties: 0,
         activeProperties: 0,

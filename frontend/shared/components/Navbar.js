@@ -5,8 +5,9 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { signOut } from 'next-auth/react'
+import { useAuthStore } from '@/shared/stores/authStore'
 import { useAppStore } from '@/shared/stores/appStore'
-import { logoutUser } from '@/features/auth/viewmodel/authViewModel'
 import Image from 'next/image'
 import ROUTES from '@/config/constants/routes'
 import './styles.css'
@@ -14,7 +15,8 @@ import { Building, House, Info, Mail, Menu, X, ChevronDown } from 'lucide-react'
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { user, setUser, setLoading } = useAppStore();
+    const { user, setUser } = useAuthStore();
+    const { setLoading } = useAppStore();
     const router = useRouter();
 
     const toggleMenu = () => {
@@ -24,20 +26,14 @@ const Navbar = () => {
     const handleLogout = async () => {
         try {
             setLoading(true);
-            const result = await logoutUser();
-
-            if (result && result.success) {
-                setUser(null);
-                router.push(ROUTES.HOME);
-            } else {
-                console.error('Logout failed:', result?.error || result?.message);
-                setUser(null);
-                router.push(ROUTES.HOME);
-            }
+            // Sign out from NextAuth and clear store
+            await signOut({ redirect: false });
+            setUser(null);
+            router.push(ROUTES.REDIRECTS.AFTER_LOGOUT);
         } catch (error) {
             console.error('Logout error:', error);
             setUser(null);
-            router.push(ROUTES.HOME);
+            router.push(ROUTES.REDIRECTS.AFTER_LOGOUT);
         } finally {
             setLoading(false);
         }

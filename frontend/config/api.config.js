@@ -8,10 +8,23 @@ import { API_BASE_URL } from "./constants/apis";
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
-        'Content-Type': 'application/json', // Default content type (overridden for file uploads)
+        // Default content type (overridden for file uploads)
+        'Content-Type': 'application/json',
     },
-    withCredentials: true, // Include HTTP-only cookies for authentication
 });
+
+// Request interceptor to handle dynamic headers
+api.interceptors.request.use(
+    async (config) => {
+        // Get token from localStorage or session storage
+        const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+        if (user?.token) {
+            config.headers.Authorization = `Bearer ${user.token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 // Global response interceptor for consistent error handling
 api.interceptors.response.use(

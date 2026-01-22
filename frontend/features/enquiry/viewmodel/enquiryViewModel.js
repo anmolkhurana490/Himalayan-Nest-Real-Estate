@@ -1,177 +1,279 @@
 // Enquiry ViewModel - Business logic for enquiries
 // Handles business logic for enquiry operations using repositories
 
+import { create } from 'zustand';
 import { Enquiry } from '../model/enquiryModel';
 import * as enquiryRepo from '../repositories';
+import { useAppStore } from '@/shared/stores/appStore';
 
-/**
- * Submit Property Enquiry
- */
-export const submitEnquiry = async (enquiryData) => {
-    try {
-        const data = await enquiryRepo.submitEnquiryAPI(enquiryData);
+export const useEnquiryViewModel = create((set, get) => ({
+    // State
+    enquiries: [],
+    propertyEnquiries: [],
+    currentEnquiry: null,
+    isSubmitting: false,
+    error: null,
+    success: null,
 
-        return {
-            success: true,
-            data: data,
-            enquiry: new Enquiry(data.enquiry || data.data),
-            message: data.message || 'Enquiry submitted successfully!'
-        };
-    } catch (error) {
-        console.error('Submit enquiry error:', error);
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to submit enquiry';
-        return {
-            success: false,
-            error: errorMessage,
-            message: 'Failed to submit enquiry'
-        };
-    }
-};
+    // Actions
+    setEnquiries: (enquiries) => set({ enquiries }),
+    setPropertyEnquiries: (propertyEnquiries) => set({ propertyEnquiries }),
+    setCurrentEnquiry: (currentEnquiry) => set({ currentEnquiry }),
+    setSubmitting: (isSubmitting) => set({ isSubmitting }),
+    setError: (error) => set({ error }),
+    setSuccess: (success) => set({ success }),
+    clearMessages: () => set({ error: null, success: null }),
 
-/**
- * Get All Enquiries (Admin/Owner)
- */
-export const getEnquiries = async (filters = {}) => {
-    try {
-        const params = {};
+    /**
+     * Submit Property Enquiry
+     */
+    submitEnquiry: async (enquiryData) => {
+        try {
+            set({ isSubmitting: true, error: null, success: null });
+            useAppStore.getState().setLoading(true);
 
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value && value !== '') {
-                params[key] = value;
-            }
-        });
+            const data = await enquiryRepo.submitEnquiryAPI(enquiryData);
+            const enquiry = new Enquiry(data.enquiry || data.data);
 
-        const data = await enquiryRepo.getEnquiriesAPI(params);
+            set({ success: 'Enquiry submitted successfully!' });
 
-        return {
-            success: true,
-            data: data,
-            enquiries: (data.enquiries || data.data || []).map(e => new Enquiry(e)),
-            message: data.message || 'Enquiries fetched successfully'
-        };
-    } catch (error) {
-        console.error('Get enquiries error:', error);
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch enquiries';
-
-        if (error.response?.status === 401) {
+            return {
+                success: true,
+                data: data,
+                enquiry,
+                message: data.message || 'Enquiry submitted successfully!'
+            };
+        } catch (error) {
+            console.error('Submit enquiry error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to submit enquiry';
+            set({ error: errorMessage });
             return {
                 success: false,
-                error: 'Authentication required. Please login.',
+                error: errorMessage,
+                message: 'Failed to submit enquiry'
+            };
+        } finally {
+            set({ isSubmitting: false });
+            useAppStore.getState().setLoading(false);
+        }
+    },
+
+    /**
+     * Get All Enquiries (Admin/Owner)
+     */
+    getEnquiries: async (filters = {}) => {
+        try {
+            useAppStore.getState().setLoading(true);
+            set({ error: null });
+
+            const params = {};
+
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value && value !== '') {
+                    params[key] = value;
+                }
+            });
+
+            const data = await enquiryRepo.getEnquiriesAPI(params);
+            const enquiries = (data.enquiries || data.data || []).map(e => new Enquiry(e));
+
+            set({ enquiries });
+
+            return {
+                success: true,
+                data: data,
+                enquiries,
+                message: data.message || 'Enquiries fetched successfully'
+            };
+        } catch (error) {
+            console.error('Get enquiries error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch enquiries';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to fetch enquiries'
+                };
+            }
+
+            return {
+                success: false,
+                error: errorMessage,
                 message: 'Failed to fetch enquiries'
             };
+        } finally {
+            useAppStore.getState().setLoading(false);
         }
+    },
 
-        return {
-            success: false,
-            error: errorMessage,
-            message: 'Failed to fetch enquiries'
-        };
-    }
-};
+    /**
+     * Get Property Enquiries
+     */
+    getPropertyEnquiries: async (propertyId) => {
+        try {
+            useAppStore.getState().setLoading(true);
+            set({ error: null });
 
-/**
- * Get Property Enquiries
- */
-export const getPropertyEnquiries = async (propertyId) => {
-    try {
-        const response = await api.get(ENQUIRY_ENDPOINTS.GET_PROPERTY_ENQUIRIES(propertyId));
-        const data = response.data;
+            const data = await enquiryRepo.getPropertyEnquiriesAPI(propertyId);
+            const propertyEnquiries = (data.enquiries || data.data || []).map(e => new Enquiry(e));
 
-        return {
-            success: true,
-            data: data,
-            enquiries: (data.enquiries || data.data || []).map(e => new Enquiry(e)),
-            message: data.message || 'Property enquiries fetched successfully'
-        };
-    } catch (error) {
-        console.error('Get property enquiries error:', error);
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch property enquiries';
+            set({ propertyEnquiries });
 
-        if (error.response?.status === 401) {
+            return {
+                success: true,
+                data: data,
+                enquiries: propertyEnquiries,
+                message: data.message || 'Property enquiries fetched successfully'
+            };
+        } catch (error) {
+            console.error('Get property enquiries error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch property enquiries';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to fetch property enquiries'
+                };
+            }
+
             return {
                 success: false,
-                error: 'Authentication required. Please login.',
+                error: errorMessage,
                 message: 'Failed to fetch property enquiries'
             };
+        } finally {
+            useAppStore.getState().setLoading(false);
         }
+    },
 
-        return {
-            success: false,
-            error: errorMessage,
-            message: 'Failed to fetch property enquiries'
-        };
-    }
-};
+    /**
+     * Get Enquiry By ID
+     */
+    getEnquiryById: async (enquiryId) => {
+        try {
+            useAppStore.getState().setLoading(true);
+            set({ error: null, currentEnquiry: null });
 
-/**
- * Update Enquiry Status
- */
-export const updateEnquiryStatus = async (enquiryId, status) => {
-    try {
-        const response = await api.put(ENQUIRY_ENDPOINTS.UPDATE_STATUS(enquiryId), { status });
-        const data = response.data;
+            const data = await enquiryRepo.getEnquiryByIdAPI(enquiryId);
+            const enquiry = new Enquiry(data.enquiry || data.data);
 
-        return {
-            success: true,
-            data: data,
-            enquiry: new Enquiry(data.enquiry || data.data),
-            message: data.message || 'Enquiry status updated successfully'
-        };
-    } catch (error) {
-        console.error('Update enquiry status error:', error);
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to update enquiry status';
+            set({ currentEnquiry: enquiry });
 
-        if (error.response?.status === 401) {
+            return {
+                success: true,
+                data: data,
+                enquiry,
+                message: data.message || 'Enquiry fetched successfully'
+            };
+        } catch (error) {
+            console.error('Get enquiry error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch enquiry';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to fetch enquiry'
+                };
+            }
+
             return {
                 success: false,
-                error: 'Authentication required. Please login.',
+                error: errorMessage,
+                message: 'Failed to fetch enquiry'
+            };
+        } finally {
+            useAppStore.getState().setLoading(false);
+        }
+    },
+
+    /**
+     * Update Enquiry Status
+     */
+    updateEnquiryStatus: async (enquiryId, status) => {
+        try {
+            set({ isSubmitting: true, error: null, success: null });
+            useAppStore.getState().setLoading(true);
+
+            const data = await enquiryRepo.updateEnquiryStatusAPI(enquiryId, { status });
+            const enquiry = new Enquiry(data.enquiry || data.data);
+
+            set({ currentEnquiry: enquiry, success: 'Enquiry status updated successfully!' });
+
+            return {
+                success: true,
+                data: data,
+                enquiry,
+                message: data.message || 'Enquiry status updated successfully'
+            };
+        } catch (error) {
+            console.error('Update enquiry status error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to update enquiry status';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to update enquiry status'
+                };
+            }
+
+            return {
+                success: false,
+                error: errorMessage,
                 message: 'Failed to update enquiry status'
             };
+        } finally {
+            set({ isSubmitting: false });
+            useAppStore.getState().setLoading(false);
         }
+    },
 
-        return {
-            success: false,
-            error: errorMessage,
-            message: 'Failed to update enquiry status'
-        };
-    }
-};
+    /**
+     * Delete Enquiry
+     */
+    deleteEnquiry: async (enquiryId) => {
+        try {
+            set({ isSubmitting: true, error: null, success: null });
+            useAppStore.getState().setLoading(true);
 
-/**
- * Delete Enquiry
- */
-export const deleteEnquiry = async (enquiryId) => {
-    try {
-        const response = await api.delete(ENQUIRY_ENDPOINTS.DELETE(enquiryId));
-        const data = response.data;
+            const data = await enquiryRepo.deleteEnquiryAPI(enquiryId);
 
-        return {
-            success: true,
-            data: data,
-            message: data.message || 'Enquiry deleted successfully'
-        };
-    } catch (error) {
-        console.error('Delete enquiry error:', error);
-        const errorMessage = error.response?.data?.message || error.message || 'Failed to delete enquiry';
+            set({ success: 'Enquiry deleted successfully!' });
 
-        if (error.response?.status === 401) {
+            return {
+                success: true,
+                data: data,
+                message: data.message || 'Enquiry deleted successfully'
+            };
+        } catch (error) {
+            console.error('Delete enquiry error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to delete enquiry';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to delete enquiry'
+                };
+            }
+
             return {
                 success: false,
-                error: 'Authentication required. Please login.',
+                error: errorMessage,
                 message: 'Failed to delete enquiry'
             };
+        } finally {
+            set({ isSubmitting: false });
+            useAppStore.getState().setLoading(false);
         }
-
-        return {
-            success: false,
-            error: errorMessage,
-            message: 'Failed to delete enquiry'
-        };
     }
-};
-
-/**
- * Submit Contact Form (alias for submitEnquiry)
- */
-export const submitContactForm = submitEnquiry;
+}));
 

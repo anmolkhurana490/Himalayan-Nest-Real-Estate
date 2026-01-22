@@ -3,15 +3,16 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/shared/stores/authStore'
 import { useAppStore } from '@/shared/stores/appStore'
-import { registerUser } from '../viewmodel/authViewModel'
+import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
 import { LoaderCircle } from 'lucide-react';
 import { registerSchema } from '../validation'
 import { validateWithSchema } from '@/utils/validator';
 
-const RegisterView = () => {
+export default function RegisterView() {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -22,12 +23,12 @@ const RegisterView = () => {
         userType: USER_ROLES.CUSTOMER,
         agreeToTerms: false
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { registerUser, error: viewModelError, success: viewModelSuccess, isSubmitting } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const router = useRouter();
-    const { setUser, setLoading } = useAppStore();
+    const loading = useAppStore((state) => state.loading);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -67,9 +68,6 @@ const RegisterView = () => {
         }
 
         try {
-            setIsSubmitting(true);
-            setLoading(true);
-
             const registrationData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
@@ -103,7 +101,6 @@ const RegisterView = () => {
             setError('Please check your input and try again');
         } finally {
             setIsSubmitting(false);
-            setLoading(false);
         }
     };
 
@@ -364,5 +361,3 @@ const RegisterView = () => {
         </div>
     )
 }
-
-export default RegisterView

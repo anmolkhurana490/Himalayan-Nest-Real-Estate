@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar, { MobileMenu } from "@/shared/components/Navbar";
 import Footer from "@/shared/components/Footer";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
+import AuthProvider from "@/shared/components/AuthProvider";
 import "./styles/globals.css";
 
 // Font configurations for consistent typography
@@ -32,27 +33,31 @@ export const metadata = {
 
 // Root layout that wraps all pages
 export default function RootLayout({ children }) {
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 sm:pb-0`}
       >
-        {/* Persistent navigation header */}
-        <Navbar />
+        <AuthProvider>
+          {/* Persistent navigation header */}
+          <Navbar />
 
-        {/* Main content area with bottom padding for mobile menu */}
-        <main>
-          {children}
-        </main>
+          {/* Main content area with bottom padding for mobile menu */}
+          <main>
+            {children}
+          </main>
 
-        {/* Mobile-only bottom navigation */}
-        <MobileMenu />
+          {/* Mobile-only bottom navigation */}
+          <MobileMenu />
 
-        {/* Site footer */}
-        <Footer />
+          {/* Site footer */}
+          <Footer />
 
-        {/* Global loading indicator */}
-        <LoadingSpinner />
+          {/* Global loading indicator */}
+          <LoadingSpinner />
+
+        </AuthProvider>
       </body>
     </html>
   );

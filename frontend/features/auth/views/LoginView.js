@@ -2,25 +2,34 @@
 // Handles user login with email/password and redirects based on user role
 
 "use client";
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAppStore } from '@/shared/stores/appStore'
-import { loginUser } from '../viewmodel/authViewModel'
+import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { loginSchema } from '../validation'
 import ROUTES from '@/config/constants/routes'
 import { validateWithSchema } from '@/utils/validator'
+import Image from 'next/image';
 
-const LoginView = () => {
+export default function LoginView() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { loginUser, googleSignIn, error: viewModelError, isSubmitting, setIsSubmitting } = useAuthViewModel();
     const [error, setError] = useState('');
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const { setUser } = useAppStore();
 
-    const { setUser, setLoading } = useAppStore();
+    // Handle OAuth errors
+    useEffect(() => {
+        const errorParam = searchParams.get('error');
+        if (errorParam) {
+            setError('Authentication failed. Please try again.');
+        }
+    }, [searchParams]);
 
     const handleChange = (e) => {
         setFormData({
@@ -42,9 +51,6 @@ const LoginView = () => {
         }
 
         try {
-            setIsSubmitting(true);
-            setLoading(true);
-
             const result = await loginUser(formData);
 
             if (result && result.success) {
@@ -64,7 +70,6 @@ const LoginView = () => {
             setError('An unexpected error occurred. Please try again.');
         } finally {
             setIsSubmitting(false);
-            setLoading(false);
         }
     };
 
@@ -164,6 +169,21 @@ const LoginView = () => {
                         </div>
                     </form>
 
+                    <button
+                        type="button"
+                        onClick={googleSignIn}
+                        disabled={isSubmitting}
+                        className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Image
+                            src="/logos/google-oauth.svg"
+                            alt="Google Logo"
+                            width={20} height={20}
+                            className="mr-2"
+                        />
+                        Sign in with Google
+                    </button>
+
                     <div className="mt-4 sm:mt-6">
                         <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">
                             New to Himalayan Nest?{' '}
@@ -206,5 +226,3 @@ const LoginView = () => {
         </div >
     )
 }
-
-export default LoginView

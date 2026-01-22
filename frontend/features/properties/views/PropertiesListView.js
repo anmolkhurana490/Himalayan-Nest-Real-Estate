@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import SearchFilterBar from '@/shared/components/SearchFilterBar'
 import { useAppStore } from '@/shared/stores/appStore'
-import { getProperties } from '@/features/properties/viewmodel/propertyViewModel'
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
 import PropertyCard from '@/shared/components/PropertyCard';
 
 const PropertiesLoading = () => (
@@ -25,16 +25,15 @@ const PropertiesLoading = () => (
 );
 
 const PropertiesContent = () => {
+    const { getProperties, properties: vmProperties } = usePropertyViewModel();
     const [properties, setProperties] = useState([]);
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const searchParams = useSearchParams();
-    const { loading, setLoading } = useAppStore();
     const [filters, setFilters] = useState(Object.fromEntries(searchParams.entries()));
 
     const loadProperties = async (searchFilters) => {
-        setLoading(true);
         setError('');
 
         let result = await getProperties(searchFilters || filters);
@@ -49,8 +48,6 @@ const PropertiesContent = () => {
             setError(errorMessage);
             setProperties([]);
         }
-
-        setLoading(false);
     };
 
     useEffect(() => {
@@ -73,7 +70,7 @@ const PropertiesContent = () => {
                     </div>
                 )}
 
-                {properties.length === 0 && !loading && !error && (
+                {properties.length === 0 && !error && (
                     <div className="text-center py-12">
                         <p className="text-gray-600 text-lg">No properties found matching your criteria.</p>
                     </div>

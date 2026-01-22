@@ -1,7 +1,7 @@
 // Auth Repository - API integrations for authentication
 // Handles all HTTP requests related to authentication
 
-import api from '@/config/apiConfig';
+import api from '@/config/api.config';
 import { AUTH_ENDPOINTS } from '@/config/constants/apis';
 
 /**

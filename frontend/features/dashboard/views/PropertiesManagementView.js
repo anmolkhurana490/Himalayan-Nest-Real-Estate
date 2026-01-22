@@ -4,13 +4,14 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getMyProperties, updateProperty, deleteProperty } from '@/features/properties/viewmodel/propertyViewModel';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { fetchImageUrl } from '@/utils/imageHelpers';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { Building, Eye, MessageCircleMore, Plus, Search } from 'lucide-react';
 
 const PropertiesManagementView = () => {
+    const { getMyProperties, updateProperty, deleteProperty, myProperties } = usePropertyViewModel();
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');

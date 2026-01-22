@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getPropertyById } from '@/features/properties/viewmodel/propertyViewModel';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { fetchImageUrl } from '@/utils/imageHelpers';
 import EditProperty from '@/features/dashboard/components/EditProperty';
 import ROUTES from '@/config/constants/routes';
@@ -13,6 +13,7 @@ import { MapPin, IndianRupee, Calendar, Eye, MessageCircleMore, ArrowLeft, Edit 
 
 const PropertyDetailView = ({ params }) => {
     const router = useRouter();
+    const { getPropertyById } = usePropertyViewModel();
     const [property, setProperty] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showEditModal, setShowEditModal] = useState(false);

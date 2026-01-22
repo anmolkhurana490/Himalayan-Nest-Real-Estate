@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { updateProperty } from '@/features/properties/viewmodel/propertyViewModel';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { updatePropertySchema } from '@/features/properties/validation';
 import { validateWithSchema } from '@/utils/validator';
 import { PROPERTY_SUBTYPES, VALIDATION_LIMITS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
 import { Plus, X } from 'lucide-react';
 
 const EditProperty = ({ property, onClose, onUpdate }) => {
+    const { updateProperty, error: viewModelError, success: viewModelSuccess, isSubmitting } = usePropertyViewModel();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -19,7 +20,6 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
     const [previewImages, setPreviewImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
     const [imagesToDelete, setImagesToDelete] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ type: '', content: '' });
 
     // Combine all property subtypes for category dropdown

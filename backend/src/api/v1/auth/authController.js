@@ -40,18 +40,19 @@ class AuthController {
         try {
             const result = await authService.login(email, password);
 
-            // Set cookie with JWT token
-            res.cookie('access-token', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
+            // // Set cookie with JWT token
+            // res.cookie('access-token', result.token, {
+            //     httpOnly: true,
+            //     secure: process.env.NODE_ENV === 'production',
+            //     sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            //     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            // });
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: AUTH_MESSAGES.LOGIN_SUCCESS,
-                user: result.user
+                user: result.user,
+                token: result.token
             });
         } catch (error) {
             console.error('Error logging in user:', error.message);
@@ -68,8 +69,9 @@ class AuthController {
      */
     async logout(req, res) {
         try {
-            // Clear the authentication cookie
-            res.clearCookie('access-token');
+            // // Clear the authentication cookie
+            // res.clearCookie('access-token');
+
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: AUTH_MESSAGES.LOGOUT_SUCCESS

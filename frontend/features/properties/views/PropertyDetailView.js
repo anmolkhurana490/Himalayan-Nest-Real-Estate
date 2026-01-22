@@ -2,12 +2,13 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { getPropertyById } from '@/features/properties/viewmodel/propertyViewModel'
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
 import { RESIDENTIAL_AMENITIES } from '@/config/constants/app'
 import Image from 'next/image'
 
 export default function PropertyDetailView() {
     const { id } = useParams()
+    const { getPropertyById } = usePropertyViewModel();
     const [data, setData] = useState({})
 
     const amenities = RESIDENTIAL_AMENITIES

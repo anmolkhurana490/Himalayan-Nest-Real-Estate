@@ -3,9 +3,10 @@
 
 "use client";
 import React, { useState } from 'react'
-import { submitContactForm } from '@/features/enquiry/viewmodel/enquiryViewModel'
+import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel'
 
 const ContactForm = () => {
+    const { submitEnquiry, error: viewModelError, success: viewModelSuccess, isSubmitting } = useEnquiryViewModel();
     // Form data state management
     const [formData, setFormData] = useState({
         name: '',
@@ -15,7 +16,6 @@ const ContactForm = () => {
         message: ''
     });
 
-    const [isSubmitting, setIsSubmitting] = useState(false); // Submission loading state
     const [message, setMessage] = useState({ type: '', content: '' }); // Success/error messages
 
     // Handle input field changes
@@ -29,12 +29,11 @@ const ContactForm = () => {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
         setMessage({ type: '', content: '' });
 
         try {
             // Submit contact form to API
-            const result = await submitContactForm(formData);
+            const result = await submitEnquiry(formData);
 
             if (result && result.success) {
                 // Show success message and clear form
@@ -64,8 +63,6 @@ const ContactForm = () => {
                 type: 'error',
                 content: 'Something went wrong. Please try again.'
             });
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
