@@ -3,16 +3,18 @@ const nextConfig = {
     images: {
         remotePatterns: [
             {
-                protocol: 'http',
-                hostname: 'localhost',
-                port: '5000',
-                pathname: '/uploads/**',
-            },
-            {
+                // For production image hosting domain (like Cloudinary, Imgix, etc.)
                 protocol: 'https',
                 hostname: process.env.NEXT_PUBLIC_IMAGE_DOMAIN,
                 port: '',
                 pathname: '/**',
+            },
+            {
+                // For Google profile images (e.g., OAuth avatars)
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+                port: '',
+                pathname: '**',
             }
         ],
     },

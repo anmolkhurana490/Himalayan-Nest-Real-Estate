@@ -4,45 +4,38 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
-import DashboardHeader from "@/features/dashboard/components/DashboardHeader";
 import { withProtectedRoute } from "@/shared/components/RouteProtection";
 import { USER_ROLES } from "@/config/constants/user";
+import Link from "next/link";
+import ROUTES from "@/config/constants/routes";
+import { MoveLeft } from "lucide-react";
 
 function DashboardLayout({ children }) {
     const [activeTab, setActiveTab] = useState("overview"); // Current active dashboard section
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar toggle
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Mobile sidebar overlay background */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 z-50 lg:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
+        <div className="min-h-screen flex bg-gray-50">
+            {/* Dashboard Sidebar Navigation */}
+            <DashboardSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
+            />
+
+            {/* Main Dashboard Content */}
+            <div className="px-4 py-2 flex-1 lg:mx-auto space-y-1">
+                <Link
+                    href={ROUTES.PROPERTIES}
+                    className="flex items-center w-fit p-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                 >
-                    <div className="fixed inset-0 bg-black opacity-50"></div>
-                </div>
-            )}
+                    <MoveLeft />
+                    <span className="ml-3">Back to Main Site</span>
+                </Link>
 
-            <div className="flex">
-                {/* Dashboard Sidebar Navigation */}
-                <DashboardSidebar
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    isSidebarOpen={isSidebarOpen}
-                    setIsSidebarOpen={setIsSidebarOpen}
-                />
-
-                {/* Main Dashboard Content */}
-                <div className="flex-1 lg:mx-auto">
-                    {/* Dashboard Header with user info and mobile menu button */}
-                    <DashboardHeader
-                        setIsSidebarOpen={setIsSidebarOpen}
-                    />
-
-                    {/* Page Content Area */}
-                    <main className="p-4 lg:p-6">{children}</main>
-                </div>
+                {/* Page Content Area */}
+                <main className="py-1 pb-20 lg:pb-6">{children}</main>
             </div>
         </div>
     );

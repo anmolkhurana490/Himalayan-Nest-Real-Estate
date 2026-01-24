@@ -3,21 +3,10 @@
 import React, { useState } from 'react'
 import EnquiryForm from '@/shared/components/EnquiryForm'
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { CONTACT_EMAIL, CONTACT_PHONES, OFFICE_LOCATIONS } from '@/config/contact.config';
 
 export default function ContactView() {
     const [activeTab, setActiveTab] = useState('contact');
-
-    const [contactData] = useState({
-        mainOffice: {
-            name: "Main Office - Roorkee",
-            address: "Himalayan Nest Real Estate\nMain Market, Roorkee\nUttarakhand - 247667, India",
-            description: "Primary office serving IIT Roorkee area and surrounding regions",
-            phone: ["+91 6398767183", "+91 9837975872"],
-            email: ["himalayannestrealestate@gmail.com"],
-            hours: "Opening Soon"
-        },
-        branches: []
-    });
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -69,7 +58,7 @@ export default function ContactView() {
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Address</h3>
                                         <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">
-                                            {contactData.mainOffice.address}
+                                            {OFFICE_LOCATIONS.mainOffice?.address}
                                         </p>
                                     </div>
                                 </div>
@@ -80,7 +69,7 @@ export default function ContactView() {
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Phone</h3>
-                                        {contactData.mainOffice.phone.map((phone, index) => (
+                                        {CONTACT_PHONES.map((phone, index) => (
                                             <p key={index} className="text-sm sm:text-base text-gray-600">
                                                 <a href={`tel:${phone}`} className="hover:text-green-600">
                                                     {phone}
@@ -96,13 +85,11 @@ export default function ContactView() {
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Email</h3>
-                                        {contactData.mainOffice.email.map((email, index) => (
-                                            <p key={index} className="text-sm sm:text-base text-gray-600">
-                                                <a href={`mailto:${email}`} className="hover:text-green-600">
-                                                    {email}
-                                                </a>
-                                            </p>
-                                        ))}
+                                        <p className="text-sm sm:text-base text-gray-600">
+                                            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-green-600">
+                                                {CONTACT_EMAIL}
+                                            </a>
+                                        </p>
                                     </div>
                                 </div>
 
@@ -113,7 +100,7 @@ export default function ContactView() {
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Business Hours</h3>
                                         <p className="text-sm sm:text-base text-gray-600">
-                                            {contactData.mainOffice.hours}
+                                            {OFFICE_LOCATIONS.mainOffice?.hours}
                                         </p>
                                     </div>
                                 </div>
@@ -124,7 +111,7 @@ export default function ContactView() {
                             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Office Location</h2>
                             <div className="aspect-video bg-gray-200 rounded-lg">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13835.234567890!2d77.89!3d29.86!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjnCsDUxJzM2LjAiTiA3N8KwNTMnMjQuMCJF!5e0!3m2!1sen!2sin!4v1234567890"
+                                    src={OFFICE_LOCATIONS.mainOffice?.mapEmbedUrl}
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -143,6 +130,6 @@ export default function ContactView() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

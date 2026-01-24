@@ -64,12 +64,8 @@ export default function PropertyDetailView() {
         }).format(pricePerSqft);
     };
 
-    if (!data.title) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
-            </div>
-        );
+    if (!data || !data.title) {
+        return null;
     }
 
     return (

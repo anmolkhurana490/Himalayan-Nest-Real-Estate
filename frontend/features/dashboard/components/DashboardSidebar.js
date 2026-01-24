@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
-import { Building, ChartNoAxesGantt, MessageCircleMore, MoveLeft, Plus, UserRound, X } from 'lucide-react';
+import { Building, ChartNoAxesGantt, MessageCircleMore, MoveLeft, Plus, UserRound } from 'lucide-react';
 
 const DashboardSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
     const router = useRouter();
@@ -55,19 +55,7 @@ const DashboardSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebar
     return (
         <>
             {/* Desktop Sidebar */}
-            <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-                <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-                    <Link href={ROUTES.HOME} className="text-xl font-bold text-green-700">
-                        Himalayan Nest
-                    </Link>
-                    <button
-                        onClick={() => setIsSidebarOpen(false)}
-                        className="lg:hidden text-gray-500 hover:text-gray-700"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
-
+            <div className="hidden lg:block fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg lg:static lg:inset-0">
                 <nav className="mt-8">
                     <div className="px-4 space-y-2">
                         {menuItems.map((item) => (
@@ -85,17 +73,30 @@ const DashboardSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebar
                         ))}
                     </div>
                 </nav>
+            </div>
 
-                {/* Back to Main Site */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-                    <Link
-                        href={ROUTES.PROPERTIES}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                        <MoveLeft />
-                        <span className="ml-3">Back to Main Site</span>
-                    </Link>
-                </div>
+            {/* Mobile Bottom Navigation Bar */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
+                <nav className="flex justify-around items-center gap-1 h-16 px-2">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => handleMenuClick(item.id)}
+                            className={`flex flex-col items-center justify-center flex-1 py-2 text-xs font-medium transition-colors ${activeTab === item.id
+                                ? 'text-green-700'
+                                : 'text-gray-600'
+                                }`}
+                        >
+                            <div className={`p-1.5 rounded-lg ${activeTab === item.id
+                                ? 'bg-green-100'
+                                : ''
+                                }`}>
+                                {item.icon}
+                            </div>
+                            <span className="mt-1 max-sm:hidden px-1">{item.label}</span>
+                        </button>
+                    ))}
+                </nav>
             </div>
         </>
     );
