@@ -1,6 +1,8 @@
 // API Endpoints Configuration
 // Centralized API endpoint constants for the application
 
+import { email } from "zod";
+
 // Base API URL from environment variable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -9,6 +11,8 @@ export const AUTH_ENDPOINTS = {
     REGISTER: '/auth/register',
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
+    CHECK_EMAIL: (email) => `/auth/check-email/${email}`,
+    OAUTH_RESOLVE: '/auth/oauth-resolve',
     VERIFY_SESSION: '/auth/verify',
     GET_PROFILE: '/auth/profile',
     UPDATE_PROFILE: '/auth/profile',

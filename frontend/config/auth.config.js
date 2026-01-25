@@ -1,6 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loginUserAPI } from "@/features/auth/repositories.js"
+import { customOAuthResolve } from "@/features/auth/viewmodel/oauthModel";
 
 export const authOptions = {
     providers: [
@@ -11,8 +12,18 @@ export const authOptions = {
 
         CredentialsProvider({
             async authorize(credentials) {
-                const response = await loginUserAPI(credentials)
-                return response?.user;
+                try {
+                    const response = await loginUserAPI(credentials);
+                    if (response.success && response.user) {
+                        return response.user;
+                    }
+
+                    // If login failed, throw error with message
+                    throw new Error(response.message || 'Invalid credentials');
+                } catch (error) {
+                    // Throw error to display in login form
+                    throw new Error(error.data?.message || error.message || 'Authentication failed');
+                }
             }
         }),
     ],
@@ -22,7 +33,9 @@ export const authOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
+                token.email = user.email;
                 token.accessToken = user.accessToken;
+                token.providerAccountId = user.providerAccountId;
             }
             return token;
         },
@@ -30,8 +43,16 @@ export const authOptions = {
             session.user.id = token.id;
             session.user.role = token.role;
             session.accessToken = token.accessToken;
+            session.providerAccountId = token.providerAccountId;
             return session;
         },
+        async signIn({ user, account }) {
+            if (account.type === 'oauth') {
+                // For OAuth providers
+                return await customOAuthResolve(user, account);
+            }
+            return true;
+        }
     },
 
     pages: {

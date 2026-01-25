@@ -5,7 +5,6 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAppStore } from '@/shared/stores/appStore'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { loginSchema } from '../validation'
 import ROUTES from '@/config/constants/routes'
@@ -17,11 +16,10 @@ export default function LoginView() {
         email: '',
         password: ''
     });
-    const { loginUser, googleSignIn, error: viewModelError, isSubmitting, setIsSubmitting } = useAuthViewModel();
+    const { loginUser, googleSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
     const [error, setError] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { setUser } = useAppStore();
 
     // Handle OAuth errors
     useEffect(() => {
@@ -54,13 +52,8 @@ export default function LoginView() {
             const result = await loginUser(formData);
 
             if (result && result.success) {
-                setUser(result.data.user);
                 alert(result.message || "Login successful!");
                 router.push(ROUTES.PROPERTIES);
-                setFormData({
-                    email: '',
-                    password: ''
-                });
             } else {
                 const errorMessage = result?.error || result?.message || 'Login failed. Please check your credentials.';
                 setError(errorMessage);
@@ -69,7 +62,7 @@ export default function LoginView() {
             console.error('Login error:', error);
             setError('An unexpected error occurred. Please try again.');
         } finally {
-            setIsSubmitting(false);
+            setSubmitting(false);
         }
     };
 

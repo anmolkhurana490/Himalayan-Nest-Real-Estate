@@ -47,12 +47,12 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Registration error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+            const errorMessage = error.data?.message || error.message || 'Registration failed';
             set({ error: errorMessage });
             return {
                 success: false,
                 error: errorMessage,
-                message: 'Registration failed. Please try again.'
+                message: error.data?.message || error.message || 'Registration failed. Please try again.'
             };
         } finally {
             set({ isSubmitting: false });
@@ -73,10 +73,11 @@ export const useAuthViewModel = create((set, get) => ({
                 ...credentials
             });
 
-            if (data.user) {
-                useAuthStore.getState().setUser(data.user);
+            if (!data.ok || !data.user) {
+                throw new Error(data.error || 'Login failed');
             }
 
+            useAuthStore.getState().setUser(data.user);
             set({ success: data.message || 'Login successful!' });
 
             return {
@@ -102,12 +103,17 @@ export const useAuthViewModel = create((set, get) => ({
 
     /**
      * Google Sign-In Handler
+     * @param {boolean} signUp - Indicates if it's a sign-up flow
      */
-    googleSignIn: async () => {
+    googleSignIn: async (signUp = false) => {
         try {
             set({ isSubmitting: true, error: null });
             useAppStore.getState().setLoading(true);
             await signIn('google', { callbackUrl: ROUTES.DASHBOARD.ROOT });
+            return {
+                success: true,
+                message: 'Google Sign-In successful!'
+            };
         } catch (error) {
             console.error('Google Sign-In error:', error);
             const errorMessage = error.message || 'Google Sign-In failed';
@@ -250,5 +256,5 @@ export const useAuthViewModel = create((set, get) => ({
     getStoredUser: () => {
         const userData = getFromStorage('user');
         return userData ? new User(userData) : null;
-    }
+    },
 }));

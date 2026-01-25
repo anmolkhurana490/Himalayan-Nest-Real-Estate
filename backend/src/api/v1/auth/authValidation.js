@@ -2,7 +2,7 @@
 // Input validation schemas for authentication endpoints
 
 import { z } from 'zod';
-import { ROLE_VALUES } from '../../../constants/roles.js';
+import { AUTH_PROVIDER_VALUES, ROLE_VALUES } from '../../../constants/auth.js';
 
 export const registerValidation = z.object({
     firstName: z.string({
@@ -32,16 +32,39 @@ export const registerValidation = z.object({
     })
         .regex(/^[0-9]{10}$/, 'Phone must be 10 digits'),
 
-    password: z.string({
-        required_error: 'Password is required',
-        invalid_type_error: 'Password must be a string'
-    })
-        .min(6, 'Password must be at least 6 characters'),
+    password: z.string().optional(),
+
+    provider: z.enum(AUTH_PROVIDER_VALUES, {
+        required_error: 'Provider is required',
+        invalid_type_error: 'Invalid provider type'
+    }),
+
+    providerAccountId: z.string().optional(),
 
     userType: z.enum(ROLE_VALUES, {
         required_error: 'User type is required',
         invalid_type_error: 'Invalid user type'
     })
+}).superRefine((data, ctx) => {
+    // Validate based on provider type
+    if (data.provider === 'credentials') {
+        // For credentials, password is required
+        if (!data.password || data.password.length < 6) {
+            ctx.addIssue({
+                message: 'Password must be at least 6 characters',
+                path: ['password'],
+            });
+        }
+    }
+    else {
+        // For OAuth providers, providerAccountId is required
+        if (!data.providerAccountId) {
+            ctx.addIssue({
+                message: 'Provider account ID is required for OAuth providers',
+                path: ['providerAccountId'],
+            });
+        }
+    }
 });
 
 export const loginValidation = z.object({
@@ -54,7 +77,9 @@ export const loginValidation = z.object({
     password: z.string({
         required_error: 'Password is required'
     })
-        .min(1, 'Password cannot be empty')
+        .min(1, 'Password cannot be empty'),
+
+    provider: z.enum(AUTH_PROVIDER_VALUES).optional().default('credentials')
 });
 
 export const updateProfileValidation = z.object({
@@ -74,4 +99,53 @@ export const updateProfileValidation = z.object({
     bio: z.string()
         .max(500, 'Bio must be at most 500 characters')
         .optional()
+});
+
+export const emailValidation = z.object({
+    email: z.string({
+        required_error: 'Email is required'
+    }).pipe(
+        z.email('Invalid email address')
+    )
+});
+
+export const emailParamValidation = z.object({
+    email: z.string().pipe(
+        z.email('Invalid email address')
+    )
+});
+
+export const resolveValidation = z.object({
+    email: z.string({
+        required_error: 'Email is required'
+    }).pipe(
+        z.email('Invalid email address')
+    ),
+
+    provider: z.enum(AUTH_PROVIDER_VALUES, {
+        required_error: 'Provider is required',
+        invalid_type_error: 'Invalid provider type'
+    }),
+
+    providerAccountId: z.string().optional(),
+
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    phone: z.string().optional(),
+    userType: z.enum(ROLE_VALUES).optional()
+
+}).superRefine((data, ctx) => {
+    // Validate based on provider type
+    if (data.provider === 'credentials') {
+        ctx.addIssue({
+            message: 'Credentials provider is not supported for OAuth resolution',
+            path: ['provider'],
+        });
+    } else if (!data.providerAccountId) {
+        // For OAuth providers, providerAccountId is required
+        ctx.addIssue({
+            message: 'Provider account ID is required for OAuth providers',
+            path: ['providerAccountId'],
+        });
+    }
 });

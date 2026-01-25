@@ -7,6 +7,7 @@ import { sequelize } from "../config/db.js";
 // Import all model definitions
 import UserModel from "./User.js";
 import PropertyModel from "./Property.js";
+import AccountModel from "./Account.js";
 
 // Register all models and their associations
 export const registerRelations = () => {
@@ -15,6 +16,7 @@ export const registerRelations = () => {
     // Initialize models with sequelize instance
     db.User = UserModel(sequelize);
     db.Property = PropertyModel(sequelize);
+    db.Account = AccountModel(sequelize);
 
     // Execute model associations (foreign keys, relationships)
     Object.keys(db).forEach((modelName) => {

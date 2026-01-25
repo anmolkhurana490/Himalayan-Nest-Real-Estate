@@ -1,0 +1,36 @@
+"use server";
+import { checkEmailExistsAPI, oauthResolveAPI } from "@/features/auth/repositories.js"
+
+export const customOAuthResolve = async (user, account) => {
+    try {
+        const emailExistsResponse = await checkEmailExistsAPI(user.email);
+
+        if (!emailExistsResponse.exists) {
+            // If email does not exist, redirect to sign-up page with details and message
+            const params = new URLSearchParams({
+                email: user.email,
+                name: user.name,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                oauthSignup: 'true',
+                reason: 'no-registered-account'
+            });
+            return `/auth/register?${params.toString()}`;
+
+        } else {
+            // If OAuth user exists, allow sign-in with OAuth resolution
+            const oauthData = {
+                email: user.email,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+            };
+            const oauthResponse = await oauthResolveAPI(oauthData);
+
+            if (oauthResponse.success && oauthResponse.user) return true;
+            throw new Error(oauthResponse.message || 'OAuth resolution failed');
+        }
+    } catch (error) {
+        console.error('OAuth resolve error:', error);
+        throw new Error(error.message || 'OAuth resolution failed');
+    }
+}

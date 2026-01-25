@@ -1,34 +1,58 @@
 // Register View
 "use client";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/shared/stores/authStore'
-import { useAppStore } from '@/shared/stores/appStore'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
 import { LoaderCircle } from 'lucide-react';
 import { registerSchema } from '../validation'
 import { validateWithSchema } from '@/utils/validator';
+import Image from 'next/image';
 
 export default function RegisterView() {
+    const searchParams = useSearchParams();
+    const oauthSignup = searchParams.get('oauthSignup') === 'true';
+
+    // const user = auth();
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
         phone: '',
         password: '',
+        provider: 'credentials',
         confirmPassword: '',
         userType: USER_ROLES.CUSTOMER,
-        agreeToTerms: false
+        agreeToTerms: false,
     });
-    const { registerUser, error: viewModelError, success: viewModelSuccess, isSubmitting } = useAuthViewModel();
+
+    useEffect(() => {
+        if (oauthSignup) {
+            setFormData(prev => ({
+                firstName: searchParams.get('name')?.split(' ')[0] || '',
+                lastName: searchParams.get('name')?.split(' ').slice(1).join(' ') || '',
+                email: searchParams.get('email') || '',
+                phone: '',
+                password: '',
+                confirmPassword: '',
+                userType: USER_ROLES.CUSTOMER,
+                agreeToTerms: false,
+                provider: searchParams.get('provider'),
+                providerAccountId: searchParams.get('providerAccountId') || '',
+            }));
+        }
+    }, []);
+
+    const { registerUser, googleSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
     const router = useRouter();
-    const loading = useAppStore((state) => state.loading);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -68,39 +92,60 @@ export default function RegisterView() {
         }
 
         try {
+            setStatus('registering');
+            setSubmitting(true);
+
             const registrationData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 phone: formData.phone,
                 password: formData.password,
-                userType: formData.userType
+                userType: formData.userType,
+                provider: formData.provider,
+                providerAccountId: formData.providerAccountId,
             };
 
             const result = await registerUser(registrationData);
 
-            if (result && result.success) {
-                setSuccess(result.message || 'Registration successful!');
-                setFormData({
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    phone: '',
-                    password: '',
-                    confirmPassword: '',
-                    userType: USER_ROLES.CUSTOMER,
-                    agreeToTerms: false
-                });
-                router.push(ROUTES.LOGIN);
+            if (!result.success) {
+                setStatus('idle');
+                setError(result.message || 'Registration failed. Please try again.');
+                return;
+            }
+
+            // If OAuth signup, automatically sign in with provider
+            if (oauthSignup) {
+                setStatus('signing-in');
+                const signInResult = await googleSignIn();
+
+                if (signInResult.success) {
+                    setStatus('success');
+                    setSuccess('Registration successful! Redirecting to dashboard...');
+                    setTimeout(() => {
+                        router.push(ROUTES.DASHBOARD.ROOT);
+                    }, 1500);
+                } else {
+                    setStatus('idle');
+                    setError('Registration successful but auto-login failed. Please login manually.');
+                    setTimeout(() => {
+                        router.push(ROUTES.LOGIN);
+                    }, 2000);
+                }
             } else {
-                const errorMessage = result?.error || result?.message || 'Registration failed. Please try again.';
-                setError(errorMessage);
+                // For regular signup, show success and redirect to login
+                setStatus('success');
+                setSuccess('Account created successfully! Redirecting to login...');
+                setTimeout(() => {
+                    router.push(ROUTES.LOGIN);
+                }, 2000);
             }
         } catch (error) {
             console.error('Registration error:', error);
-            setError('Please check your input and try again');
+            setStatus('idle');
+            setError(error.message || 'An unexpected error occurred. Please try again.');
         } finally {
-            setIsSubmitting(false);
+            setSubmitting(false);
         }
     };
 
@@ -125,6 +170,12 @@ export default function RegisterView() {
                 </div>
 
                 <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 shadow rounded-lg">
+                    {oauthSignup && !error && (
+                        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-md text-sm">
+                            Email not found. Please sign up first to continue.
+                        </div>
+                    )}
+
                     {error && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
                             {error}
@@ -183,7 +234,8 @@ export default function RegisterView() {
                                 required
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                disabled={oauthSignup}
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm disabled:bg-gray-100"
                                 placeholder="Enter your email address"
                             />
                         </div>
@@ -220,7 +272,7 @@ export default function RegisterView() {
                             </select>
                         </div>
 
-                        <div>
+                        {!oauthSignup && <div>
                             <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700">
                                 Password *
                             </label>
@@ -253,9 +305,9 @@ export default function RegisterView() {
                                     </ul>
                                 </div>
                             )}
-                        </div>
+                        </div>}
 
-                        <div>
+                        {!oauthSignup && <div>
                             <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium text-gray-700">
                                 Confirm Password *
                             </label>
@@ -272,7 +324,7 @@ export default function RegisterView() {
                             {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                                 <p className="mt-1 text-xs text-red-600">Passwords do not match</p>
                             )}
-                        </div>
+                        </div>}
 
                         <div className="flex items-center">
                             <input
@@ -299,23 +351,51 @@ export default function RegisterView() {
                         <div>
                             <button
                                 type="submit"
-                                disabled={isSubmitting || passwordErrors.length > 0 || !formData.agreeToTerms}
-                                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white ${isSubmitting || passwordErrors.length > 0 || !formData.agreeToTerms
+                                disabled={status !== 'idle'}
+                                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white ${status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
                                     }`}
                             >
-                                {isSubmitting ? (
+                                {status === 'registering' && (
                                     <span className="flex items-center">
                                         <LoaderCircle className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                                        Creating Account...
+                                        Creating account...
                                     </span>
-                                ) : (
-                                    'Create Account'
                                 )}
+                                {status === 'signing-in' && (
+                                    <span className="flex items-center">
+                                        <LoaderCircle className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                                        Signing you in...
+                                    </span>
+                                )}
+                                {status === 'success' && (
+                                    <span className="flex items-center">
+                                        <svg className="-ml-1 mr-3 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        Success!
+                                    </span>
+                                )}
+                                {status === 'idle' && 'Create Account'}
                             </button>
                         </div>
                     </form>
+
+                    <button
+                        type="button"
+                        onClick={() => googleSignIn(true)} // 'true' indicate sign-up flow
+                        disabled={status !== 'idle'}
+                        className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Image
+                            src="/logos/google-oauth.svg"
+                            alt="Google Logo"
+                            width={20} height={20}
+                            className="mr-2"
+                        />
+                        Sign Up with Google
+                    </button>
 
                     <div className="mt-6">
                         <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">
@@ -358,6 +438,6 @@ export default function RegisterView() {
                     </ul>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

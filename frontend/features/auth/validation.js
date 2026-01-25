@@ -25,10 +25,11 @@ export const registerSchema = z.object({
     email: z.string({
         required_error: 'Email is required',
         invalid_type_error: 'Email must be a string'
-    })
-        .email('Invalid email address')
-        .toLowerCase()
-        .trim(),
+    }).pipe(
+        z.email('Invalid email address')
+            .toLowerCase()
+            .trim(),
+    ),
 
     phone: z.string({
         required_error: 'Phone number is required',
@@ -36,15 +37,8 @@ export const registerSchema = z.object({
     })
         .regex(/^[0-9]{10}$/, 'Phone must be 10 digits'),
 
-    password: z.string({
-        required_error: 'Password is required',
-        invalid_type_error: 'Password must be a string'
-    })
-        .min(6, 'Password must be at least 6 characters'),
-
-    confirmPassword: z.string({
-        required_error: 'Please confirm your password'
-    }),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
 
     userType: z.enum([USER_ROLES.CUSTOMER, USER_ROLES.DEALER], {
         required_error: 'User type is required',
@@ -54,20 +48,36 @@ export const registerSchema = z.object({
     agreeToTerms: z.boolean()
         .refine(val => val === true, {
             message: 'You must agree to the terms and conditions'
-        })
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"]
+        }),
+
+    provider: z.string().optional()
+}).superRefine((data, ctx) => {
+    // If no OAuth provider, validate password fields
+    if (!data.provider) {
+        if (!data.password || data.password.length < 6) {
+            ctx.addIssue({
+                message: 'Password must be at least 6 characters',
+                path: ['password'],
+            });
+        }
+        if (data.password !== data.confirmPassword) {
+            ctx.addIssue({
+                message: 'Passwords do not match',
+                path: ['confirmPassword'],
+            });
+        }
+    }
 });
 
 // Login validation schema
 export const loginSchema = z.object({
     email: z.string({
         required_error: 'Email is required'
-    })
-        .email('Invalid email address')
-        .toLowerCase()
-        .trim(),
+    }).pipe(
+        z.email('Invalid email address')
+            .toLowerCase()
+            .trim(),
+    ),
 
     password: z.string({
         required_error: 'Password is required'

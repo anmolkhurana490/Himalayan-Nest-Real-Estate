@@ -21,10 +21,26 @@ export const loginUserAPI = async (credentials) => {
 };
 
 /**
+ * Resolve OAuth login/signup
+ */
+export const oauthResolveAPI = async (oauthData) => {
+    const response = await api.post(AUTH_ENDPOINTS.OAUTH_RESOLVE, oauthData);
+    return response.data;
+};
+
+/**
  * Logout user
  */
 export const logoutUserAPI = async () => {
     const response = await api.post(AUTH_ENDPOINTS.LOGOUT);
+    return response.data;
+};
+
+/**
+ * Check if email exists
+ */
+export const checkEmailExistsAPI = async (email) => {
+    const response = await api.get(AUTH_ENDPOINTS.CHECK_EMAIL(email));
     return response.data;
 };
 

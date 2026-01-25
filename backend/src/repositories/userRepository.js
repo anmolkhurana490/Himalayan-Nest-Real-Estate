@@ -2,6 +2,7 @@
 // Handles all CRUD operations for User model
 
 import { User } from '../config/db.js';
+import accountRepository from './accountRepository.js';
 
 class UserRepository {
     /**
@@ -93,6 +94,21 @@ class UserRepository {
     async existsByEmail(email) {
         const count = await User.count({ where: { email } });
         return count > 0;
+    }
+
+    /**
+     * Link account to user
+     * @param {String} userId - User ID
+     * @param {String} provider - Provider name
+     * @param {String} providerAccountId - Provider account ID
+     * @returns {Promise<Account>}
+     */
+    async linkAccount(userId, provider, providerAccountId) {
+        return await accountRepository.create({
+            userId,
+            provider,
+            providerAccountId
+        });
     }
 }
 
