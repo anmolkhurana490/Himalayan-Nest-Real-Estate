@@ -69,26 +69,26 @@ const HeroSection = () => {
             <div className="absolute inset-0 bg-black opacity-20"></div>
 
             {/* Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-4 py-10 sm:py-20">
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+            <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 py-10 sm:py-20">
+                <div className="text-center mb-6 sm:mb-12">
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
                         Find Your Dream Property
-                        <span className="block text-green-200 text-xl sm:text-2xl md:text-3xl lg:text-4xl mt-1 sm:mt-2">
+                        <span className="block text-green-200 text-lg sm:text-2xl md:text-3xl lg:text-4xl mt-1 sm:mt-2">
                             in the Heart of Uttarakhand
                         </span>
                     </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-green-100 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+                    <p className="text-sm sm:text-lg md:text-xl text-green-100 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
                         Discover beautiful properties in Roorkee, Haridwar, Dehradun, and across the stunning landscapes of Uttarakhand
                     </p>
                 </div>
 
                 {/* Search Card */}
-                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-5xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-2xl px-4 py-6 sm:p-8 max-w-5xl mx-auto">
                     {/* Buy/Rent Tabs */}
-                    <div className="flex justify-center mb-8">
-                        <div className="bg-gray-100 rounded-xl p-2 flex">
+                    <div className="flex justify-center mb-4 sm:mb-8">
+                        <div className="bg-gray-100 rounded-xl sm:p-2 flex">
                             <button
-                                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "buy"
+                                className={`px-4 py-2 sm:px-8 sm:py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "buy"
                                     ? "bg-green-600 text-white shadow-lg"
                                     : "text-gray-600 hover:text-green-600"
                                     }`}
@@ -97,7 +97,7 @@ const HeroSection = () => {
                                 Buy Property
                             </button>
                             <button
-                                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "rent"
+                                className={`px-4 py-2 sm:px-8 sm:py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "rent"
                                     ? "bg-green-600 text-white shadow-lg"
                                     : "text-gray-600 hover:text-green-600"
                                     }`}
@@ -109,7 +109,7 @@ const HeroSection = () => {
                     </div>
 
                     {/* Search Form */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700">Location</label>
                             <input
@@ -117,7 +117,7 @@ const HeroSection = () => {
                                 placeholder="Enter city or area..."
                                 value={searchData.location}
                                 onChange={(e) => handleInputChange('location', e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 max-sm:text-sm"
                             />
                         </div>
 
@@ -126,7 +126,7 @@ const HeroSection = () => {
                             <select
                                 value={searchData.category}
                                 onChange={(e) => handleInputChange('category', e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 max-sm:text-sm"
                             >
                                 <option value="">All Types</option>
                                 {LEGACY_PROPERTY_TYPES.map(type => (
@@ -144,7 +144,7 @@ const HeroSection = () => {
                                 placeholder={activeTab === 'rent' ? "Your Monthly Budget (in ₹)" : "Your Budget (in ₹)"}
                                 value={searchData.budget}
                                 onChange={(e) => handleInputChange('budget', e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 max-sm:text-sm"
                             />
                         </div>
 
@@ -155,7 +155,7 @@ const HeroSection = () => {
                                 placeholder="2BHK, furnished, parking..."
                                 value={searchData.keywords}
                                 onChange={(e) => handleInputChange('keywords', e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 max-sm:text-sm"
                             />
                         </div>
                     </div>
@@ -164,8 +164,7 @@ const HeroSection = () => {
                         <button
                             onClick={handleSearch}
                             disabled={isSearching}
-                            className={`bg-green-600 hover:bg-green-700 text-white px-8 sm:px-12 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isSearching ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className={`bg-green-600 hover:bg-green-700 text-white px-6 sm:px-12 py-2 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isSearching ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <Search className="w-7 h-7 inline mr-2" strokeWidth={2.5} />
                             {isSearching ? 'Searching...' : 'Search Properties'}
@@ -175,22 +174,17 @@ const HeroSection = () => {
 
                 {/* Quick Stats */}
                 <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
-                    <div className="bg-white bg-opacity-10 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
-                        <div className="text-2xl sm:text-3xl font-bold text-green-200">500+</div>
-                        <div className="text-xs sm:text-sm text-green-100">Properties Listed</div>
-                    </div>
-                    <div className="bg-white bg-opacity-10 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
-                        <div className="text-2xl sm:text-3xl font-bold text-green-200">100+</div>
-                        <div className="text-xs sm:text-sm text-green-100">Happy Customers</div>
-                    </div>
-                    <div className="bg-white bg-opacity-10 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
-                        <div className="text-2xl sm:text-3xl font-bold text-green-200">6</div>
-                        <div className="text-xs sm:text-sm text-green-100">Cities Covered</div>
-                    </div>
-                    <div className="bg-white bg-opacity-10 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
-                        <div className="text-2xl sm:text-3xl font-bold text-green-200">5+</div>
-                        <div className="text-xs sm:text-sm text-green-100">Years Experience</div>
-                    </div>
+                    {[
+                        { value: '500+', label: 'Properties Listed' },
+                        { value: '100+', label: 'Happy Customers' },
+                        { value: '6', label: 'Cities Covered' },
+                        { value: '5+', label: 'Years Experience' }
+                    ].map((stat, index) => (
+                        <div key={index} className="bg-white bg-opacity-10 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+                            <div className="text-2xl sm:text-3xl font-bold text-green-700">{stat.value}</div>
+                            <div className="text-xs sm:text-sm text-green-500">{stat.label}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>
@@ -276,16 +270,16 @@ const FeaturedProperties = () => {
     ];
 
     return (
-        <section className="py-16 sm:py-20 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-12 sm:mb-16">
+        <section className="py-12 sm:py-20 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4">
+                <div className="text-center mb-8 sm:mb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Featured Properties</h2>
-                    <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+                    <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
                         Handpicked properties offering the best value and prime locations across Uttarakhand
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-6 sm:mb-12">
                     {properties.map((property) => (
                         <div key={property.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                             {/* Image Container */}
@@ -299,7 +293,7 @@ const FeaturedProperties = () => {
                                     unoptimized
                                 />
                                 {/* Badges */}
-                                <div className="absolute top-4 left-4 flex gap-2">
+                                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex gap-2">
                                     {property.isNew && (
                                         <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                                             New
@@ -312,7 +306,7 @@ const FeaturedProperties = () => {
                                 </div>
 
                                 {/* Heart Icon */}
-                                <button className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors">
+                                <button className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors">
                                     <Heart className="w-5 h-5 text-gray-400 hover:text-red-500" strokeWidth={2.25} />
                                 </button>
                             </div>
@@ -422,11 +416,11 @@ const PropertyCategories = () => {
     ];
 
     return (
-        <section className="py-16 sm:py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="text-center mb-12 sm:mb-16">
+        <section className="py-12 sm:py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4">
+                <div className="text-center mb-8 sm:mb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Browse by Category</h2>
-                    <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+                    <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
                         Find the perfect property type that matches your needs and lifestyle
                     </p>
                 </div>
@@ -481,11 +475,11 @@ const PopularCities = () => {
     ];
 
     return (
-        <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-12 sm:mb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Popular Cities</h2>
-                    <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
+                    <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
                         Explore properties in the most sought-after cities of Uttarakhand
                     </p>
                 </div>
@@ -554,18 +548,18 @@ const WhyChooseUs = () => {
     ];
 
     return (
-        <section className="py-16 sm:py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="py-12 sm:py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-12 sm:mb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Why Choose Himalayan Nest?</h2>
-                    <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 sm:px-0">
+                    <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 sm:px-0">
                         We make property buying, selling, and renting simple, transparent, and hassle-free
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {features.map((feature, index) => (
-                        <div key={index} className="text-center group">
+                        <div key={index} className="text-center group px-4">
                             <div className="bg-green-100 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-2xl sm:text-3xl group-hover:bg-green-200 transition-colors duration-300 group-hover:scale-110 transform">
                                 {feature.icon}
                             </div>
@@ -582,35 +576,35 @@ const WhyChooseUs = () => {
 // Call to Action Section - Encourage user engagement and property listing
 const CallToAction = () => {
     return (
-        <section className="py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
-            <div className="max-w-4xl mx-auto px-4 text-center">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Find Your Dream Property?</h2>
-                <p className="text-xl text-green-100 mb-12 leading-relaxed">
+        <section className="py-12 sm:py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
+            <div className="max-w-4xl mx-auto px-2 sm:px-4 text-center">
+                <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Find Your Dream Property?</h2>
+                <p className="text-base sm:text-xl text-green-100 mb-6 sm:mb-12 leading-relaxed">
                     Join thousands of satisfied customers who found their perfect home with Himalayan Nest.
                     Whether you&apos;re buying, selling, or renting, we&apos;re here to help you every step of the way.
                 </p>
 
-                <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+                <div className="flex flex-col md:flex-row gap-4 sm:gap-6 justify-center items-center">
                     <Link
                         href={ROUTES.PROPERTIES}
-                        className="bg-white text-green-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        className="bg-white text-green-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                     >
                         Browse Properties
                     </Link>
                     <span className="text-green-200 hidden md:block">or</span>
                     <Link
                         href={ROUTES.CONTACT}
-                        className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-green-600 transition-all duration-300"
+                        className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-green-600 transition-all duration-300"
                     >
                         List Your Property
                     </Link>
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-green-500">
+                <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-green-500">
                     <p className="text-green-200 mb-4">
                         For property owners and dealers
                     </p>
-                    <p className="text-lg">
+                    <p className="text-base sm:text-lg">
                         <span className="font-semibold">List your properties for FREE</span> and reach thousands of potential buyers and renters
                     </p>
                 </div>

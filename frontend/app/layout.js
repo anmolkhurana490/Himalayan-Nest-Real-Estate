@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 sm:pb-0`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased p-0`}
       >
         <AuthProvider>
           {/* Persistent navigation header */}
