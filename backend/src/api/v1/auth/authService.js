@@ -5,58 +5,43 @@ import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
 import accountRepository from '../../../repositories/accountRepository.js';
 import { AUTH_MESSAGES } from '../../../constants/messages.js';
+import { AUTH_PROVIDER_VALUES } from '../../../constants/auth.js';
 
 class AuthService {
     /**
-     * Register a new user with credentials
+     * Register a new user with credentials or OAuth
      * @param {Object} userData - User registration data
      * @returns {Promise<Object>} - User data and token
      */
     async register(userData) {
         const { firstName, lastName, email, phone, password, provider, userType } = userData;
 
-        // Reject OAuth registration (handled by resolve route)
-        if (provider !== 'credentials') {
-            throw new Error('OAuth registration should use /resolve endpoint');
-        }
-
-        // Find existing user by email
-        const existingUser = await userRepository.findByEmail(email);
-
-        let user;
-
-        if (existingUser) {
-            // Check if credentials account already exists
-            const credentialsAccount = await accountRepository.findByUserAndProvider(existingUser.id, 'credentials');
-
-            if (credentialsAccount) {
-                throw new Error('User already exists');
-            }
-
-            // Use existing user (will link credentials account)
-            user = existingUser;
-        } else {
-            // Create new user
-            user = await userRepository.create({
-                name: `${firstName} ${lastName}`,
-                email,
-                phone,
-                role: userType
-            });
-        }
-
-        // Hash password and create credentials account
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await accountRepository.create({
-            userId: user.id,
-            provider: 'credentials',
-            providerAccountId: null,
-            password: hashedPassword
+        // Create new user
+        const user = await userRepository.create({
+            name: `${firstName} ${lastName}`,
+            email,
+            phone,
+            role: userType
         });
 
-        // Email OTP verification can be added here
-        // so that user email is verified before linking to his profile
-        // otherwise, user can register with fake email which can be owned by someone else (security risk)
+        if (provider === 'credentials') {
+            // Hash password and create credentials account
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await accountRepository.create({
+                userId: user.id,
+                provider: 'credentials',
+                providerAccountId: null,
+                password: hashedPassword
+            });
+        } else {
+            // Create OAuth account
+            await accountRepository.create({
+                userId: user.id,
+                provider,
+                providerAccountId: userData.providerAccountId,
+                password: null
+            });
+        }
 
         // Prepare user response
         const userResponse = {
@@ -178,12 +163,12 @@ class AuthService {
     }
 
     /**
-     * Resolve authentication with provider
-     * @param {Object} userData - Authentication data { email, provider, providerAccountId, password }
+     * Resolve authentication with provider (only OAuth)
+     * @param {Object} userData - Authentication data { email, provider, providerAccountId }
      * @returns {Promise<Object>} - User data, token, and action
      */
     async resolveAuth(userData) {
-        const { email, provider, providerAccountId, password } = userData;
+        const { email, provider, providerAccountId } = userData;
 
         // Find user by email
         const user = await userRepository.findByEmail(email);
@@ -205,10 +190,16 @@ class AuthService {
 
         if (account) {
             // Provider exists - login
-            await this.login(user, account, { password, providerAccountId });
+            await this.login(user, account, { providerAccountId });
 
             return { user: userResponse, action: 'login' };
         } else {
+            // Check if user already has credentials account
+            const credentialsAccount = await accountRepository.findByUserAndProvider(user.id, 'credentials');
+            if (credentialsAccount) {
+                throw new Error('User already has credentials account. Cannot link OAuth provider.');
+            }
+
             // Provider (OAuth) does not exist - link it
             await userRepository.linkAccount(user.id, provider, providerAccountId);
 

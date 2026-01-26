@@ -16,6 +16,18 @@ class AuthController {
         const userData = req.body;
 
         try {
+            // Find existing user by email
+            const existingUser = await userRepository.findByEmail(email);
+
+            if (existingUser) {
+                // Find existing account (credentials or OAuth)
+                const account = await accountRepository.findByUserAndProvider(existingUser.id);
+
+                if (account) {
+                    throw new Error(`User already exists with ${account.provider} account`);
+                }
+            }
+
             const result = await authService.register(userData);
 
             return res.status(HTTP_STATUS.CREATED).json({
@@ -48,7 +60,7 @@ class AuthController {
 
             const account = await accountRepository.findByUserAndProvider(user.id, userData.provider || 'credentials');
             if (!account) {
-                throw new Error('Account not found for this provider');
+                throw new Error('Account not found for this provider! Please register first or use another login method.');
             }
 
             const result = await authService.login(user, account, { password: userData.password });

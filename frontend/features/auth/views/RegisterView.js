@@ -16,8 +16,6 @@ export default function RegisterView() {
     const searchParams = useSearchParams();
     const oauthSignup = searchParams.get('oauthSignup') === 'true';
 
-    // const user = auth();
-
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
