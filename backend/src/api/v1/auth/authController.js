@@ -17,7 +17,7 @@ class AuthController {
 
         try {
             // Find existing user by email
-            const existingUser = await userRepository.findByEmail(email);
+            const existingUser = await userRepository.findByEmail(userData.email);
 
             if (existingUser) {
                 // Find existing account (credentials or OAuth)

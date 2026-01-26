@@ -47,7 +47,7 @@ export default function RegisterView() {
 
     const { registerUser, googleSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
-    const [error, setError] = useState('');
+    const [error, setError] = useState(searchParams.get('error'));
     const [success, setSuccess] = useState('');
     const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
     const router = useRouter();

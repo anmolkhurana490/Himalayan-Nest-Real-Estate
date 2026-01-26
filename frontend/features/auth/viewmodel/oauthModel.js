@@ -1,4 +1,4 @@
-"use server";
+// "use server";
 import { checkEmailExistsAPI, oauthResolveAPI } from "@/features/auth/repositories.js"
 
 export const customOAuthResolve = async (user, account) => {
@@ -30,7 +30,10 @@ export const customOAuthResolve = async (user, account) => {
             throw new Error(oauthResponse.message || 'OAuth resolution failed');
         }
     } catch (error) {
-        console.error('OAuth resolve error:', error);
-        throw new Error(error.message || 'OAuth resolution failed');
+        const params = new URLSearchParams({
+            error: error.data?.message || error.message || 'OAuth resolution failed'
+        });
+
+        return `/auth/register?${params.toString()}`;
     }
 }

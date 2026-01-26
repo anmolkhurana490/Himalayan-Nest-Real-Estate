@@ -19,7 +19,12 @@ class AccountRepository {
      * @param {String} provider - Provider name
      * @returns {Promise<Account|null>}
      */
-    async findByUserAndProvider(userId, provider) {
+    async findByUserAndProvider(userId, provider = undefined) {
+        if (!provider) {
+            return await Account.findOne({
+                where: { userId }
+            });
+        };
         return await Account.findOne({
             where: { userId, provider }
         });
