@@ -1,7 +1,7 @@
 // Contact View - Contact page with enquiry form
 "use client";
 import React, { useState } from 'react'
-import EnquiryForm from '@/shared/components/EnquiryForm'
+import EnquiryForm from '@/features/enquiry/components/EnquiryForm';
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import { CONTACT_EMAIL, CONTACT_PHONES, OFFICE_LOCATIONS } from '@/config/contact.config';
 

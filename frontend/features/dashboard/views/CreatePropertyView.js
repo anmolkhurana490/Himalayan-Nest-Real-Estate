@@ -9,7 +9,7 @@ import { createPropertySchema } from '@/features/properties/validation';
 import { validateWithSchema } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
-import { PROPERTY_CATEGORIES_LIST, VALIDATION_LIMITS, ALLOWED_IMAGE_TYPES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
+import { PROPERTY_CATEGORIES_LIST, SUCCESS_MESSAGES } from '@/config/constants/app';
 import { X, Upload, MapPin, Home, IndianRupee, FileText, Tag } from 'lucide-react';
 
 const CreatePropertyView = () => {
@@ -82,8 +82,6 @@ const CreatePropertyView = () => {
         } catch (error) {
             console.error('Error creating property:', error);
             alert('An error occurred while creating the property');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -116,7 +114,7 @@ const CreatePropertyView = () => {
                                         Click to upload or drag and drop
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        PNG, JPG, GIF up to 5MB
+                                        PNG, JPG, AVIF, WEBP up to 5MB
                                     </p>
                                 </label>
                             </div>
@@ -251,16 +249,16 @@ const CreatePropertyView = () => {
                         type="button"
                         onClick={() => router.push(ROUTES.DASHBOARD.PROPERTIES)}
                         className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-                        disabled={loading}
+                        disabled={isSubmitting}
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={isSubmitting}
                         className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                     >
-                        {loading ? (
+                        {isSubmitting ? (
                             <>
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                 Creating...

@@ -2,6 +2,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loginUserAPI } from "@/features/auth/repositories.js"
 import { customOAuthResolve } from "@/features/auth/viewmodel/oauthModel";
+import { setInStorage } from "@/utils/storage";
 
 export const authOptions = {
     providers: [
@@ -14,9 +15,7 @@ export const authOptions = {
             async authorize(credentials) {
                 try {
                     const response = await loginUserAPI(credentials);
-                    if (response.success && response.user) {
-                        return response.user;
-                    }
+                    if (response.success && response.user) return response.user;
 
                     // If login failed, throw error with message
                     throw new Error(response.message || 'Invalid credentials');
@@ -42,7 +41,7 @@ export const authOptions = {
         async session({ session, token }) {
             session.user.id = token.id;
             session.user.role = token.role;
-            session.accessToken = token.accessToken;
+            session.user.accessToken = token.accessToken;
             session.providerAccountId = token.providerAccountId;
             return session;
         },

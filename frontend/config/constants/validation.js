@@ -16,7 +16,7 @@ export const VALIDATION_LIMITS = {
 };
 
 // File Types
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
 export const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/avi'];
 export const ALLOWED_DOCUMENT_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 

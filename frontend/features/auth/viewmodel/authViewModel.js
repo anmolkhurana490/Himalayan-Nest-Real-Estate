@@ -136,6 +136,7 @@ export const useAuthViewModel = create((set, get) => ({
         try {
             set({ isSubmitting: true, error: null });
             useAppStore.getState().setLoading(true);
+
             await signOut();
             useAuthStore.getState().clearUser();
 

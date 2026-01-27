@@ -2,10 +2,10 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import SearchFilterBar from '@/shared/components/SearchFilterBar'
+import SearchFilterBar from '@/features/properties/components/SearchFilterBar'
 import { useAppStore } from '@/shared/stores/appStore'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
-import PropertyCard from '@/shared/components/PropertyCard';
+import PropertyCard from '@/features/properties/components/PropertyCard';
 
 const PropertiesLoading = () => (
     <div className="min-h-screen bg-gray-50">

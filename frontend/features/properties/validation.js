@@ -59,7 +59,7 @@ export const createPropertySchema = z.object({
             if (!file) return false;
             return ALLOWED_IMAGE_TYPES.includes(file.type);
         }, {
-            message: 'Invalid file type. Only JPEG, JPG, PNG, and WEBP are allowed'
+            message: 'Invalid file type. Only JPEG, JPG, PNG, AVIF and WEBP are allowed'
         })
 });
 

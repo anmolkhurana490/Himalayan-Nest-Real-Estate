@@ -3,10 +3,11 @@
 
 import axios from "axios";
 import { API_BASE_URL } from "./constants/apis";
+import { getFromStorage } from "@/utils/storage";
 
 // Create axios instance with default configuration
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_BASE_URL, // Base URL for all API requests
     headers: {
         // Default content type (overridden for file uploads)
         'Content-Type': 'application/json',
@@ -16,11 +17,15 @@ const api = axios.create({
 // Request interceptor to handle dynamic headers
 api.interceptors.request.use(
     async (config) => {
-        // Get token from localStorage or session storage
-        const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
-        if (user?.token) {
-            config.headers.Authorization = `Bearer ${user.token}`;
+        // // JWT token from local storage
+        const accessToken = getFromStorage('user')?.accessToken;
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
+
+        // add cookies to every request
+        // config.withCredentials = true;
+
         return config;
     },
     (error) => Promise.reject(error)
@@ -36,8 +41,8 @@ api.interceptors.response.use(
             return Promise.reject(error.response);
         } else {
             // Network error or request timeout
-            console.error('Network Error:', error.message);
-            return Promise.reject({ message: 'Network error. Please try again later.' });
+            console.error('Network Error:', error);
+            return Promise.reject({ message: error.message || 'Network error. Please try again later.' });
         }
     }
 );

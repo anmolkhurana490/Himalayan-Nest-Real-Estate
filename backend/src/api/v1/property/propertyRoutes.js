@@ -14,8 +14,10 @@ const router = express.Router();
 router.get('/', validate(searchPropertyValidation, 'params'), (req, res) => propertyController.getAllProperties(req, res));
 
 // Protected routes (authentication required) - MUST come before /:id to avoid conflicts
-router.get('/my-properties', AuthMiddleware, validateDealer, (req, res) =>
-    propertyController.getUserProperties(req, res)
+router.get('/my-properties',
+    AuthMiddleware,
+    // validateDealer,
+    (req, res) => propertyController.getUserProperties(req, res)
 );
 
 // Single property - comes after specific routes
@@ -24,7 +26,7 @@ router.get('/:id', validateUUID(), (req, res) => propertyController.getPropertyB
 // Dealer-only routes (authentication + dealer role required)
 router.post('/',
     AuthMiddleware,
-    validateDealer,
+    // validateDealer,
     uploadPropertyImages,
     handleMulterError,
     validate(createPropertyValidation),
@@ -34,7 +36,7 @@ router.post('/',
 router.put('/:id',
     validateUUID(),
     AuthMiddleware,
-    validateDealer,
+    // validateDealer,
     uploadPropertyImages,
     handleMulterError,
     validate(updatePropertyValidation),
@@ -44,7 +46,7 @@ router.put('/:id',
 router.delete('/:id',
     validateUUID(),
     AuthMiddleware,
-    validateDealer,
+    // validateDealer,
     (req, res) => propertyController.deleteProperty(req, res)
 );
 

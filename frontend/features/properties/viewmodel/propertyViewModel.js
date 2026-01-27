@@ -170,7 +170,7 @@ export const usePropertyViewModel = create((set, get) => ({
             set({ error: null });
 
             const data = await propertyRepo.getMyPropertiesAPI();
-            const myProperties = (data.data || []).map(p => new Property(p));
+            const myProperties = (data.data?.properties || []).map(p => new Property(p));
 
             set({ myProperties });
 

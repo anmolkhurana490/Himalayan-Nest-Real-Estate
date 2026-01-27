@@ -4,6 +4,7 @@
 import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
 import accountRepository from '../../../repositories/accountRepository.js';
+import { generateToken } from '../../../utils/jwtHandlers.js';
 import { AUTH_MESSAGES } from '../../../constants/messages.js';
 import { AUTH_PROVIDER_VALUES } from '../../../constants/auth.js';
 
@@ -79,12 +80,16 @@ class AuthService {
             throw new Error('Provider account ID does not match');
         }
 
+        // Generate JWT token
+        const token = generateToken(user);
+
         // Prepare user response
         const userResponse = {
             id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
+            accessToken: token
         };
 
         return { user: userResponse };
@@ -175,36 +180,45 @@ class AuthService {
 
         if (!user) {
             // User doesn't exist - register new user
-            return this.register(userData);
+            const result = await this.register(userData);
+
+            // Generate JWT token
+            const token = generateToken(result.user);
+            result.user.token = token;
+
+            return { user: result.user, action: 'register' };
         }
 
         // Check if provider account exists
         const account = await accountRepository.findByUserAndProvider(user.id, provider);
+
+        if (account) {
+            // Provider exists - login
+            const result = await this.login(user, account, { providerAccountId });
+            return { ...result, action: 'login' };
+        }
+
+        // Check if user already has credentials account
+        const credentialsAccount = await accountRepository.findByUserAndProvider(user.id, 'credentials');
+        if (credentialsAccount) {
+            throw new Error('User already has credentials account. Cannot link OAuth provider.');
+        }
+
+        // Generate JWT token
+        const token = generateToken(user);
 
         const userResponse = {
             id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
+            accessToken: token
         };
 
-        if (account) {
-            // Provider exists - login
-            await this.login(user, account, { providerAccountId });
+        // Provider (OAuth) does not exist - link it
+        await userRepository.linkAccount(user.id, provider, providerAccountId);
 
-            return { user: userResponse, action: 'login' };
-        } else {
-            // Check if user already has credentials account
-            const credentialsAccount = await accountRepository.findByUserAndProvider(user.id, 'credentials');
-            if (credentialsAccount) {
-                throw new Error('User already has credentials account. Cannot link OAuth provider.');
-            }
-
-            // Provider (OAuth) does not exist - link it
-            await userRepository.linkAccount(user.id, provider, providerAccountId);
-
-            return { user: userResponse, action: 'linked' };
-        }
+        return { user: userResponse, action: 'linked' };
     }
 }
 

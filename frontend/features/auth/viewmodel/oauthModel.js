@@ -1,5 +1,6 @@
-// "use server";
+"use server";
 import { checkEmailExistsAPI, oauthResolveAPI } from "@/features/auth/repositories.js"
+import { setInStorage } from "@/utils/storage";
 
 export const customOAuthResolve = async (user, account) => {
     try {
@@ -26,7 +27,10 @@ export const customOAuthResolve = async (user, account) => {
             };
             const oauthResponse = await oauthResolveAPI(oauthData);
 
-            if (oauthResponse.success && oauthResponse.user) return true;
+            if (oauthResponse.success && oauthResponse.user) {
+                user.accessToken = oauthResponse.user.accessToken;
+                return true;
+            }
             throw new Error(oauthResponse.message || 'OAuth resolution failed');
         }
     } catch (error) {

@@ -24,7 +24,7 @@ class AuthController {
                 const account = await accountRepository.findByUserAndProvider(existingUser.id);
 
                 if (account) {
-                    throw new Error(`User already exists with ${account.provider} account`);
+                    throw new Error(`User already exists with ${account.provider} account. Please login instead.`);
                 }
             }
 
@@ -34,7 +34,6 @@ class AuthController {
                 success: true,
                 message: AUTH_MESSAGES.REGISTER_SUCCESS,
                 user: result.user,
-                token: result.token
             });
         } catch (error) {
             console.error('Error registering user:', error);
@@ -65,8 +64,8 @@ class AuthController {
 
             const result = await authService.login(user, account, { password: userData.password });
 
-            // // Set cookie with JWT token
-            // res.cookie('access-token', result.token, {
+            // Set cookie with JWT token
+            // res.cookie('authToken', result.token, {
             //     httpOnly: true,
             //     secure: process.env.NODE_ENV === 'production',
             //     sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
@@ -77,7 +76,6 @@ class AuthController {
                 success: true,
                 message: AUTH_MESSAGES.LOGIN_SUCCESS,
                 user: result.user,
-                token: result.token
             });
         } catch (error) {
             console.error('Error logging in user:', error.message);
@@ -94,8 +92,8 @@ class AuthController {
      */
     async logout(req, res) {
         try {
-            // // Clear the authentication cookie
-            // res.clearCookie('access-token');
+            // Clear the authentication cookie
+            // res.clearCookie('authToken');
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
@@ -190,13 +188,20 @@ class AuthController {
         try {
             const result = await authService.resolveAuth(userData);
 
+            // Set cookie with JWT token
+            // res.cookie('authToken', result.token, {
+            //     httpOnly: true,
+            //     secure: process.env.NODE_ENV === 'production',
+            //     sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            //     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            // });
+
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: result.action === 'login'
                     ? 'Logged in successfully'
                     : 'Provider linked and logged in successfully',
                 user: result.user,
-                token: result.token,
                 action: result.action
             });
         } catch (error) {
