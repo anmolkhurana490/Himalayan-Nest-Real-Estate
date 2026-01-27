@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import { API_BASE_URL } from "./constants/apis";
-import { getFromStorage } from "@/utils/storage";
+import { getSession } from "next-auth/react";
 
 // Create axios instance with default configuration
 const api = axios.create({
@@ -17,10 +17,12 @@ const api = axios.create({
 // Request interceptor to handle dynamic headers
 api.interceptors.request.use(
     async (config) => {
-        // // JWT token from local storage
-        const accessToken = getFromStorage('user')?.accessToken;
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
+        // JWT token from session for authenticated requests
+        const session = await getSession();
+        // const accessToken = getFromStorage('user')?.accessToken;
+
+        if (session) {
+            config.headers.Authorization = `Bearer ${session.user.accessToken}`;
         }
 
         // add cookies to every request
