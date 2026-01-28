@@ -115,7 +115,7 @@ export default function RegisterView() {
             // If OAuth signup, automatically sign in with provider
             if (oauthSignup) {
                 setStatus('signing-in');
-                const signInResult = await oauthSignIn('google', false); // 'false' indicates sign-in flow
+                const signInResult = await oauthSignIn(registrationData.provider, false); // 'false' indicates sign-in flow
 
                 if (signInResult.success) {
                     setStatus('success');
