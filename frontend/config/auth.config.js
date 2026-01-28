@@ -2,7 +2,6 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loginUserAPI } from "@/features/auth/repositories.js"
 import { customOAuthResolve } from "@/features/auth/viewmodel/oauthModel";
-import { setInStorage } from "@/utils/storage";
 
 export const authOptions = {
     providers: [

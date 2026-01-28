@@ -16,7 +16,7 @@ export default function LoginView() {
         email: '',
         password: ''
     });
-    const { loginUser, googleSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
+    const { loginUser, oauthSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
     const [error, setError] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -164,7 +164,7 @@ export default function LoginView() {
 
                     <button
                         type="button"
-                        onClick={googleSignIn}
+                        onClick={() => oauthSignIn('google')}
                         disabled={isSubmitting}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

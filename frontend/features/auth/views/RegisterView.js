@@ -45,7 +45,7 @@ export default function RegisterView() {
         }
     }, []);
 
-    const { registerUser, googleSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
+    const { registerUser, oauthSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [error, setError] = useState(searchParams.get('error'));
     const [success, setSuccess] = useState('');
@@ -115,7 +115,7 @@ export default function RegisterView() {
             // If OAuth signup, automatically sign in with provider
             if (oauthSignup) {
                 setStatus('signing-in');
-                const signInResult = await googleSignIn();
+                const signInResult = await oauthSignIn('google', false); // 'false' indicates sign-in flow
 
                 if (signInResult.success) {
                     setStatus('success');
@@ -382,7 +382,7 @@ export default function RegisterView() {
 
                     <button
                         type="button"
-                        onClick={() => googleSignIn(true)} // 'true' indicate sign-up flow
+                        onClick={() => oauthSignIn('google', true)} // 'true' indicate sign-up flow
                         disabled={status !== 'idle'}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

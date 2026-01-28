@@ -102,26 +102,26 @@ export const useAuthViewModel = create((set, get) => ({
     },
 
     /**
-     * Google Sign-In Handler
+     * OAuth Sign-In Handler
      * @param {boolean} signUp - Indicates if it's a sign-up flow
      */
-    googleSignIn: async (signUp = false) => {
+    oauthSignIn: async (provider, signUp = false) => {
         try {
             set({ isSubmitting: true, error: null });
             useAppStore.getState().setLoading(true);
-            await signIn('google', { callbackUrl: ROUTES.DASHBOARD.ROOT });
+            await signIn(provider, { callbackUrl: ROUTES.DASHBOARD.ROOT });
             return {
                 success: true,
-                message: 'Google Sign-In successful!'
+                message: `${provider} OAuth Sign-In successful!`
             };
         } catch (error) {
-            console.error('Google Sign-In error:', error);
-            const errorMessage = error.message || 'Google Sign-In failed';
+            console.error(`${provider} OAuth Sign-In error:`, error);
+            const errorMessage = error.message || `${provider} OAuth Sign-In failed`;
             set({ error: errorMessage });
             return {
                 success: false,
                 error: errorMessage,
-                message: 'Google Sign-In failed. Please try again.'
+                message: `${provider} OAuth Sign-In failed. Please try again.`
             };
         } finally {
             set({ isSubmitting: false });
