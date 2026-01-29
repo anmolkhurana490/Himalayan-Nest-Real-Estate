@@ -2,7 +2,6 @@
 // Handles enquiry management business logic
 
 import enquiryRepository from '../../../repositories/enquiryRepository.js';
-import { ENQUIRY_MESSAGES } from '../../../constants/messages.js';
 
 class EnquiryService {
     /**

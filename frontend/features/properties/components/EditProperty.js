@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { updatePropertySchema } from '@/features/properties/validation';
 import { validateWithSchema } from '@/utils/validator';
-import { PROPERTY_SUBTYPES, VALIDATION_LIMITS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/config/constants/app';
-import { Plus, X } from 'lucide-react';
+import { validateImageFiles } from '@/features/files/validation';
+import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES } from '@/config/constants/property';
+import { IMAGES_CONFIG } from '@/config/constants/files';
+import { Plus, X, Tag, Upload } from 'lucide-react';
 
 const EditProperty = ({ property, onClose, onUpdate }) => {
     const { updateProperty, error: viewModelError, success: viewModelSuccess, isSubmitting } = usePropertyViewModel();
@@ -12,6 +14,7 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
         title: '',
         description: '',
         category: '',
+        property_subtype: '',
         purpose: '',
         location: '',
         price: ''
@@ -21,14 +24,9 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
     const [existingImages, setExistingImages] = useState([]);
     const [imagesToDelete, setImagesToDelete] = useState([]);
     const [message, setMessage] = useState({ type: '', content: '' });
+    const [totalImagesCount, setTotalImagesCount] = useState(0);
 
-    // Combine all property subtypes for category dropdown
-    const categories = [
-        ...PROPERTY_SUBTYPES.RESIDENTIAL.map(type => ({ value: type.toLowerCase(), label: type })),
-        ...PROPERTY_SUBTYPES.LAND.map(type => ({ value: type.toLowerCase(), label: type })),
-        ...PROPERTY_SUBTYPES.COMMERCIAL.map(type => ({ value: type.toLowerCase(), label: type })),
-        ...PROPERTY_SUBTYPES.INDUSTRIAL.map(type => ({ value: type.toLowerCase(), label: type })),
-    ];
+    const categories = Object.values(PROPERTY_CATEGORIES);
 
     useEffect(() => {
         if (property) {
@@ -36,6 +34,7 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
                 title: property.title || '',
                 description: property.description || '',
                 category: property.category || '',
+                property_subtype: property.property_subtype || '',
                 purpose: property.purpose || '',
                 location: property.location || '',
                 price: property.price || ''
@@ -48,6 +47,12 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
         }
     }, [property]);
 
+    useEffect(() => {
+        // Update total images count
+        const count = selectedFiles.length + existingImages.length - imagesToDelete.length;
+        setTotalImagesCount(count);
+    }, [selectedFiles, existingImages, imagesToDelete]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -57,21 +62,33 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
     };
 
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
+        let files = Array.from(e.target.files);
 
-        if (files.length + existingImages.length - imagesToDelete.length > VALIDATION_LIMITS.IMAGE_MAX_COUNT) {
+        // Validate files
+        const validation = validateImageFiles(files);
+        if (!validation.valid) {
             setMessage({
                 type: 'error',
-                content: `Maximum ${VALIDATION_LIMITS.IMAGE_MAX_COUNT} images allowed in total`
+                content: validation.error
             });
             return;
         }
 
-        setSelectedFiles(files);
+        const maxFiles = IMAGES_CONFIG.maxCount - totalImagesCount;
+
+        if (maxFiles < files.length) {
+            setMessage({
+                type: 'error',
+                content: `Maximum ${IMAGES_CONFIG.maxCount} images allowed in total`
+            });
+            files = files.slice(0, maxFiles);
+        }
+
+        setSelectedFiles(prev => [...prev, ...files]);
 
         // Create preview URLs
         const previews = files.map(file => URL.createObjectURL(file));
-        setPreviewImages(previews);
+        setPreviewImages(prev => [...prev, ...previews]);
     };
 
     const removeNewImage = (index) => {
@@ -90,6 +107,13 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
     };
 
     const restoreExistingImage = (imageUrl) => {
+        if (totalImagesCount == IMAGES_CONFIG.maxCount) {
+            setMessage({
+                type: 'error',
+                content: `Cannot restore image. Maximum ${IMAGES_CONFIG.maxCount} images allowed in total`
+            });
+            return;
+        }
         setImagesToDelete(prev => prev.filter(url => url !== imageUrl));
     };
 
@@ -108,8 +132,6 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
         }
 
         try {
-            setIsSubmitting(true);
-
             const result = await updateProperty(
                 property.id,
                 formData,
@@ -142,15 +164,13 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
                 type: 'error',
                 content: 'An unexpected error occurred'
             });
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
     if (!property) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 sm:p-4">
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-100 sm:p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[100vh] sm:max-h-[90vh] overflow-y-auto">
                 <div className="p-6 pb-16">
                     <div className="flex items-center justify-between mb-6">
@@ -190,44 +210,81 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
                                 />
                             </div>
 
-                            <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Category *
-                                </label>
-                                <select
-                                    id="category"
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                >
-                                    <option value="">Select Category</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.value} value={cat.value}>
-                                            {cat.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-2">
+                            {/* Purpose */}
+                            <div className="lg:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Purpose *
                                 </label>
-                                <select
-                                    id="purpose"
-                                    name="purpose"
-                                    value={formData.purpose}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                >
-                                    <option value="">Select Purpose</option>
-                                    <option value="rent">For Rent</option>
-                                    <option value="sale">For Sale</option>
-                                </select>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, purpose: 'sale' }))}
+                                        className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'sale'
+                                            ? 'border-green-500 bg-green-50 text-green-700'
+                                            : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                            }`}
+                                    >
+                                        For Sale
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, purpose: 'rent' }))}
+                                        className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'rent'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                            }`}
+                                    >
+                                        For Rent
+                                    </button>
+                                </div>
                             </div>
+
+                            {/* Category */}
+                            <div className="lg:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <div className="flex items-center">
+                                        <Tag className="w-4 h-4 mr-2" />
+                                        Category *
+                                    </div>
+                                </label>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    {categories.map((category) => (
+                                        <button
+                                            key={category}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, category, property_subtype: '' }))}
+                                            className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.category === category
+                                                ? 'border-green-500 bg-green-50 text-green-700'
+                                                : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                                }`}
+                                        >
+                                            {category}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Property Subtype - Show based on category */}
+                            {formData.category && PROPERTY_SUBTYPES[formData.category.toUpperCase()] && (
+                                <div className="lg:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Property Type
+                                    </label>
+                                    <select
+                                        name="property_subtype"
+                                        value={formData.property_subtype}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    >
+                                        <option value="">Select Type (Optional)</option>
+                                        {PROPERTY_SUBTYPES[formData.category.toUpperCase()].map((type) => (
+                                            <option key={type} value={type}>
+                                                {type}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
 
                             <div>
                                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
@@ -324,14 +381,28 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
                                 <input
                                     type="file"
-                                    id="images"
+                                    id="image-upload"
                                     multiple
                                     accept="image/*"
                                     onChange={handleFileChange}
                                     className="hidden"
+                                    disabled={totalImagesCount >= IMAGES_CONFIG.maxCount}
                                 />
-                                <label htmlFor="images" className="cursor-pointer">
-                                    <span className="text-gray-600">Click to add more images</span>
+                                <label
+                                    htmlFor="image-upload"
+                                    className={`cursor-pointer ${totalImagesCount >= IMAGES_CONFIG.maxCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {/* <span className="text-gray-600">Click to add more images</span> */}
+                                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                    <p className="text-sm text-gray-600 mb-1">
+                                        Click to upload
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        PNG, JPG, AVIF, WEBP up to 5MB each
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {totalImagesCount}/{IMAGES_CONFIG.maxCount} images uploaded
+                                    </p>
                                 </label>
                             </div>
 

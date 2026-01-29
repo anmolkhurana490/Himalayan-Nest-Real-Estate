@@ -9,13 +9,11 @@ export const PROPERTY_CATEGORIES = {
     INDUSTRIAL: 'Industrial',
 };
 
-// Property Categories as Array (for dropdowns)
-export const PROPERTY_CATEGORIES_LIST = [
-    PROPERTY_CATEGORIES.RESIDENTIAL,
-    PROPERTY_CATEGORIES.COMMERCIAL,
-    PROPERTY_CATEGORIES.LAND,
-    PROPERTY_CATEGORIES.INDUSTRIAL,
-];
+// Property Purpose
+export const PROPERTY_PURPOSE = {
+    SALE: 'sale',
+    RENT: 'rent',
+};
 
 // Property Sub-types
 export const PROPERTY_SUBTYPES = {

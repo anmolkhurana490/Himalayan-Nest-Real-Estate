@@ -7,6 +7,7 @@ import AuthMiddleware, { validateDealer } from '../../../middlewares/AuthMiddlew
 import { uploadPropertyImages, handleMulterError } from '../../../middlewares/FileUploadMiddleware.js';
 import { validate, validateUUID } from '../../../middlewares/ValidationMiddleware.js';
 import { createPropertyValidation, updatePropertyValidation, searchPropertyValidation } from './propertyValidation.js';
+import { multipleImageUploadSchema } from '../files/fileValidation.js';
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router.post('/',
     // validateDealer,
     uploadPropertyImages,
     handleMulterError,
+    validate(multipleImageUploadSchema, 'files'),
     validate(createPropertyValidation),
     (req, res) => propertyController.createProperty(req, res)
 );
@@ -39,6 +41,7 @@ router.put('/:id',
     // validateDealer,
     uploadPropertyImages,
     handleMulterError,
+    validate(multipleImageUploadSchema, 'files'),
     validate(updatePropertyValidation),
     (req, res) => propertyController.updateProperty(req, res)
 );

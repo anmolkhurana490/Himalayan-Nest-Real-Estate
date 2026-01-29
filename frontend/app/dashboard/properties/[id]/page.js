@@ -1,1 +1,1 @@
-export { default } from '@/features/dashboard/views/PropertyDetailView';
+export { default } from '@/features/properties/views/MyPropertyDetailView';

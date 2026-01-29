@@ -1,8 +1,11 @@
 // Property Validation Schemas using Zod
 // Input validation schemas for property endpoints
 
-import { z } from 'zod';
-import { CATEGORY_VALUES, PURPOSE_VALUES } from '../../../constants/property.js';
+import { file, z } from 'zod';
+import { PROPERTY_CATEGORIES, PROPERTY_PURPOSES, PROPERTY_SUBTYPES } from '../../../constants/property.js';
+
+const CATEGORY_VALUES = Object.values(PROPERTY_CATEGORIES);
+const PURPOSE_VALUES = Object.values(PROPERTY_PURPOSES);
 
 export const createPropertyValidation = z.object({
     title: z.string({
@@ -22,6 +25,9 @@ export const createPropertyValidation = z.object({
         invalid_type_error: 'Invalid category'
     }),
 
+    property_subtype: z.string()
+        .optional(),
+
     purpose: z.enum(PURPOSE_VALUES, {
         required_error: 'Purpose is required',
         invalid_type_error: 'Invalid purpose'
@@ -39,7 +45,20 @@ export const createPropertyValidation = z.object({
         invalid_type_error: 'Location must be a string'
     })
         .min(2, 'Location must be at least 2 characters')
-        .max(200, 'Location must be at most 200 characters')
+        .max(200, 'Location must be at most 200 characters'),
+
+}).superRefine((data, ctx) => {
+    // Validate property_subtype if provided and not empty
+    if (data.property_subtype && data.property_subtype.trim() !== '') {
+        const validSubtypes = PROPERTY_SUBTYPES[data.category.toUpperCase()];
+
+        if (!validSubtypes || !validSubtypes.includes(data.property_subtype)) {
+            ctx.addIssue({
+                path: ['property_subtype'],
+                message: `Invalid property subtype for ${data.category}. Valid subtypes are: ${validSubtypes ? validSubtypes.join(', ') : 'none'}`
+            });
+        }
+    }
 });
 
 export const updatePropertyValidation = z.object({
@@ -52,7 +71,13 @@ export const updatePropertyValidation = z.object({
         .max(2000, 'Description must be at most 2000 characters')
         .optional(),
 
-    category: z.enum(CATEGORY_VALUES)
+    category: z.enum(CATEGORY_VALUES, {
+        required_error: 'Category is required',
+        invalid_type_error: 'Invalid category'
+    }),
+
+    property_subtype: z.string()
+        .max(100, 'Property subtype must be at most 100 characters')
         .optional(),
 
     purpose: z.enum(PURPOSE_VALUES)
@@ -69,8 +94,36 @@ export const updatePropertyValidation = z.object({
         .optional(),
 
     isActive: z.boolean()
-        .optional()
-}).partial();
+        .optional(),
+
+    imagesToDelete: z.string()
+        .transform((val) => {
+            try {
+                return JSON.parse(val);
+            } catch {
+                throw new Error('imagesToDelete must be a valid JSON string');
+            }
+        })
+        .pipe(
+            z.array(z.string()
+                .pipe(z.url('Each image to delete must be a valid URL'))
+            )
+        )
+        .optional(),
+
+}).partial().superRefine((data, ctx) => {
+    // Validate property_subtype if provided and not empty
+    if (data.property_subtype && data.property_subtype.trim() !== '') {
+        const validSubtypes = PROPERTY_SUBTYPES[data.category.toUpperCase()];
+
+        if (!validSubtypes || !validSubtypes.includes(data.property_subtype)) {
+            ctx.addIssue({
+                path: ['property_subtype'],
+                message: `Invalid property subtype for ${data.category}. Valid subtypes are: ${validSubtypes ? validSubtypes.join(', ') : 'none'}`
+            });
+        }
+    }
+});
 
 export const searchPropertyValidation = z.object({
     keywords: z.string()

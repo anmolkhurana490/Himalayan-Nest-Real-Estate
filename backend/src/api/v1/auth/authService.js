@@ -5,8 +5,6 @@ import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
 import accountRepository from '../../../repositories/accountRepository.js';
 import { generateToken } from '../../../utils/jwtHandlers.js';
-import { AUTH_MESSAGES } from '../../../constants/messages.js';
-import { AUTH_PROVIDER_VALUES } from '../../../constants/auth.js';
 
 class AuthService {
     /**
@@ -73,7 +71,7 @@ class AuthService {
             // Check password
             const isPasswordValid = await bcrypt.compare(credentials.password, account.password);
             if (!isPasswordValid) {
-                throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
+                throw new Error('Invalid credentials');
             }
         }
         else if (credentials.providerAccountId && credentials.providerAccountId !== account.providerAccountId) {
@@ -113,7 +111,7 @@ class AuthService {
     async getCurrentUser(userId) {
         const user = await userRepository.findById(userId);
         if (!user) {
-            throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
+            throw new Error('User not found');
         }
 
         // Prepare user response
@@ -143,7 +141,7 @@ class AuthService {
 
         const user = await userRepository.findById(userId);
         if (!user) {
-            throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
+            throw new Error('User not found');
         }
 
         // Update user details

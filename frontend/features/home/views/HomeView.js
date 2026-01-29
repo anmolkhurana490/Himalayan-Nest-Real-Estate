@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/config/constants/routes";
-import { LEGACY_PROPERTY_TYPES } from "@/config/constants/app";
+import { LEGACY_PROPERTY_TYPES } from "@/config/constants/property";
 import { searchProperties } from "@/features/properties/viewmodel/propertyViewModel";
 import { Heart, MapPin, MoveRight, Phone, Search, Star } from "lucide-react";
 

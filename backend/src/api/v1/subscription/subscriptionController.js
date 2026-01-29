@@ -2,7 +2,6 @@
 // Handles HTTP requests and responses for subscription endpoints
 
 import subscriptionService from './subscriptionService.js';
-import { SUBSCRIPTION_MESSAGES, GENERAL_MESSAGES } from '../../../constants/messages.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 
 class SubscriptionController {
@@ -22,14 +21,14 @@ class SubscriptionController {
 
             res.status(HTTP_STATUS.CREATED).json({
                 success: true,
-                message: SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CREATED,
+                message: 'Subscription created successfully',
                 data: subscription
             });
         } catch (error) {
             console.error('Error creating subscription:', error);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: SUBSCRIPTION_MESSAGES.ERROR_CREATING,
+                message: 'Error creating subscription',
                 error: error.message
             });
         }
@@ -45,14 +44,14 @@ class SubscriptionController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: SUBSCRIPTION_MESSAGES.SUBSCRIPTION_FETCHED,
+                message: 'Subscription fetched successfully',
                 subscription
             });
         } catch (error) {
             console.error('Error fetching subscription:', error);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: SUBSCRIPTION_MESSAGES.ERROR_FETCHING,
+                message: 'Error fetching subscription',
                 error: error.message
             });
         }

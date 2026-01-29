@@ -2,8 +2,8 @@
 // Handles property management business logic
 
 import propertyRepository from '../../../repositories/propertyRepository.js';
-import { PROPERTY_MESSAGES } from '../../../constants/messages.js';
-import { deleteCloudinaryImages } from '../../../middlewares/FileUploadMiddleware.js';
+import { deleteCloudinaryImages, uploadPropertyImages } from '../files/fileService.js';
+import { validateCreateFilesCount, validateUpdateImagesCount } from '../files/fileValidation.js';
 
 class PropertyService {
     /**
@@ -45,7 +45,7 @@ class PropertyService {
         const property = await propertyRepository.findByIdWithDealer(id);
 
         if (!property) {
-            throw new Error(PROPERTY_MESSAGES.PROPERTY_NOT_FOUND);
+            throw new Error('Property not found');
         }
 
         return property;
@@ -72,34 +72,28 @@ class PropertyService {
     /**
      * Create new property
      * @param {Object} propertyData - Property data
-     * @param {Array} files - Uploaded files
+     * @param {Array} files - Uploaded files (buffers from multer)
      * @param {String} dealerId - Dealer user ID
      * @returns {Promise<Object>} - Created property
      */
     async createProperty(propertyData, files, dealerId) {
-        const { title, description, category, purpose, location, price } = propertyData;
+        const { title, description, category, property_subtype, purpose, location, price } = propertyData;
 
-        // Validate required fields
-        if (!title || !category || !purpose || !location || !price) {
-            // Clean up uploaded files if validation fails
-            if (files && files.length > 0) {
-                const cloudinaryUrls = files.map(file => file.path);
-                await deleteCloudinaryImages(cloudinaryUrls);
-            }
-            throw new Error(PROPERTY_MESSAGES.MISSING_FIELDS);
+        // Validate file count
+        const validation = validateCreateFilesCount(files);
+        if (!validation.valid) {
+            throw new Error(validation.error);
         }
 
-        // Extract image URLs from uploaded files
-        let imageUrls = [];
-        if (files && files.length > 0) {
-            imageUrls = files.map(file => file.path);
-        }
+        // Upload images to Cloudinary (only after validation passes)
+        const imageUrls = await uploadPropertyImages(files);
 
         // Prepare property data
         const data = {
             title,
             description: description || '',
             category,
+            property_subtype: property_subtype || '',
             purpose,
             location,
             price: parseFloat(price),
@@ -111,9 +105,11 @@ class PropertyService {
             const newProperty = await propertyRepository.create(data);
             return newProperty;
         } catch (error) {
-            // Clean up uploaded files if database operation fails
+            // If database creation fails, clean up uploaded images
             if (imageUrls.length > 0) {
-                await deleteCloudinaryImages(imageUrls);
+                await deleteCloudinaryImages(imageUrls).catch(err =>
+                    console.error('Failed to cleanup images after error:', err)
+                );
             }
             throw error;
         }
@@ -123,7 +119,7 @@ class PropertyService {
      * Update property
      * @param {String} id - Property ID
      * @param {Object} updateData - Update data
-     * @param {Array} files - New uploaded files
+     * @param {Array} files - New uploaded files (buffers from multer)
      * @param {String} dealerId - Dealer user ID
      * @returns {Promise<Object>} - Updated property
      */
@@ -131,56 +127,67 @@ class PropertyService {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
-            throw new Error(PROPERTY_MESSAGES.PROPERTY_NOT_FOUND);
+            throw new Error('Property not found');
         }
 
         // Check ownership
         if (property.dealer_id !== dealerId) {
-            throw new Error(PROPERTY_MESSAGES.UNAUTHORIZED_ACCESS);
+            throw new Error('You are not authorized to perform this action');
         }
 
         const { imagesToDelete, ...propertyData } = updateData;
 
         // Prepare updates
-        const updates = {};
-        if (propertyData.title) updates.title = propertyData.title;
-        if (propertyData.description !== undefined) updates.description = propertyData.description;
-        if (propertyData.category) updates.category = propertyData.category;
-        if (propertyData.location) updates.location = propertyData.location;
-        if (propertyData.purpose) updates.purpose = propertyData.purpose;
-        if (propertyData.price) updates.price = parseFloat(propertyData.price);
-        if (propertyData.isActive !== undefined) updates.isActive = propertyData.isActive;
+        const updates = {
+            title: propertyData.title || property.title,
+            description: propertyData.description || property.description,
+            category: propertyData.category || property.category,
+            property_subtype: propertyData.property_subtype || property.property_subtype,
+            purpose: propertyData.purpose || property.purpose,
+            location: propertyData.location || property.location,
+            price: propertyData.price ? parseFloat(propertyData.price) : property.price
+        };
 
         // Handle image updates
         let currentImages = property.images || [];
-        const imagesList = JSON.parse(imagesToDelete || '[]');
+        const deleteImageList = imagesToDelete || [];
+        const uploadedFiles = files || [];
 
-        // Remove images marked for deletion
-        if (imagesList?.length > 0) {
-            try {
-                await deleteCloudinaryImages(imagesList);
-                currentImages = currentImages.filter(img => !imagesList.includes(img));
-            } catch (error) {
-                console.error('Error deleting images:', error);
-            }
+        // Image count validation (before uploading new files)
+        const validation = validateUpdateImagesCount(
+            currentImages.length,
+            uploadedFiles.length,
+            deleteImageList.length
+        );
+        if (!validation.valid) {
+            throw new Error(validation.error);
         }
 
-        // Add new images
-        if (files && files.length > 0) {
-            const newImageUrls = files.map(file => file.path);
-            currentImages = [...currentImages, ...newImageUrls];
-        }
-
-        updates.images = currentImages;
-
+        let newImageUrls = [];
         try {
+            // Upload new images to Cloudinary (only after validation passes)
+            if (uploadedFiles.length > 0) {
+                newImageUrls = await uploadPropertyImages(uploadedFiles);
+            }
+
+            // Remove images marked for deletion
+            if (deleteImageList.length > 0) {
+                await deleteCloudinaryImages(deleteImageList);
+                currentImages = currentImages.filter(img => !deleteImageList.includes(img));
+            }
+
+            // Combine current and new images
+            currentImages = [...currentImages, ...newImageUrls];
+            updates.images = currentImages;
+
             const updatedProperty = await propertyRepository.update(id, updates);
             return updatedProperty;
         } catch (error) {
-            // Clean up uploaded files if database operation fails
-            if (files && files.length > 0) {
-                const cloudinaryUrls = files.map(file => file.path);
-                await deleteCloudinaryImages(cloudinaryUrls);
+            // If update fails and we uploaded new images, clean them up
+            if (newImageUrls.length > 0) {
+                await deleteCloudinaryImages(newImageUrls).catch(err =>
+                    console.error('Failed to cleanup newly uploaded images after error:', err)
+                );
             }
             throw error;
         }
@@ -196,12 +203,12 @@ class PropertyService {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
-            throw new Error(PROPERTY_MESSAGES.PROPERTY_NOT_FOUND);
+            throw new Error('Property not found');
         }
 
         // Check ownership
         if (property.dealer_id !== dealerId) {
-            throw new Error(PROPERTY_MESSAGES.UNAUTHORIZED_ACCESS);
+            throw new Error('You are not authorized to perform this action');
         }
 
         // Delete images from Cloudinary

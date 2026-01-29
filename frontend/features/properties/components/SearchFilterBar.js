@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/shared/stores/appStore';
 import ROUTES from '@/config/constants/routes';
-import { LEGACY_PROPERTY_TYPES } from '@/config/constants/app';
+import { LEGACY_PROPERTY_TYPES } from '@/config/constants/property';
 
 const SearchFilterBar = ({ onSearch, searchParams }) => {
     const router = useRouter();

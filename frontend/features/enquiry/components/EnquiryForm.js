@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel'
 import { createEnquirySchema } from '@/features/enquiry/validation'
 import { validateWithSchema } from '@/utils/validator'
-import { LEGACY_PROPERTY_TYPES } from '@/config/constants/app'
+import { LEGACY_PROPERTY_TYPES } from '@/config/constants/property'
 
 const EnquiryForm = ({ propertyId }) => {
     const { submitEnquiry, error: viewModelError, success: viewModelSuccess, isSubmitting } = useEnquiryViewModel();

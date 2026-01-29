@@ -13,5 +13,8 @@ export const AUTH_PROVIDERS = {
     FACEBOOK: 'facebook',
 };
 
-export const ROLE_VALUES = Object.values(USER_ROLES);
-export const AUTH_PROVIDER_VALUES = Object.values(AUTH_PROVIDERS);
+// Subscription Plan Constants
+export const SUBSCRIPTION_PLANS = {
+    BASIC: 'basic',
+    PREMIUM: 'premium',
+};

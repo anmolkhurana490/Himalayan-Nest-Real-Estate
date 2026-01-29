@@ -10,7 +10,7 @@
 // Re-export from property module
 export {
     PROPERTY_CATEGORIES,
-    PROPERTY_CATEGORIES_LIST,
+    PROPERTY_PURPOSE,
     PROPERTY_SUBTYPES,
     LEGACY_PROPERTY_TYPES,
     PROPERTY_STATUS,
@@ -34,12 +34,22 @@ export {
 
 // Re-export from validation module
 export {
-    VALIDATION_LIMITS,
-    ALLOWED_IMAGE_TYPES,
-    ALLOWED_VIDEO_TYPES,
-    ALLOWED_DOCUMENT_TYPES,
-    REGEX,
-} from './validation';
+    SINGLE_IMAGE_CONFIG,
+    MULTIPLE_IMAGES_CONFIG,
+    VIDEO_CONFIG,
+    DOCUMENT_CONFIG,
+} from './files';
+
+// // Re-export from file validation module
+// export {
+//     FILE_SIZE_LIMITS,
+//     ALLOWED_FILE_TYPES,
+//     FILE_COUNT_LIMITS,
+//     validateImageFile,
+//     validateImageFiles,
+//     validateVideoFile,
+//     validateDocumentFile,
+// } from './validation';
 
 // Re-export from messages module
 export {
@@ -62,7 +72,7 @@ export {
 // Default export for importing all constants at once
 export { default as PROPERTY_CONSTANTS } from './property';
 export { default as USER_CONSTANTS } from './user';
-export { default as VALIDATION_CONSTANTS } from './validation';
+export { default as FILE_CONSTANTS } from './files';
 export { default as MESSAGE_CONSTANTS } from './messages';
 export { default as UI_CONSTANTS } from './ui';
 

@@ -2,7 +2,6 @@
 // Handles HTTP requests and responses for authentication endpoints
 
 import authService from './authService.js';
-import { AUTH_MESSAGES, GENERAL_MESSAGES } from '../../../constants/messages.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 import userRepository from '../../../repositories/userRepository.js';
 import accountRepository from '../../../repositories/accountRepository.js';
@@ -32,7 +31,7 @@ class AuthController {
 
             return res.status(HTTP_STATUS.CREATED).json({
                 success: true,
-                message: AUTH_MESSAGES.REGISTER_SUCCESS,
+                message: 'User registered successfully',
                 user: result.user,
             });
         } catch (error) {
@@ -54,7 +53,7 @@ class AuthController {
         try {
             const user = await userRepository.findByEmail(userData.email);
             if (!user) {
-                throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
+                throw new Error('User not found');
             }
 
             const account = await accountRepository.findByUserAndProvider(user.id, userData.provider || 'credentials');
@@ -74,7 +73,7 @@ class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: AUTH_MESSAGES.LOGIN_SUCCESS,
+                message: 'Login successful',
                 user: result.user,
             });
         } catch (error) {
@@ -97,7 +96,7 @@ class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: AUTH_MESSAGES.LOGOUT_SUCCESS
+                message: 'Logout successful'
             });
         } catch (error) {
             console.error('Error logging out user:', error.message);
@@ -142,7 +141,7 @@ class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: AUTH_MESSAGES.PROFILE_FETCHED,
+                message: 'Profile fetched successfully',
                 user
             });
         } catch (error) {
@@ -166,7 +165,7 @@ class AuthController {
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: AUTH_MESSAGES.PROFILE_UPDATED,
+                message: 'Profile updated successfully',
                 user
             });
         } catch (error) {

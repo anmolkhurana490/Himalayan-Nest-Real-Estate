@@ -7,9 +7,11 @@ import Image from 'next/image';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { createPropertySchema } from '@/features/properties/validation';
 import { validateWithSchema } from '@/utils/validator';
+import { validateImageFiles } from '@/features/files/validation';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
-import { PROPERTY_CATEGORIES_LIST, SUCCESS_MESSAGES } from '@/config/constants/app';
+import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES } from '@/config/constants/property';
+import { IMAGES_CONFIG } from '@/config/constants/files';
 import { X, Upload, MapPin, Home, IndianRupee, FileText, Tag } from 'lucide-react';
 
 const CreatePropertyView = () => {
@@ -21,11 +23,14 @@ const CreatePropertyView = () => {
         price: '',
         location: '',
         category: '',
-        image: null
+        property_subtype: '',
+        purpose: 'sale',
     });
-    const [imagePreview, setImagePreview] = useState(null);
 
-    const categories = PROPERTY_CATEGORIES_LIST;
+    const [formImages, setFormImages] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
+
+    const categories = Object.values(PROPERTY_CATEGORIES);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -36,32 +41,53 @@ const CreatePropertyView = () => {
     };
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFormData(prev => ({
-                ...prev,
-                image: file
-            }));
-
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+        const files = Array.from(e.target.files);
+        addImages(files);
     };
 
-    const removeImage = () => {
-        setFormData(prev => ({
-            ...prev,
-            image: null
-        }));
-        setImagePreview(null);
+    const addImages = (files) => {
+        // Validate files using the validation module
+        const validation = validateImageFiles(files);
+
+        if (!validation.valid) {
+            alert(validation.error + (validation.fileName ? ` (${validation.fileName})` : ''));
+            return;
+        }
+
+        // Limit files based on current images count (max 10)
+        const remainingSlots = 10 - formImages.length;
+        const filesToAdd = files.slice(0, remainingSlots);
+
+        if (filesToAdd.length < files.length) {
+            alert(`Only added ${filesToAdd.length} images. Maximum 10 images allowed.`);
+        }
+
+        // Add images to formImages state
+        setFormImages(prev => [...prev, ...filesToAdd]);
+
+        // Create previews
+        filesToAdd.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews(prev => [...prev, reader.result]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeImage = (index) => {
+        // Remove image from both formImages and previews
+        setFormImages(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (formImages.length === 0) {
+            alert('At least one image is required');
+            return;
+        }
 
         // Validate form data using Zod
         const errors = validateWithSchema(createPropertySchema, formData);
@@ -71,10 +97,11 @@ const CreatePropertyView = () => {
         }
 
         try {
-            const result = await createProperty(formData);
+            // Separate images from other form data
+            const result = await createProperty(formData, formImages);
 
             if (result && result.success) {
-                alert(SUCCESS_MESSAGES.PROPERTY_CREATED);
+                alert('Property created successfully');
                 router.push(ROUTES.DASHBOARD.PROPERTIES);
             } else {
                 alert(result.error || 'Failed to create property');
@@ -97,43 +124,65 @@ const CreatePropertyView = () => {
                     {/* Image Upload */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Property Image *
+                            Property Images * (Max {IMAGES_CONFIG.maxCount} images)
                         </label>
-                        {!imagePreview ? (
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 transition-colors">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="hidden"
-                                    id="image-upload"
-                                />
-                                <label htmlFor="image-upload" className="cursor-pointer">
-                                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                                    <p className="text-sm text-gray-600 mb-1">
-                                        Click to upload or drag and drop
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        PNG, JPG, AVIF, WEBP up to 5MB
-                                    </p>
-                                </label>
-                            </div>
-                        ) : (
-                            <div className="relative rounded-lg overflow-hidden">
-                                <Image
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    width={800}
-                                    height={400}
-                                    className="w-full h-64 object-cover"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={removeImage}
-                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
+
+                        {/* Upload Area */}
+                        <div
+                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors border-gray-300 hover:border-green-500`}
+                        >
+                            <input
+                                type="file"
+                                id="image-upload"
+                                multiple
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                                disabled={formImages.length >= IMAGES_CONFIG.maxCount}
+                            />
+                            <label
+                                htmlFor="image-upload"
+                                className={`cursor-pointer ${formImages.length >= IMAGES_CONFIG.maxCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                <p className="text-sm text-gray-600 mb-1">
+                                    Click to upload
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    PNG, JPG, AVIF, WEBP up to 5MB each
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {formImages.length}/{IMAGES_CONFIG.maxCount} images uploaded
+                                </p>
+                            </label>
+                        </div>
+
+                        {/* Image Previews */}
+                        {imagePreviews.length > 0 && (
+                            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {imagePreviews.map((preview, index) => (
+                                    <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200">
+                                        <Image
+                                            src={preview}
+                                            alt={`Preview ${index + 1}`}
+                                            width={200}
+                                            height={150}
+                                            className="w-full h-32 object-cover"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                        {index === 0 && (
+                                            <span className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                                                Primary
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
@@ -217,6 +266,35 @@ const CreatePropertyView = () => {
                         </div>
                     </div>
 
+                    {/* Purpose */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Purpose *
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, purpose: 'sale' }))}
+                                className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'sale'
+                                    ? 'border-green-500 bg-green-50 text-green-700'
+                                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                    }`}
+                            >
+                                For Sale
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, purpose: 'rent' }))}
+                                className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'rent'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                    }`}
+                            >
+                                For Rent
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Category */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -230,7 +308,7 @@ const CreatePropertyView = () => {
                                 <button
                                     key={category}
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, category }))}
+                                    onClick={() => setFormData(prev => ({ ...prev, category, property_subtype: '' }))}
                                     className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.category === category
                                         ? 'border-green-500 bg-green-50 text-green-700'
                                         : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -241,10 +319,34 @@ const CreatePropertyView = () => {
                             ))}
                         </div>
                     </div>
-                </div>
+
+                    {/* Property Subtype - Show based on category */}
+                    {
+                        formData.category && PROPERTY_SUBTYPES[formData.category.toUpperCase()] && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Property Type
+                                </label>
+                                <select
+                                    name="property_subtype"
+                                    value={formData.property_subtype}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                >
+                                    <option value="">Select Type (Optional)</option>
+                                    {PROPERTY_SUBTYPES[formData.category.toUpperCase()].map((type) => (
+                                        <option key={type} value={type}>
+                                            {type}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )
+                    }
+                </div >
 
                 {/* Form Actions */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3">
+                < div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3" >
                     <button
                         type="button"
                         onClick={() => router.push(ROUTES.DASHBOARD.PROPERTIES)}
@@ -267,9 +369,9 @@ const CreatePropertyView = () => {
                             'Create Property'
                         )}
                     </button>
-                </div>
-            </form>
-        </div>
+                </div >
+            </form >
+        </div >
     );
 };
 

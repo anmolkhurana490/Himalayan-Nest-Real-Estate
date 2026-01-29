@@ -25,7 +25,7 @@ export default function PropertyCard({ property }) {
                     </span>
                 </div>
 
-                <p className="text-gray-600 text-xs sm:text-sm mb-2">{property.description}</p>
+                <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">{property.description}</p>
 
                 <div className="flex justify-between items-center">
                     <span className="text-gray-500 text-xs sm:text-sm">{property.location}</span>

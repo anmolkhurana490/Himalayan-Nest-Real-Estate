@@ -2,7 +2,9 @@
 // Input validation schemas for subscription endpoints
 
 import { z } from 'zod';
-import { SUBSCRIPTION_PLAN_VALUES } from '../../../constants/property.js';
+import { SUBSCRIPTION_PLANS } from '../../../constants/user.js';
+
+const SUBSCRIPTION_PLAN_VALUES = Object.values(SUBSCRIPTION_PLANS);
 
 export const createSubscriptionValidation = z.object({
     planType: z.enum(SUBSCRIPTION_PLAN_VALUES, {

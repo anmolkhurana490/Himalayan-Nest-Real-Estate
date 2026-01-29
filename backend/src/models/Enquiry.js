@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { ENQUIRY_STATUS_VALUES } from '../constants/property.js';
+import { ENQUIRY_STATUS } from '../constants/property.js';
 
 const EnquiryModel = (sequelize) => {
     return sequelize.define("Enquiries", {
@@ -26,7 +26,7 @@ const EnquiryModel = (sequelize) => {
         status: {
             type: DataTypes.STRING,
             allowNull: false,
-            values: ENQUIRY_STATUS_VALUES,
+            values: Object.values(ENQUIRY_STATUS),
             defaultValue: 'pending', // Default status is pending
         },
         createdAt: {

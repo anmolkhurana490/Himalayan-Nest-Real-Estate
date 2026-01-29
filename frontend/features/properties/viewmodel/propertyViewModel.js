@@ -217,6 +217,9 @@ export const usePropertyViewModel = create((set, get) => ({
             formData.append('description', propertyData.description || '');
             formData.append('category', propertyData.category);
             formData.append('purpose', propertyData.purpose);
+            if (propertyData.property_subtype) {
+                formData.append('property_subtype', propertyData.property_subtype);
+            }
             formData.append('location', propertyData.location);
             formData.append('price', propertyData.price);
 

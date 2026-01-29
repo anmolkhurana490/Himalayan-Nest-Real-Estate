@@ -2,7 +2,9 @@
 // Input validation schemas for enquiry endpoints
 
 import { z } from 'zod';
-import { ENQUIRY_STATUS_VALUES } from '../../../constants/property.js';
+import { ENQUIRY_STATUS } from '../../../constants/property.js';
+
+const ENQUIRY_STATUS_VALUES = Object.values(ENQUIRY_STATUS);
 
 export const createEnquiryValidation = z.object({
     property_id: z.string({

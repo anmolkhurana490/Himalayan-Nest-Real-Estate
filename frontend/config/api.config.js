@@ -1,6 +1,6 @@
 // Axios Configuration for API Communication
 // Configures HTTP client with base URL, authentication, and error handling
-
+"use client";
 import axios from "axios";
 import { API_BASE_URL } from "./constants/apis";
 import { getSession } from "next-auth/react";

@@ -4,15 +4,16 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { fetchImageUrl } from '@/utils/imageHelpers';
-import EditProperty from '@/features/dashboard/components/EditProperty';
+import EditProperty from '@/features/properties/components/EditProperty';
 import ROUTES from '@/config/constants/routes';
 import { MapPin, IndianRupee, Calendar, Eye, MessageCircleMore, ArrowLeft, Edit } from 'lucide-react';
 
-const PropertyDetailView = ({ params }) => {
+const PropertyDetailView = () => {
     const router = useRouter();
+    const params = useParams();
     const { getPropertyById } = usePropertyViewModel();
     const [property, setProperty] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ const PropertyDetailView = ({ params }) => {
         try {
             setLoading(true);
             const result = await getPropertyById(id);
+            console.log('Fetched property:', result);
 
             if (result && result.success) {
                 setProperty(result.data?.property);
@@ -69,13 +71,13 @@ const PropertyDetailView = ({ params }) => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <button
+                {/* <button
                     onClick={() => router.push(ROUTES.DASHBOARD.PROPERTIES)}
                     className="inline-flex items-center text-gray-600 hover:text-gray-900"
                 >
                     <ArrowLeft className="w-5 h-5 mr-2" />
                     Back to Properties
-                </button>
+                </button> */}
                 <button
                     onClick={() => setShowEditModal(true)}
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -90,7 +92,7 @@ const PropertyDetailView = ({ params }) => {
                 {/* Property Image */}
                 <div className="relative h-96">
                     <Image
-                        src={fetchImageUrl(property.image) || '/logos/default-property.jpg'}
+                        src={fetchImageUrl(property.images[0]) || '/logos/default-property.jpg'}
                         alt={property.title}
                         onError={e => e.target.src = '/logos/default-property.jpg'}
                         fill

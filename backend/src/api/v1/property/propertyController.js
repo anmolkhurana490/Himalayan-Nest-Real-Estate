@@ -2,7 +2,6 @@
 // Handles HTTP requests and responses for property endpoints
 
 import propertyService from './propertyService.js';
-import { PROPERTY_MESSAGES, GENERAL_MESSAGES } from '../../../constants/messages.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 
 class PropertyController {
@@ -16,7 +15,7 @@ class PropertyController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTIES_FETCHED,
+                message: 'Properties fetched successfully',
                 properties: result.properties,
                 totalCount: result.totalCount
             });
@@ -24,7 +23,7 @@ class PropertyController {
             console.error('Error fetching properties:', error.message);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }
@@ -41,14 +40,14 @@ class PropertyController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTY_FETCHED,
+                message: 'Property fetched successfully',
                 property
             });
         } catch (error) {
             console.error('Error fetching property:', error.message);
             res.status(HTTP_STATUS.NOT_FOUND).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }
@@ -63,7 +62,7 @@ class PropertyController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTIES_FETCHED,
+                message: 'Properties fetched successfully',
                 data: {
                     properties
                 }
@@ -72,7 +71,7 @@ class PropertyController {
             console.error('Error fetching user properties:', error.message);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }
@@ -91,16 +90,16 @@ class PropertyController {
 
             res.status(HTTP_STATUS.CREATED).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTY_CREATED,
+                message: 'Property created successfully',
                 data: {
                     property
                 }
             });
         } catch (error) {
-            console.error('Error creating property:', error.message);
+            console.error('Error creating property:', error);
             res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }
@@ -122,7 +121,7 @@ class PropertyController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTY_UPDATED,
+                message: 'Property updated successfully',
                 data: {
                     property
                 }
@@ -130,15 +129,15 @@ class PropertyController {
         } catch (error) {
             console.error('Error updating property:', error);
 
-            const statusCode = error.message === PROPERTY_MESSAGES.PROPERTY_NOT_FOUND
+            const statusCode = error.message === 'Property not found'
                 ? HTTP_STATUS.NOT_FOUND
-                : error.message === PROPERTY_MESSAGES.UNAUTHORIZED_ACCESS
+                : error.message === 'You are not authorized to perform this action'
                     ? HTTP_STATUS.FORBIDDEN
                     : HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
             res.status(statusCode).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }
@@ -155,20 +154,20 @@ class PropertyController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: PROPERTY_MESSAGES.PROPERTY_DELETED
+                message: 'Property deleted successfully'
             });
         } catch (error) {
             console.error('Error deleting property:', error.message);
 
-            const statusCode = error.message === PROPERTY_MESSAGES.PROPERTY_NOT_FOUND
+            const statusCode = error.message === 'Property not found'
                 ? HTTP_STATUS.NOT_FOUND
-                : error.message === PROPERTY_MESSAGES.UNAUTHORIZED_ACCESS
+                : error.message === 'You are not authorized to perform this action'
                     ? HTTP_STATUS.FORBIDDEN
                     : HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
             res.status(statusCode).json({
                 success: false,
-                message: error.message || GENERAL_MESSAGES.INTERNAL_ERROR
+                message: error.message || 'Internal server error'
             });
         }
     }

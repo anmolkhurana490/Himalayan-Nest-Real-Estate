@@ -2,7 +2,6 @@
 // Handles HTTP requests and responses for enquiry endpoints
 
 import enquiryService from './enquiryService.js';
-import { ENQUIRY_MESSAGES, GENERAL_MESSAGES } from '../../../constants/messages.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 
 class EnquiryController {
@@ -16,14 +15,14 @@ class EnquiryController {
 
             res.status(HTTP_STATUS.CREATED).json({
                 success: true,
-                message: ENQUIRY_MESSAGES.ENQUIRY_CREATED,
+                message: 'Enquiry created successfully',
                 data: enquiry
             });
         } catch (error) {
             console.error('Error creating enquiry:', error);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: ENQUIRY_MESSAGES.ERROR_CREATING,
+                message: 'Error creating enquiry',
                 error: error.message
             });
         }
@@ -39,14 +38,14 @@ class EnquiryController {
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: ENQUIRY_MESSAGES.ENQUIRIES_FETCHED,
+                message: 'Enquiries fetched successfully',
                 data: enquiries
             });
         } catch (error) {
             console.error('Error fetching enquiries:', error);
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
-                message: ENQUIRY_MESSAGES.ERROR_FETCHING,
+                message: 'Error fetching enquiries',
                 error: error.message
             });
         }

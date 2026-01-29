@@ -2,11 +2,12 @@
 // Client-side validation using Zod (matching backend validation rules)
 
 import { z } from 'zod';
-import { VALIDATION_LIMITS, ALLOWED_IMAGE_TYPES } from '@/config/constants/validation';
+import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES, PROPERTY_PURPOSE } from '@/config/constants/property';
+import { imageFilesSchema } from '@/features/files/validation';
 
 // Property categories and purposes (matching backend)
-const CATEGORY_VALUES = ['flat', 'house', 'plot', 'pg', 'farmhouse', 'villa', 'office', 'shop', 'other'];
-const PURPOSE_VALUES = ['sale', 'rent'];
+const CATEGORY_VALUES = Object.values(PROPERTY_CATEGORIES);
+const PURPOSE_VALUES = Object.values(PROPERTY_PURPOSE);
 
 // Create property validation schema
 export const createPropertySchema = z.object({
@@ -26,16 +27,24 @@ export const createPropertySchema = z.object({
     category: z.string({
         required_error: 'Category is required'
     })
-        .refine(val => CATEGORY_VALUES.includes(val) || val.length > 0, {
+        .refine(val => CATEGORY_VALUES.includes(val), {
             message: 'Please select a valid category'
         }),
 
-    price: z.string({
-        required_error: 'Price is required'
+    property_subtype: z.string()
+        .optional(),
+
+    purpose: z.enum(PURPOSE_VALUES, {
+        required_error: 'Purpose is required',
+        invalid_type_error: 'Invalid purpose. Must be sale or rent'
+    }),
+
+    price: z.coerce.number({
+        required_error: 'Price is required',
+        invalid_type_error: 'Price must be a number'
     })
-        .refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-            message: 'Price must be a positive number'
-        }),
+        .positive('Price must be positive')
+        .min(0, 'Price cannot be negative'),
 
     location: z.string({
         required_error: 'Location is required',
@@ -44,23 +53,19 @@ export const createPropertySchema = z.object({
         .min(2, 'Location must be at least 2 characters')
         .max(200, 'Location must be at most 200 characters')
         .trim(),
+}).superRefine((data, ctx) => {
+    // Validate property_subtype if provided and not empty
+    if (data.property_subtype && data.property_subtype.trim() !== '') {
+        const categoryKey = data.category.toUpperCase();
+        const validSubtypes = PROPERTY_SUBTYPES[categoryKey];
 
-    image: z.any()
-        .refine(file => file !== null && file !== undefined, {
-            message: 'Please select a property image'
-        })
-        .refine(file => {
-            if (!file) return false;
-            return file.size <= VALIDATION_LIMITS.IMAGE_MAX_SIZE;
-        }, {
-            message: `Image size must be less than ${VALIDATION_LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB`
-        })
-        .refine(file => {
-            if (!file) return false;
-            return ALLOWED_IMAGE_TYPES.includes(file.type);
-        }, {
-            message: 'Invalid file type. Only JPEG, JPG, PNG, AVIF and WEBP are allowed'
-        })
+        if (!validSubtypes || !validSubtypes.includes(data.property_subtype)) {
+            ctx.addIssue({
+                path: ['property_subtype'],
+                message: 'Please select a valid property sub-type for the selected category'
+            });
+        }
+    }
 });
 
 // Update property validation schema
@@ -75,24 +80,47 @@ export const updatePropertySchema = z.object({
         .max(2000, 'Description must be at most 2000 characters')
         .optional(),
 
-    category: z.string()
+    category: z.string({
+        required_error: 'Category is required'
+    })
+        .refine(val => CATEGORY_VALUES.includes(val), {
+            message: 'Please select a valid category'
+        }),
+
+    property_subtype: z.string()
         .optional(),
 
-    purpose: z.string()
-        .optional(),
+    purpose: z.enum(PURPOSE_VALUES, {
+        required_error: 'Purpose is required',
+        invalid_type_error: 'Invalid purpose. Must be sale or rent'
+    }),
 
-    price: z.string()
-        .refine(val => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), {
-            message: 'Price must be a positive number'
-        })
-        .optional(),
+    price: z.coerce.number({
+        required_error: 'Price is required',
+        invalid_type_error: 'Price must be a number'
+    })
+        .positive('Price must be positive')
+        .min(0, 'Price cannot be negative'),
 
     location: z.string()
         .min(2, 'Location must be at least 2 characters')
         .max(200, 'Location must be at most 200 characters')
         .trim()
         .optional()
-}).partial();
+}).partial().superRefine((data, ctx) => {
+    // Validate property_subtype if provided and not empty
+    if (data.property_subtype && data.property_subtype.trim() !== '') {
+        const categoryKey = data.category.toUpperCase();
+        const validSubtypes = PROPERTY_SUBTYPES[categoryKey];
+
+        if (!validSubtypes || !validSubtypes.includes(data.property_subtype)) {
+            ctx.addIssue({
+                path: ['property_subtype'],
+                message: 'Please select a valid property sub-type for the selected category'
+            });
+        }
+    }
+});
 
 // Search property validation schema
 export const searchPropertySchema = z.object({

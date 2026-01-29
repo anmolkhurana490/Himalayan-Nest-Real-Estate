@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { SUBSCRIPTION_PLAN_VALUES } from '../constants/property.js';
+import { SUBSCRIPTION_PLANS } from '../constants/user.js';
 
 const SubscriptionModel = (sequelize) => {
     return sequelize.define("Subscriptions", {
@@ -17,7 +17,7 @@ const SubscriptionModel = (sequelize) => {
         planType: {
             type: DataTypes.STRING,
             allowNull: false,
-            values: SUBSCRIPTION_PLAN_VALUES,
+            values: Object.values(SUBSCRIPTION_PLANS),
         },
         endDate: {
             type: DataTypes.DATE,

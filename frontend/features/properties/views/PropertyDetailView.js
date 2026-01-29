@@ -3,15 +3,12 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
-import { RESIDENTIAL_AMENITIES } from '@/config/constants/app'
 import Image from 'next/image'
 
 export default function PropertyDetailView() {
     const { id } = useParams()
     const { getPropertyById } = usePropertyViewModel();
     const [data, setData] = useState({})
-
-    const amenities = RESIDENTIAL_AMENITIES
 
     useEffect(() => {
         const fetchData = async () => {
@@ -108,7 +105,7 @@ export default function PropertyDetailView() {
                     <div className="bg-white rounded-lg shadow-sm p-4">
                         <div className="relative h-64 md:h-96 rounded-lg overflow-hidden mb-4">
                             <Image
-                                src={data.image || '/logos/default-property.jpg'}
+                                src={data.images[0] || '/logos/default-property.jpg'}
                                 alt={data.title}
                                 fill
                                 className="object-cover"

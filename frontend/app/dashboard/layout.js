@@ -2,7 +2,7 @@
 // Provides sidebar navigation, header, and authentication protection for dealer-only pages
 
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
 import { withProtectedRoute } from "@/shared/components/RouteProtection";
 import { USER_ROLES } from "@/config/constants/user";
@@ -11,18 +11,11 @@ import ROUTES from "@/config/constants/routes";
 import { MoveLeft } from "lucide-react";
 
 function DashboardLayout({ children }) {
-    const [activeTab, setActiveTab] = useState("overview"); // Current active dashboard section
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar toggle
 
     return (
         <div className="min-h-screen flex bg-gray-50">
             {/* Dashboard Sidebar Navigation */}
-            <DashboardSidebar
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                isSidebarOpen={isSidebarOpen}
-                setIsSidebarOpen={setIsSidebarOpen}
-            />
+            <DashboardSidebar />
 
             {/* Main Dashboard Content */}
             <div className="px-4 py-2 flex-1 lg:mx-auto space-y-1">

@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { AUTH_PROVIDER_VALUES } from "../constants/auth.js";
+import { AUTH_PROVIDERS } from "../constants/user.js";
 
 const AccountModel = (sequelize) => {
     const Account = sequelize.define("Accounts", {
@@ -17,7 +17,7 @@ const AccountModel = (sequelize) => {
         provider: {
             type: DataTypes.STRING,
             allowNull: false,
-            values: AUTH_PROVIDER_VALUES,
+            values: Object.values(AUTH_PROVIDERS),
         },
         providerAccountId: {
             type: DataTypes.STRING,

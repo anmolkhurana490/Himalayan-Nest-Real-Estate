@@ -1,7 +1,7 @@
 // Auth Model - Data model for authentication
 // Defines the structure and validation for user authentication data
 
-import { USER_ROLES } from '@/config/constants/app';
+import { USER_ROLES } from '@/config/constants/user';
 
 export class User {
     constructor(data = {}) {

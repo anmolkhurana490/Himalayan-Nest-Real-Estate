@@ -2,7 +2,10 @@
 // Input validation schemas for authentication endpoints
 
 import { z } from 'zod';
-import { AUTH_PROVIDER_VALUES, ROLE_VALUES } from '../../../constants/auth.js';
+import { USER_ROLES, AUTH_PROVIDERS } from '../../../constants/user.js';
+
+const ROLE_VALUES = Object.values(USER_ROLES);
+const AUTH_PROVIDER_VALUES = Object.values(AUTH_PROVIDERS);
 
 export const registerValidation = z.object({
     firstName: z.string({

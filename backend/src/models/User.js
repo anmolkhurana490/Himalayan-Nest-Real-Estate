@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { ROLE_VALUES, AUTH_PROVIDER_VALUES } from '../constants/auth.js';
+import { USER_ROLES } from '../constants/user.js';
 
 const UserModel = (sequelize) => {
     const User = sequelize.define("Users", {
@@ -24,7 +24,7 @@ const UserModel = (sequelize) => {
         },
         role: {
             type: DataTypes.STRING,
-            values: ROLE_VALUES,
+            values: Object.values(USER_ROLES),
         },
         bio: {
             type: DataTypes.TEXT,

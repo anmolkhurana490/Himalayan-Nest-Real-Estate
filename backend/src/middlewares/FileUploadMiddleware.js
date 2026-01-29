@@ -1,62 +1,80 @@
-// File Upload Middleware using Multer and Cloudinary
-// Handles property image uploads with automatic optimization and cloud storage
+// File Upload Middleware using Multer
+// Handles file uploads using memory storage for validation before cloud upload
 
 import multer from 'multer';
-import cloudinary from '../config/cloudinary.js';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { IMAGES_CONFIG, VIDEO_CONFIG, DOCUMENT_CONFIG } from '../constants/files.js';
 
-// Configure Cloudinary storage for multer
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'himalayan-nest/properties', // Organized folder structure in Cloudinary
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        transformation: [
-            { width: 1200, height: 800, crop: 'limit' }, // Resize large images to standard size
-            { quality: 'auto' } // Auto quality optimization for faster loading
-        ],
-        public_id: (req, file) => {
-            // Generate unique filename to prevent conflicts
-            const timestamp = Date.now();
-            const randomString = Math.random().toString(36).substring(2, 15);
-            return `property_${timestamp}_${randomString}`;
-        }
-    }
-});
+// Use memory storage - files stored in buffer temporarily for validation
+const storage = multer.memoryStorage();
 
-// File filter function to validate uploaded files
-const fileFilter = (req, file, cb) => {
-    // List of allowed image MIME types
-    const allowedMimes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'image/webp'
-    ];
-
-    if (allowedMimes.includes(file.mimetype)) {
+// File filter function for images
+const imageFileFilter = (req, file, cb) => {
+    if (IMAGES_CONFIG.allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only JPEG, PNG, GIF and WebP images are allowed.'), false);
+        cb(new Error(`Invalid image type. Allowed types: ${IMAGES_CONFIG.allowedTypes.join(', ')}`), false);
     }
 };
 
-// Configure multer with Cloudinary storage
-const upload = multer({
+// File filter function for videos
+const videoFileFilter = (req, file, cb) => {
+    if (VIDEO_CONFIG.allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error(`Invalid video type. Allowed types: ${VIDEO_CONFIG.allowedTypes.join(', ')}`), false);
+    }
+};
+
+// File filter function for documents
+const documentFileFilter = (req, file, cb) => {
+    if (DOCUMENT_CONFIG.allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error(`Invalid document type. Allowed types: ${DOCUMENT_CONFIG.allowedTypes.join(', ')}`), false);
+    }
+};
+
+// Configure multer for image uploads
+const imageUpload = multer({
     storage: storage,
     limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB per file (Cloudinary handles optimization)
-        files: 10 // Maximum 10 files
+        fileSize: IMAGES_CONFIG.maxSize,
+        files: IMAGES_CONFIG.maxCount
     },
-    fileFilter: fileFilter
+    fileFilter: imageFileFilter
 });
 
-// Middleware for multiple file upload
-export const uploadPropertyImages = upload.array('images', 10);
+// Configure multer for video uploads
+const videoUpload = multer({
+    storage: storage,
+    limits: {
+        fileSize: VIDEO_CONFIG.maxSize,
+        files: VIDEO_CONFIG.maxCount
+    },
+    fileFilter: videoFileFilter
+});
 
-// Middleware for single file upload
-export const uploadSingleImage = upload.single('image');
+// Configure multer for document uploads
+const documentUpload = multer({
+    storage: storage,
+    limits: {
+        fileSize: DOCUMENT_CONFIG.maxSize,
+        files: DOCUMENT_CONFIG.maxCount
+    },
+    fileFilter: documentFileFilter
+});
+
+// Middleware for multiple image upload
+export const uploadPropertyImages = imageUpload.array('images', IMAGES_CONFIG.maxCount);
+
+// Middleware for single image upload
+export const uploadSingleImage = imageUpload.single('image');
+
+// Middleware for video upload
+export const uploadPropertyVideo = videoUpload.single('video');
+
+// Middleware for document upload
+export const uploadPropertyDocument = documentUpload.single('document');
 
 // Error handling middleware for multer
 export const handleMulterError = (error, req, res, next) => {
@@ -64,13 +82,13 @@ export const handleMulterError = (error, req, res, next) => {
         if (error.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
                 success: false,
-                message: 'File size too large. Maximum size is 10MB per file.'
+                message: `File size too large. Maximum size is ${IMAGES_CONFIG.maxSize / (1024 * 1024)}MB per file.`
             });
         }
         if (error.code === 'LIMIT_FILE_COUNT') {
             return res.status(400).json({
                 success: false,
-                message: 'Too many files. Maximum 10 files allowed.'
+                message: `Too many files. Maximum ${IMAGES_CONFIG.maxCount} files allowed.`
             });
         }
         if (error.code === 'LIMIT_UNEXPECTED_FILE') {
@@ -79,48 +97,18 @@ export const handleMulterError = (error, req, res, next) => {
                 message: 'Unexpected field name for file upload.'
             });
         }
-        return res.status(500).json({
-            success: false,
-            message: 'Multer error: ' + error.message
-        });
-    }
-
-    if (error.message.includes('Invalid file type')) {
         return res.status(400).json({
             success: false,
             message: error.message
         });
     }
 
-    return res.status(500).json({
-        success: false,
-        message: 'File upload error: ' + error.message
-    });
-};
-
-// Utility function to delete images from Cloudinary
-export const deleteCloudinaryImages = async (imageUrls) => {
-    try {
-        const deletePromises = imageUrls.map(async (imageUrl) => {
-            // Extract public_id from Cloudinary URL
-            const publicId = extractPublicIdFromUrl(imageUrl);
-            if (publicId) {
-                return await cloudinary.uploader.destroy(publicId);
-            }
+    if (error.message.includes('Invalid')) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
         });
-
-        const results = await Promise.all(deletePromises);
-        // console.log('Cloudinary deletion results:', results);
-        return results;
-    } catch (error) {
-        console.error('Error deleting images from Cloudinary:', error.message);
-        throw error;
     }
-};
 
-// Helper function to extract public_id from Cloudinary URL
-const extractPublicIdFromUrl = (url) => {
-    const parts = url.split('/');
-    // Get the last part and remove the file extension
-    return parts.pop().split('.')[0];
+    next();
 };

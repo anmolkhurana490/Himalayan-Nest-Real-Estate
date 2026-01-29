@@ -1,12 +1,14 @@
 "use client";
-import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { Building, ChartNoAxesGantt, MessageCircleMore, MoveLeft, Plus, UserRound } from 'lucide-react';
 
-const DashboardSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
+const DashboardSidebar = () => {
     const router = useRouter();
+    const pathname = usePathname();
+
+    const [activeTab, setActiveTab] = useState("overview"); // Current active dashboard section
 
     const menuItems = [
         {
@@ -46,10 +48,22 @@ const DashboardSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebar
         }
     ];
 
+    useEffect(() => {
+        if (!pathname) return;
+        const pathParts = pathname.split('/');
+
+        // Determine active tab based on URL path
+        for (let i = 0; i < pathParts.length; i++) {
+            if (menuItems.some(item => item.id === pathParts[i])) {
+                setActiveTab(pathParts[i]);
+                return;
+            }
+        }
+    }, [pathname]);
+
     const handleMenuClick = (tabId) => {
         router.push(`${ROUTES.DASHBOARD.ROOT}/${tabId}`);
         setActiveTab(tabId);
-        setIsSidebarOpen(false);
     };
 
     return (

@@ -2,7 +2,6 @@
 // Handles subscription management business logic
 
 import subscriptionRepository from '../../../repositories/subscriptionRepository.js';
-import { SUBSCRIPTION_MESSAGES } from '../../../constants/messages.js';
 
 class SubscriptionService {
     /**
