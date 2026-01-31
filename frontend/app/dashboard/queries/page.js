@@ -1,1 +1,1 @@
-export { default } from '@/features/dashboard/views/QueriesManagementView';
+export { default } from '@/features/enquiry/views/QueriesManagementView';

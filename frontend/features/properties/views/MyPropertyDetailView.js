@@ -3,13 +3,12 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
-import { fetchImageUrl } from '@/utils/imageHelpers';
 import EditProperty from '@/features/properties/components/EditProperty';
 import ROUTES from '@/config/constants/routes';
 import { MapPin, IndianRupee, Calendar, Eye, MessageCircleMore, ArrowLeft, Edit } from 'lucide-react';
+import PropertyImageSlideshow from '../components/PropertyImageSlideshow';
 
 const PropertyDetailView = () => {
     const router = useRouter();
@@ -29,10 +28,9 @@ const PropertyDetailView = () => {
         try {
             setLoading(true);
             const result = await getPropertyById(id);
-            console.log('Fetched property:', result);
 
             if (result && result.success) {
-                setProperty(result.data?.property);
+                setProperty(result.property);
             } else {
                 alert('Property not found');
                 router.push(ROUTES.DASHBOARD.PROPERTIES);
@@ -91,15 +89,9 @@ const PropertyDetailView = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {/* Property Image */}
                 <div className="relative h-96">
-                    <Image
-                        src={fetchImageUrl(property.images[0]) || '/logos/default-property.jpg'}
-                        alt={property.title}
-                        onError={e => e.target.src = '/logos/default-property.jpg'}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover"
-                    />
-                    <div className="absolute top-4 right-4">
+                    <PropertyImageSlideshow images={property.images} title={property.title} />
+
+                    <div className="absolute top-6 left-6">
                         <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${property.isActive
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
@@ -125,8 +117,7 @@ const PropertyDetailView = () => {
                     </div>
 
                     <div className="flex items-center mb-6">
-                        <IndianRupee className="w-6 h-6 text-green-600 mr-1" />
-                        <span className="text-3xl font-bold text-green-600">₹{property.price}</span>
+                        <span className="text-3xl font-bold text-green-600">{property.formattedprice}</span>
                     </div>
 
                     <div className="prose max-w-none mb-6">

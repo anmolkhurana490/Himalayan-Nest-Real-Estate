@@ -11,7 +11,7 @@ export default function ContactView() {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white">
-                <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
+                <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8 sm:py-12 lg:py-16">
                     <div className="text-center">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">Contact Us</h1>
                         <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -21,8 +21,8 @@ export default function ContactView() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
-                <div className="flex justify-center mb-6 sm:mb-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 sm:py-8 lg:py-12">
+                <div className="flex justify-center mb-4 sm:mb-6 lg:mb-8">
                     <div className="bg-white rounded-lg p-1 shadow-sm">
                         <button
                             className={`px-4 sm:px-6 py-2 rounded-md transition-colors text-sm sm:text-base ${activeTab === 'contact'
@@ -46,8 +46,8 @@ export default function ContactView() {
                 </div>
 
                 {activeTab === 'contact' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
-                        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12">
+                        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
                             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Get in Touch</h2>
 
                             <div className="space-y-4 sm:space-y-6">

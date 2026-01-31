@@ -87,23 +87,23 @@ const QueriesManagementView = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Customer Queries</h2>
-                    <p className="text-gray-600 mt-1">Manage inquiries from potential customers</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Customer Queries</h2>
+                    <p className="text-sm sm:text-base text-gray-600 mt-1">Manage inquiries from potential customers</p>
                 </div>
-                <div className="mt-4 sm:mt-0">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <div className="mt-2 sm:mt-0">
+                    <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800">
                         {queries.length} Total Queries
                     </span>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div className="flex space-x-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
+                <div className="flex flex-wrap gap-2 sm:gap-0 sm:space-x-4">
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all'
@@ -135,10 +135,10 @@ const QueriesManagementView = () => {
             </div>
 
             {/* Queries List */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                 {filteredQueries.map((query) => (
                     <div key={query.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="p-6">
+                        <div className="p-4 sm:p-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-1">

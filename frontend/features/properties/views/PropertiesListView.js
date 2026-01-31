@@ -39,7 +39,7 @@ const PropertiesContent = () => {
         let result = await getProperties(searchFilters || filters);
 
         if (result && result.success) {
-            let propertiesData = result.data?.properties || result.data || [];
+            let propertiesData = result.properties || result.data || [];
             setProperties(propertiesData);
             setTotalPages(result.data?.totalPages || 1);
             setCurrentPage(result.data?.currentPage || 1);
@@ -57,13 +57,13 @@ const PropertiesContent = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+                <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Properties</h1>
                     <SearchFilterBar onSearch={loadProperties} searchParams={searchParams} />
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}
@@ -76,7 +76,7 @@ const PropertiesContent = () => {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                     {properties.map((property) => (
                         <PropertyCard key={property.id || property._id} property={property} />
                     ))}

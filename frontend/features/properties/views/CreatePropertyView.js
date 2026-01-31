@@ -113,14 +113,14 @@ const CreatePropertyView = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Create New Property</h2>
-                <p className="text-gray-600 mt-1">Add a new property listing to your portfolio</p>
+        <div className="max-w-4xl mx-auto p-2 sm:p-4 lg:p-6">
+            <div className="mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Create New Property</h2>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Add a new property listing to your portfolio</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="p-6 space-y-6">
+                <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
                     {/* Image Upload */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">

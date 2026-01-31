@@ -81,14 +81,14 @@ const ProfileManagementView = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="mb-6">
+        <div className="max-w-3xl mx-auto px-2 sm:px-0">
+            <div className="mb-4 sm:mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
                 <p className="text-gray-600 mt-1">Manage your account information and preferences</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                     {/* Profile Header */}
                     <div className="flex items-center space-x-4 pb-6 border-b border-gray-200">
                         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">

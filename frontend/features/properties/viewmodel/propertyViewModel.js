@@ -48,7 +48,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 properties,
                 message: data.message || 'Properties fetched successfully'
             };
@@ -80,7 +79,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 properties: featuredProperties,
                 message: data.message || 'Featured properties fetched successfully'
             };
@@ -112,7 +110,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 property,
                 message: data.message || 'Property fetched successfully'
             };
@@ -144,7 +141,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 properties,
                 message: data.message || 'Search completed successfully'
             };
@@ -176,7 +172,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data.data,
                 properties: myProperties,
                 message: data.message || 'Your properties fetched successfully'
             };
@@ -236,7 +231,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 property,
                 message: data.message || 'Property created successfully'
             };
@@ -297,7 +291,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 property,
                 message: data.message || 'Property updated successfully'
             };
@@ -339,7 +332,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
                 message: data.message || 'Property deleted successfully'
             };
         } catch (error) {

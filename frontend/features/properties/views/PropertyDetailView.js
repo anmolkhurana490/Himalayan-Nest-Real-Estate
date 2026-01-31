@@ -3,18 +3,19 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
-import Image from 'next/image'
+import PropertyImageSlideshow from '@/features/properties/components/PropertyImageSlideshow'
 
 export default function PropertyDetailView() {
     const { id } = useParams()
     const { getPropertyById } = usePropertyViewModel();
     const [data, setData] = useState({})
+    const [showFullDec, setShowFullDec] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             const response = await getPropertyById(id);
             if (response.success) {
-                setData(response.data.property);
+                setData(response.property);
             }
             else {
                 console.error(response.message);
@@ -43,32 +44,14 @@ export default function PropertyDetailView() {
         alert('Property saved to your favorites!');
     };
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(price);
-    };
-
-    const formatPricePerSqft = (price, area) => {
-        if (!area) return null;
-        const pricePerSqft = price / area;
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(pricePerSqft);
-    };
-
     if (!data || !data.title) {
         return null;
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 bg-gray-50 min-h-screen">
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+        <div className="max-w-7xl mx-auto px-2 py-4 sm:px-4 bg-gray-50 min-h-screen">
+            <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 mb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{data.title}</h1>
                         <p className="text-gray-600 flex items-center mb-2">
@@ -87,13 +70,13 @@ export default function PropertyDetailView() {
                         </div>
                     </div>
 
-                    <div className="text-right">
+                    <div className="">
                         <p className="text-3xl md:text-4xl font-bold text-green-600">
-                            {formatPrice(data.price)}
+                            {data.formattedprice}
                         </p>
                         {data.area && (
                             <p className="text-gray-500 text-sm mt-1">
-                                {formatPricePerSqft(data.price, data.area)} per sq.ft
+                                {data.formattedpricepersqft} per sq.ft
                             </p>
                         )}
                     </div>
@@ -102,25 +85,24 @@ export default function PropertyDetailView() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2 space-y-4">
-                    <div className="bg-white rounded-lg shadow-sm p-4">
-                        <div className="relative h-64 md:h-96 rounded-lg overflow-hidden mb-4">
-                            <Image
-                                src={data.images[0] || '/logos/default-property.jpg'}
-                                alt={data.title}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                    </div>
+                    <PropertyImageSlideshow images={data.images} title={data.title} />
 
-                    <div className="bg-white rounded-lg shadow-sm p-4">
+                    <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4">
                         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Description</h2>
-                        <p className="text-gray-600 leading-relaxed">{data.description}</p>
+                        <p className={`text-gray-600 leading-relaxed ${showFullDec ? '' : 'line-clamp-5'}`}>
+                            {data.description}
+                        </p>
+                        <button
+                            onClick={() => setShowFullDec(!showFullDec)}
+                            className="mt-2 text-blue-600 hover:underline"
+                        >
+                            {showFullDec ? 'Show Less' : 'Read More'}
+                        </button>
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <div className="bg-white rounded-lg shadow-sm p-4 sticky top-4">
+                    <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 sticky top-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Property Owner</h3>
                         <div className="space-y-3">
                             <button

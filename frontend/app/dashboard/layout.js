@@ -18,14 +18,14 @@ function DashboardLayout({ children }) {
             <DashboardSidebar />
 
             {/* Main Dashboard Content */}
-            <div className="px-4 py-2 flex-1 lg:mx-auto space-y-1">
+            <div className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 flex-1 lg:mx-auto space-y-1">
                 <Link
                     href={ROUTES.PROPERTIES}
-                    className="flex items-center w-fit p-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="flex items-center w-fit p-1 sm:p-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                 >
-                    <MoveLeft />
-                    <span className="ml-3">Back to Main Site</span>
-                </Link>
+                    <MoveLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="ml-2 sm:ml-3">Back to Main Site</span>
+                </Link >
 
                 {/* Page Content Area */}
                 <main className="py-1 pb-20 lg:pb-6">{children}</main>
@@ -35,6 +35,4 @@ function DashboardLayout({ children }) {
 }
 
 // Protect dashboard with role-based access (dealers and admins only)
-export default withProtectedRoute(DashboardLayout, {
-    allowedRoles: [USER_ROLES.DEALER, USER_ROLES.ADMIN]
-});
+export default withProtectedRoute(DashboardLayout, {});

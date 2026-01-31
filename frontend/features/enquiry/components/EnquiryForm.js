@@ -85,7 +85,7 @@ const EnquiryForm = ({ propertyId }) => {
     return (
         <div>
             {message.content && (
-                <div className={`mb-6 p-4 rounded-md ${message.type === 'success'
+                <div className={`mb-3 sm:mb-4 lg:mb-6 p-3 sm:p-4 rounded-md text-sm sm:text-base ${message.type === 'success'
                     ? 'bg-green-50 text-green-700 border border-green-200'
                     : 'bg-red-50 text-red-700 border border-red-200'
                     }`}>
@@ -93,8 +93,8 @@ const EnquiryForm = ({ propertyId }) => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                             Full Name *

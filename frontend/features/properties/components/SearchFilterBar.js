@@ -80,57 +80,61 @@ const SearchFilterBar = ({ onSearch, searchParams }) => {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <div className="flex gap-2 mb-4">
-                <button
-                    className={`px-4 py-2 rounded ${filters.purpose === 'buy' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-                    onClick={() => handleFilterChange('purpose', 'buy')}
-                >
-                    Buy
-                </button>
-                <button
-                    className={`px-4 py-2 rounded ${filters.purpose === 'rent' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-                    onClick={() => handleFilterChange('purpose', 'rent')}
-                >
-                    Rent
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <input
-                    type="text"
-                    placeholder="Location (e.g., Roorkee)"
-                    value={filters.location}
-                    onChange={(e) => handleFilterChange('location', e.target.value)}
-                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
-                />
+        <div className="bg-white px-2 py-4 sm:px-4 rounded-lg shadow-sm border">
+            <div className="flex justify-between gap-4 sm:gap-6 mb-4">
+                <div className="flex gap-2">
+                    <button
+                        className={`px-4 py-2 rounded ${filters.purpose === 'buy' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        onClick={() => handleFilterChange('purpose', 'buy')}
+                    >
+                        Buy
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded ${filters.purpose === 'rent' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                        onClick={() => handleFilterChange('purpose', 'rent')}
+                    >
+                        Rent
+                    </button>
+                </div>
 
                 <select
                     value={filters.category}
                     onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
+                    className="px-2 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
                 >
                     <option value="">All Categories</option>
                     {LEGACY_PROPERTY_TYPES.map(type => (
                         <option key={type.value} value={type.value}>{type.label}</option>
                     ))}
                 </select>
+            </div>
 
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-4">
                 <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
+                    type="text"
+                    placeholder="Location (e.g., Roorkee)"
+                    value={filters.location}
+                    onChange={(e) => handleFilterChange('location', e.target.value)}
+                    className="px-2 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base col-span-2 md:col-span-1"
                 />
 
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
-                />
+                <div className="col-span-2 grid grid-cols-2 gap-1.5 sm:gap-4">
+                    <input
+                        type="number"
+                        placeholder="Min Price"
+                        value={filters.minPrice}
+                        onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                        className="px-2 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
+                    />
+
+                    <input
+                        type="number"
+                        placeholder="Max Price"
+                        value={filters.maxPrice}
+                        onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                        className="px-2 sm:px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
+                    />
+                </div>
             </div>
 
             <div className="mt-3 sm:mt-4 flex gap-2 sm:gap-3">

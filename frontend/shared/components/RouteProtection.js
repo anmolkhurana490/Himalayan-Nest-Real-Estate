@@ -13,14 +13,13 @@ import { USER_ROLES } from '@/config/constants/user';
  * Redirects to login if user is not authenticated
  * @param {React.Component} Component - Component to protect
  * @param {Object} options - Protection options
- * @param {Array<string>} options.allowedRoles - Allowed user roles (optional)
  * @param {string} options.redirectTo - Redirect path if unauthorized (default: LOGIN)
  */
 export const withProtectedRoute = (Component, options = {}) => {
     return function ProtectedRoute(props) {
         const router = useRouter();
         const { user, authChecked } = useAuthStore();
-        const { allowedRoles, redirectTo = ROUTES.REDIRECTS.AUTH_PROTECTED } = options;
+        const { redirectTo = ROUTES.REDIRECTS.AUTH_PROTECTED } = options;
 
         useEffect(() => {
             // Wait for auth check to complete
@@ -38,7 +37,7 @@ export const withProtectedRoute = (Component, options = {}) => {
             //         router.push(ROUTES.HOME);
             //     }
             // }
-        }, [user, authChecked, router, redirectTo, allowedRoles]);
+        }, [user, authChecked, router, redirectTo]);
 
         // Show loading while checking auth
         // Don't render if not authenticated

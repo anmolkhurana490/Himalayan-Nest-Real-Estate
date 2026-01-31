@@ -17,19 +17,19 @@ export default function PropertyCard({ property }) {
                 />
             </div>
 
-            <div className="p-3 sm:p-4 flex flex-col">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">{property.title}</h3>
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+            <div className="p-2 sm:p-4 flex flex-col">
+                <div className="flex justify-between items-start mb-2 gap-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2">{property.title}</h3>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded line-clamp-2 min-w-max">
                         {property.category}
                     </span>
                 </div>
 
                 <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">{property.description}</p>
 
-                <div className="flex justify-between items-center">
-                    <span className="text-gray-500 text-xs sm:text-sm">{property.location}</span>
-                    <span className="text-base sm:text-lg font-bold text-green-600">₹{property.price}</span>
+                <div className="flex justify-between items-center gap-1">
+                    <span className="text-gray-500 text-xs sm:text-sm line-clamp-2">{property.location}</span>
+                    <span className="text-base sm:text-lg font-bold text-green-600">{property.formattedprice}</span>
                 </div>
 
                 <Link href={`/properties/${property.id}`} className="w-full text-center mt-2 sm:mt-3 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-sm sm:text-base">

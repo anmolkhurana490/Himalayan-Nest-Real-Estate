@@ -11,7 +11,7 @@ const AboutView = () => {
         <div className="min-h-screen bg-gray-50">
             {/* Hero Section */}
             <div className="bg-white">
-                <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
+                <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8 sm:py-12 lg:py-16">
                     <div className="text-center">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">About Himalayan Nest</h1>
                         <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -22,7 +22,7 @@ const AboutView = () => {
             </div>
 
             {/* Mission Section */}
-            <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8 sm:py-12 lg:py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
                     <div>
                         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Our Mission</h2>
@@ -61,8 +61,8 @@ const AboutView = () => {
             </div>
 
             {/* Services Section */}
-            <div className="bg-white py-12 sm:py-16">
-                <div className="max-w-7xl mx-auto px-4">
+            <div className="bg-white py-8 sm:py-12 lg:py-16">
+                <div className="max-w-7xl mx-auto px-2 sm:px-4">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Our Services</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                         <div className="text-center p-4 sm:p-6">
@@ -93,8 +93,8 @@ const AboutView = () => {
             </div>
 
             {/* Contact CTA */}
-            <div className="bg-green-600 py-12 sm:py-16">
-                <div className="max-w-4xl mx-auto text-center px-4">
+            <div className="bg-green-600 py-8 sm:py-12 lg:py-16">
+                <div className="max-w-4xl mx-auto text-center px-2 sm:px-4">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">Ready to Find Your Dream Property?</h2>
                     <p className="text-green-100 mb-6 sm:mb-8 text-base sm:text-lg">
                         Join thousands of satisfied customers who found their perfect home with Himalayan Nest.

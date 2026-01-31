@@ -67,8 +67,8 @@ export default function LoginView() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex sm:items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
+        <div className="min-h-screen bg-gray-50 flex sm:items-center justify-center py-6 sm:py-12 px-2 sm:px-4 lg:px-8">
+            <div className="max-w-md w-full space-y-6 sm:space-y-8">
                 <div>
                     <div className="text-center">
                         <Link href={ROUTES.HOME} className="text-2xl sm:text-3xl font-bold text-green-700">
@@ -86,9 +86,9 @@ export default function LoginView() {
                     </p>
                 </div>
 
-                <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 shadow rounded-lg">
+                <div className="bg-white py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6 shadow rounded-lg">
                     {error && (
-                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
+                        <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-xs sm:text-sm">
                             {error}
                         </div>
                     )}
