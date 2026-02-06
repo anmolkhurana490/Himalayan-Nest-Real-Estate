@@ -2,125 +2,87 @@
 // Re-exported from app/dashboard/create-property/page.js to follow MVVM architecture
 
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { createPropertySchema } from '@/features/properties/validation';
-import { validateWithSchema } from '@/utils/validator';
-import { validateImageFiles } from '@/features/files/validation';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES } from '@/config/constants/property';
 import { IMAGES_CONFIG } from '@/config/constants/files';
 import { X, Upload, MapPin, Home, IndianRupee, FileText, Tag } from 'lucide-react';
+import { useForm, useImageUpload } from '@/shared/hooks';
 
 const CreatePropertyView = () => {
     const router = useRouter();
-    const { createProperty, error: viewModelError, success: viewModelSuccess, isSubmitting } = usePropertyViewModel();
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        price: '',
-        location: '',
-        category: '',
-        property_subtype: '',
-        purpose: 'sale',
-    });
-
-    const [formImages, setFormImages] = useState([]);
-    const [imagePreviews, setImagePreviews] = useState([]);
-
+    const pathname = usePathname();
+    const { createProperty } = usePropertyViewModel();
     const categories = Object.values(PROPERTY_CATEGORIES);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+    // Detect if we're in account or dashboard context
+    const isAccountContext = pathname?.startsWith('/account');
+    const propertiesListRoute = isAccountContext ? ROUTES.ACCOUNT.PROPERTIES : ROUTES.DASHBOARD.PROPERTIES;
 
-    const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
-        addImages(files);
-    };
-
-    const addImages = (files) => {
-        // Validate files using the validation module
-        const validation = validateImageFiles(files);
-
-        if (!validation.valid) {
-            alert(validation.error + (validation.fileName ? ` (${validation.fileName})` : ''));
-            return;
-        }
-
-        // Limit files based on current images count (max 10)
-        const remainingSlots = 10 - formImages.length;
-        const filesToAdd = files.slice(0, remainingSlots);
-
-        if (filesToAdd.length < files.length) {
-            alert(`Only added ${filesToAdd.length} images. Maximum 10 images allowed.`);
-        }
-
-        // Add images to formImages state
-        setFormImages(prev => [...prev, ...filesToAdd]);
-
-        // Create previews
-        filesToAdd.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews(prev => [...prev, reader.result]);
-            };
-            reader.readAsDataURL(file);
-        });
-    };
-
-    const removeImage = (index) => {
-        // Remove image from both formImages and previews
-        setFormImages(prev => prev.filter((_, i) => i !== index));
-        setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (formImages.length === 0) {
-            alert('At least one image is required');
-            return;
-        }
-
-        // Validate form data using Zod
-        const errors = validateWithSchema(createPropertySchema, formData);
-        if (errors.length > 0) {
-            alert(errors[0].message);
-            return;
-        }
-
-        try {
-            // Separate images from other form data
-            const result = await createProperty(formData, formImages);
-
-            if (result && result.success) {
-                alert('Property created successfully');
-                router.push(ROUTES.DASHBOARD.PROPERTIES);
-            } else {
-                alert(result.error || 'Failed to create property');
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange,
+        handleSubmit,
+        updateFields
+    } = useForm(
+        {
+            title: '',
+            description: '',
+            price: '',
+            location: '',
+            category: '',
+            property_subtype: '',
+            purpose: 'sale',
+        },
+        createPropertySchema,
+        async (data) => {
+            if (images.length === 0) {
+                return { success: false, message: 'At least one image is required' };
             }
-        } catch (error) {
-            console.error('Error creating property:', error);
-            alert('An error occurred while creating the property');
+            const result = await createProperty(data, images);
+            if (result?.success) {
+                router.push(propertiesListRoute);
+            }
+            return result;
         }
-    };
+    );
+
+    const {
+        images,
+        previews: imagePreviews,
+        errors: imageErrors,
+        handleImageSelect,
+        removeImage,
+        imageCount,
+        canAddMore
+    } = useImageUpload();
 
     return (
-        <div className="max-w-4xl mx-auto p-2 sm:p-4 lg:p-6">
+        <div className="max-w-4xl mx-auto p-1 sm:p-4 lg:p-6">
             <div className="mb-4 sm:mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Create New Property</h2>
                 <p className="text-sm sm:text-base text-gray-600 mt-1">Add a new property listing to your portfolio</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+                {message.content && message.type === 'error' && (
+                    <div className="mx-2 sm:mx-4 lg:mx-6 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
+                        {message.content}
+                    </div>
+                )}
+                {message.content && message.type === 'success' && (
+                    <div className="mx-2 sm:mx-4 lg:mx-6 mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm">
+                        {message.content}
+                    </div>
+                )}
+                <div className="px-2 py-4 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
                     {/* Image Upload */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -129,20 +91,20 @@ const CreatePropertyView = () => {
 
                         {/* Upload Area */}
                         <div
-                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors border-gray-300 hover:border-green-500`}
+                            className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center transition-colors border-gray-300 hover:border-green-500`}
                         >
                             <input
                                 type="file"
                                 id="image-upload"
                                 multiple
                                 accept="image/*"
-                                onChange={handleImageChange}
+                                onChange={handleImageSelect}
                                 className="hidden"
-                                disabled={formImages.length >= IMAGES_CONFIG.maxCount}
+                                disabled={!canAddMore}
                             />
                             <label
                                 htmlFor="image-upload"
-                                className={`cursor-pointer ${formImages.length >= IMAGES_CONFIG.maxCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`cursor-pointer ${!canAddMore ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                                 <p className="text-sm text-gray-600 mb-1">
@@ -152,10 +114,19 @@ const CreatePropertyView = () => {
                                     PNG, JPG, AVIF, WEBP up to 5MB each
                                 </p>
                                 <p className="text-xs text-gray-500 mt-1">
-                                    {formImages.length}/{IMAGES_CONFIG.maxCount} images uploaded
+                                    {imageCount}/{IMAGES_CONFIG.maxCount} images uploaded
                                 </p>
                             </label>
                         </div>
+
+                        {/* Image Errors */}
+                        {imageErrors.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                                {imageErrors.map((error, index) => (
+                                    <p key={index} className="text-xs text-red-600">{error}</p>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Image Previews */}
                         {imagePreviews.length > 0 && (
@@ -199,11 +170,14 @@ const CreatePropertyView = () => {
                             type="text"
                             name="title"
                             value={formData.title}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="e.g., Luxury 3BHK Apartment in Green Valley"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             required
                         />
+                        {errors.title && (
+                            <p className="mt-1 text-xs text-red-600">{errors.title}</p>
+                        )}
                     </div>
 
                     {/* Description */}
@@ -217,12 +191,15 @@ const CreatePropertyView = () => {
                         <textarea
                             name="description"
                             value={formData.description}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="Provide a detailed description of your property..."
                             rows={5}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                             required
                         />
+                        {errors.description && (
+                            <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+                        )}
                     </div>
 
                     {/* Price and Location Row */}
@@ -239,11 +216,14 @@ const CreatePropertyView = () => {
                                 type="text"
                                 name="price"
                                 value={formData.price}
-                                onChange={handleInputChange}
+                                onChange={handleChange}
                                 placeholder="e.g., 50,00,000"
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
+                            {errors.price && (
+                                <p className="mt-1 text-xs text-red-600">{errors.price}</p>
+                            )}
                         </div>
 
                         {/* Location */}
@@ -258,11 +238,14 @@ const CreatePropertyView = () => {
                                 type="text"
                                 name="location"
                                 value={formData.location}
-                                onChange={handleInputChange}
+                                onChange={handleChange}
                                 placeholder="e.g., Shimla, Himachal Pradesh"
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
+                            {errors.location && (
+                                <p className="mt-1 text-xs text-red-600">{errors.location}</p>
+                            )}
                         </div>
                     </div>
 
@@ -274,7 +257,7 @@ const CreatePropertyView = () => {
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
-                                onClick={() => setFormData(prev => ({ ...prev, purpose: 'sale' }))}
+                                onClick={() => updateFields({ purpose: 'sale' })}
                                 className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'sale'
                                     ? 'border-green-500 bg-green-50 text-green-700'
                                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -284,7 +267,7 @@ const CreatePropertyView = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setFormData(prev => ({ ...prev, purpose: 'rent' }))}
+                                onClick={() => updateFields({ purpose: 'rent' })}
                                 className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.purpose === 'rent'
                                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                                     : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -293,6 +276,9 @@ const CreatePropertyView = () => {
                                 For Rent
                             </button>
                         </div>
+                        {errors.purpose && (
+                            <p className="mt-1 text-xs text-red-600">{errors.purpose}</p>
+                        )}
                     </div>
 
                     {/* Category */}
@@ -308,7 +294,7 @@ const CreatePropertyView = () => {
                                 <button
                                     key={category}
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, category, property_subtype: '' }))}
+                                    onClick={() => updateFields({ category, property_subtype: '' })}
                                     className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.category === category
                                         ? 'border-green-500 bg-green-50 text-green-700'
                                         : 'border-gray-200 text-gray-700 hover:border-gray-300'
@@ -318,6 +304,9 @@ const CreatePropertyView = () => {
                                 </button>
                             ))}
                         </div>
+                        {errors.category && (
+                            <p className="mt-1 text-xs text-red-600">{errors.category}</p>
+                        )}
                     </div>
 
                     {/* Property Subtype - Show based on category */}
@@ -330,7 +319,7 @@ const CreatePropertyView = () => {
                                 <select
                                     name="property_subtype"
                                     value={formData.property_subtype}
-                                    onChange={handleInputChange}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 >
                                     <option value="">Select Type (Optional)</option>
@@ -340,16 +329,19 @@ const CreatePropertyView = () => {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.property_subtype && (
+                                    <p className="mt-1 text-xs text-red-600">{errors.property_subtype}</p>
+                                )}
                             </div>
                         )
                     }
                 </div >
 
                 {/* Form Actions */}
-                < div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3" >
+                < div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3" >
                     <button
                         type="button"
-                        onClick={() => router.push(ROUTES.DASHBOARD.PROPERTIES)}
+                        onClick={() => router.push(propertiesListRoute)}
                         className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
                         disabled={isSubmitting}
                     >

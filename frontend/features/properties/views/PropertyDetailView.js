@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
 import PropertyImageSlideshow from '@/features/properties/components/PropertyImageSlideshow'
+import PropertySaveButton from '@/features/savedProperties/components/PropertySaveButton'
+import { toast } from 'sonner'
 
 export default function PropertyDetailView() {
     const { id } = useParams()
@@ -37,11 +39,7 @@ export default function PropertyDetailView() {
     };
 
     const handleScheduleVisit = () => {
-        alert('Schedule Visit feature coming soon!');
-    };
-
-    const handleSaveProperty = () => {
-        alert('Property saved to your favorites!');
+        toast.info('Schedule Visit feature coming soon!');
     };
 
     if (!data || !data.title) {
@@ -70,7 +68,8 @@ export default function PropertyDetailView() {
                         </div>
                     </div>
 
-                    <div className="">
+                    <div className="flex flex-col items-end gap-2">
+                        <PropertySaveButton propertyId={id} property={data} className="mb-2" />
                         <p className="text-3xl md:text-4xl font-bold text-green-600">
                             {data.formattedprice}
                         </p>

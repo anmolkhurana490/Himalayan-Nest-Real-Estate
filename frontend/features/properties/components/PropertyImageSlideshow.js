@@ -85,8 +85,8 @@ export default function PropertyImageSlideshow({ images = [], title = "Property"
                                     key={index}
                                     onClick={() => handleDotClick(index)}
                                     className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentImageIndex
-                                            ? 'bg-white w-8'
-                                            : 'bg-white/50 hover:bg-white/75'
+                                        ? 'bg-white w-8'
+                                        : 'bg-white/50 hover:bg-white/75'
                                         }`}
                                     aria-label={`Go to image ${index + 1}`}
                                 />
@@ -98,14 +98,14 @@ export default function PropertyImageSlideshow({ images = [], title = "Property"
 
             {/* Thumbnail Strip - Only show if more than 1 image */}
             {displayImages.length > 1 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                <div className="flex gap-2 mt-2 overflow-x-auto p-2">
                     {displayImages.map((img, index) => (
                         <button
                             key={index}
                             onClick={() => handleDotClick(index)}
                             className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${index === currentImageIndex
-                                    ? 'border-blue-600 scale-105'
-                                    : 'border-gray-300 hover:border-blue-400'
+                                ? 'border-blue-600 scale-105'
+                                : 'border-gray-300 hover:border-blue-400'
                                 }`}
                         >
                             <Image

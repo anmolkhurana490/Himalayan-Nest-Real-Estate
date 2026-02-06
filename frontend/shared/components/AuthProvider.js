@@ -7,8 +7,13 @@ import { useAppStore } from '@/shared/stores/appStore';
 // Sync NextAuth session with Zustand store
 function AuthSync({ children }) {
     const { data: session, status } = useSession();
-    const { setUser, clearUser, setAuthChecked } = useAuthStore();
+    const { setUser, clearUser, setAuthChecked, initializeAuth } = useAuthStore();
     const setLoading = useAppStore((state) => state.setLoading);
+
+    // Initialize auth store on mount
+    useEffect(() => {
+        initializeAuth();
+    }, []);
 
     useEffect(() => {
         if (status === 'loading') {

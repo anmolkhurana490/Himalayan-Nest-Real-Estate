@@ -2,7 +2,6 @@
 // Defines the structure and validation for property data
 
 import { formatPrice } from "@/utils/helpers";
-import { fa } from "zod/v4/locales";
 
 export class Property {
     constructor(data = {}) {

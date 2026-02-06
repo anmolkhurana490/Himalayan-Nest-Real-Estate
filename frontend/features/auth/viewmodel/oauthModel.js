@@ -28,13 +28,14 @@ export const customOAuthResolve = async (user, account) => {
 
             if (oauthResponse.success && oauthResponse.user) {
                 user.accessToken = oauthResponse.user.accessToken;
+                user.role = oauthResponse.user.role;
                 return true;
             }
             throw new Error(oauthResponse.message || 'OAuth resolution failed');
         }
     } catch (error) {
         const params = new URLSearchParams({
-            error: error.data?.message || error.message || 'OAuth resolution failed'
+            error: error.response?.data?.message || error.message || 'OAuth resolution failed'
         });
 
         return `/auth/register?${params.toString()}`;

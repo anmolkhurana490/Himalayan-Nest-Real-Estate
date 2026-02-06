@@ -75,7 +75,7 @@ const SearchFilterBar = ({ onSearch, searchParams }) => {
             purpose: 'buy'
         };
 
-        if (searchParams.size > 0) router.replace(ROUTES.PROPERTIES);
+        if (searchParams.size > 0) router.replace(ROUTES.PROPERTIES.ROOT);
         setFilters(clearedFilters);
     };
 

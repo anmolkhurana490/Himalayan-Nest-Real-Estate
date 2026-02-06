@@ -2,7 +2,7 @@
 // Client-side validation using Zod (matching backend validation rules)
 
 import { z } from 'zod';
-import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES, PROPERTY_PURPOSE } from '@/config/constants/property';
+import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES, PROPERTY_PURPOSE, PRICE_RANGES } from '@/config/constants/property';
 import { imageFilesSchema } from '@/features/files/validation';
 
 // Property categories and purposes (matching backend)
@@ -44,7 +44,8 @@ export const createPropertySchema = z.object({
         invalid_type_error: 'Price must be a number'
     })
         .positive('Price must be positive')
-        .min(0, 'Price cannot be negative'),
+        .min(PRICE_RANGES.MIN, `Price cannot be less than ${PRICE_RANGES.MIN}`)
+        .max(PRICE_RANGES.MAX, `Price cannot exceed ${PRICE_RANGES.MAX}`),
 
     location: z.string({
         required_error: 'Location is required',
@@ -100,7 +101,8 @@ export const updatePropertySchema = z.object({
         invalid_type_error: 'Price must be a number'
     })
         .positive('Price must be positive')
-        .min(0, 'Price cannot be negative'),
+        .min(PRICE_RANGES.MIN, `Price cannot be less than ${PRICE_RANGES.MIN}`)
+        .max(PRICE_RANGES.MAX, `Price cannot exceed ${PRICE_RANGES.MAX}`),
 
     location: z.string()
         .min(2, 'Location must be at least 2 characters')
@@ -138,21 +140,14 @@ export const searchPropertySchema = z.object({
     purpose: z.string()
         .optional(),
 
-    minPrice: z.string()
-        .refine(val => !val || !isNaN(parseFloat(val)), {
-            message: 'Minimum price must be a number'
-        })
+    minPrice: z.coerce.number('Minimum price must be a number')
+        .min(PRICE_RANGES.MIN, `Minimum price cannot be less than ${PRICE_RANGES.MIN}`)
         .optional(),
 
-    maxPrice: z.string()
-        .refine(val => !val || !isNaN(parseFloat(val)), {
-            message: 'Maximum price must be a number'
-        })
+    maxPrice: z.coerce.number('Maximum price must be a number')
+        .max(PRICE_RANGES.MAX, `Maximum price cannot exceed ${PRICE_RANGES.MAX}`)
         .optional(),
 
-    budget: z.string()
-        .refine(val => !val || !isNaN(parseFloat(val)), {
-            message: 'Budget must be a number'
-        })
+    budget: z.coerce.number('Budget must be a number')
         .optional()
 }).partial();

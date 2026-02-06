@@ -20,10 +20,22 @@ export const formatPrice = (price) => {
 /**
  * Format date to readable format
  * @param {string} date - ISO date string
+ * @param {string} length - 'short' or 'long' format, default is 'short'
  * @returns {string} Formatted date
  */
-export const formatDate = (date) => {
+export const formatDate = (date, length = 'short') => {
     if (!date) return '';
+
+    // Short format: 12 Jan 24
+    if (length === 'short') {
+        return new Date(date).toLocaleDateString('en-IN', {
+            year: '2-digit',
+            month: 'short',
+            day: 'numeric',
+        });
+    }
+
+    // Long format: 12 January 2024
     return new Date(date).toLocaleDateString('en-IN', {
         year: 'numeric',
         month: 'long',

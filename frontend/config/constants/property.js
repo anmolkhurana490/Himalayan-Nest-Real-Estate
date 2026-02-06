@@ -92,3 +92,9 @@ export const SORT_OPTIONS = {
     MOST_VIEWED: 'most_viewed',
     FEATURED: 'featured',
 };
+
+// Price Ranges
+export const PRICE_RANGES = {
+    MIN: 500, // 500 INR
+    MAX: 1000000000, // 100 Crores
+};

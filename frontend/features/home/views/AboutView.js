@@ -100,7 +100,7 @@ const AboutView = () => {
                         Join thousands of satisfied customers who found their perfect home with Himalayan Nest.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                        <Link href={ROUTES.PROPERTIES} className="bg-white text-green-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
+                        <Link href={ROUTES.PROPERTIES.ROOT} className="bg-white text-green-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
                             Browse Properties
                         </Link>
                         <Link href={ROUTES.CONTACT} className="bg-green-700 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors text-sm sm:text-base">

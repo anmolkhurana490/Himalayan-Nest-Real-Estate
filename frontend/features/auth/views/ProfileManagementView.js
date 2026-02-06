@@ -6,21 +6,52 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useAuthViewModel } from '@/features/auth/viewmodel/authViewModel';
 import { User, Mail, Phone, MapPin, Building, Save } from 'lucide-react';
+import { useForm } from '@/shared/hooks';
+import { formatDate } from '@/utils/helpers';
 
 const ProfileManagementView = () => {
     const user = useAuthStore((state) => state.user);
     const setUser = useAuthStore((state) => state.setUser);
-    const { updateUserProfile, error: viewModelError, success: viewModelSuccess, isSubmitting } = useAuthViewModel();
+    const { updateUserProfile } = useAuthViewModel();
+    const [isChanged, setIsChanged] = useState(false);
 
-    const [formData, setFormData] = useState({
+    // Define initial form values
+    const initialValues = {
         name: '',
         email: '',
         phone: '',
         address: '',
         company: ''
-    });
-    const [isChanged, setIsChanged] = useState(false);
+    };
 
+    // Define submit handler
+    const handleFormSubmit = async (data) => {
+        if (!isChanged) {
+            return { success: false, message: 'No changes to save' };
+        }
+
+        const result = await updateUserProfile(data);
+
+        if (result?.success) {
+            // Update user in store
+            setUser({ ...user, ...data });
+            setIsChanged(false);
+        }
+
+        return result;
+    };
+
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange: baseHandleChange,
+        handleSubmit,
+        setFormData
+    } = useForm(initialValues, null, handleFormSubmit);
+
+    // Populate form from user data
     useEffect(() => {
         if (user) {
             setFormData({
@@ -31,40 +62,12 @@ const ProfileManagementView = () => {
                 company: user.company || ''
             });
         }
-    }, [user]);
+    }, [user, setFormData]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    // Enhanced handleChange to track changes
+    const handleChange = (e) => {
+        baseHandleChange(e);
         setIsChanged(true);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!isChanged) {
-            alert('No changes to save');
-            return;
-        }
-
-        try {
-            const result = await updateUserProfile(formData);
-
-            if (result && result.success) {
-                // Update user in store
-                setUser({ ...user, ...formData });
-                alert('Profile updated successfully!');
-                setIsChanged(false);
-            } else {
-                alert(result.error || 'Failed to update profile');
-            }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('An error occurred while updating your profile');
-        }
     };
 
     const handleReset = () => {
@@ -81,14 +84,23 @@ const ProfileManagementView = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto px-2 sm:px-0">
+        <div className="max-w-3xl mx-auto">
             <div className="mb-4 sm:mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
                 <p className="text-gray-600 mt-1">Manage your account information and preferences</p>
             </div>
 
+            {message.content && (
+                <div className={`mb-4 p-3 rounded-md text-sm ${message.type === 'success'
+                    ? 'bg-green-100 border border-green-400 text-green-700'
+                    : 'bg-red-100 border border-red-400 text-red-700'
+                    }`}>
+                    {message.content}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                     {/* Profile Header */}
                     <div className="flex items-center space-x-4 pb-6 border-b border-gray-200">
                         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -115,11 +127,12 @@ const ProfileManagementView = () => {
                             type="text"
                             name="name"
                             value={formData.name}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="Enter your full name"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             required
                         />
+                        {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
                     </div>
 
                     {/* Email */}
@@ -134,7 +147,7 @@ const ProfileManagementView = () => {
                             type="email"
                             name="email"
                             value={formData.email}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="your.email@example.com"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
                             disabled
@@ -154,10 +167,11 @@ const ProfileManagementView = () => {
                             type="tel"
                             name="phone"
                             value={formData.phone}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="+91 XXXXXXXXXX"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
+                        {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
                     </div>
 
                     {/* Address */}
@@ -171,11 +185,12 @@ const ProfileManagementView = () => {
                         <textarea
                             name="address"
                             value={formData.address}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="Enter your address"
                             rows={3}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                         />
+                        {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
                     </div>
 
                     {/* Company */}
@@ -190,10 +205,11 @@ const ProfileManagementView = () => {
                             type="text"
                             name="company"
                             value={formData.company}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             placeholder="Your company or business name"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
+                        {errors.company && <p className="mt-1 text-xs text-red-600">{errors.company}</p>}
                     </div>
 
                     {/* Account Stats */}
@@ -203,10 +219,7 @@ const ProfileManagementView = () => {
                             <div className="bg-gray-50 px-4 py-3 rounded-lg">
                                 <p className="text-xs text-gray-500">Member Since</p>
                                 <p className="text-sm font-medium text-gray-900 mt-1">
-                                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
-                                        month: 'long',
-                                        year: 'numeric'
-                                    }) : 'N/A'}
+                                    {user?.createdAt ? formatDate(user.createdAt, 'long') : 'N/A'}
                                 </p>
                             </div>
                             <div className="bg-gray-50 px-4 py-3 rounded-lg">
@@ -218,7 +231,7 @@ const ProfileManagementView = () => {
                 </div>
 
                 {/* Form Actions */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg flex justify-end space-x-3">
                     <button
                         type="button"
                         onClick={handleReset}

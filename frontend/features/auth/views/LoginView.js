@@ -2,69 +2,47 @@
 // Handles user login with email/password and redirects based on user role
 
 "use client";
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { loginSchema } from '../validation'
 import ROUTES from '@/config/constants/routes'
-import { validateWithSchema } from '@/utils/validator'
 import Image from 'next/image';
+import { useForm } from '@/shared/hooks';
 
 export default function LoginView() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
-    const { loginUser, oauthSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
-    const [error, setError] = useState('');
+    const { loginUser, oauthSignIn, isSubmitting: vmSubmitting } = useAuthViewModel();
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange,
+        handleSubmit,
+        setMessage
+    } = useForm(
+        { email: '', password: '' },
+        loginSchema,
+        async (data) => {
+            const result = await loginUser(data);
+            if (result?.success) {
+                router.push(ROUTES.PROPERTIES.ROOT);
+            }
+            return result;
+        }
+    );
 
     // Handle OAuth errors
     useEffect(() => {
         const errorParam = searchParams.get('error');
         if (errorParam) {
-            setError('Authentication failed. Please try again.');
+            setMessage({ type: 'error', content: 'Authentication failed. Please try again.' });
         }
-    }, [searchParams]);
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        if (error) setError('');
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        // Validate form data using Zod
-        const errors = validateWithSchema(loginSchema, formData);
-        if (errors.length > 0) {
-            setError(errors[0].message);
-            return;
-        }
-
-        try {
-            const result = await loginUser(formData);
-
-            if (result && result.success) {
-                alert(result.message || "Login successful!");
-                router.push(ROUTES.PROPERTIES);
-            } else {
-                const errorMessage = result?.error || result?.message || 'Login failed. Please check your credentials.';
-                setError(errorMessage);
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            setError('An unexpected error occurred. Please try again.');
-        } finally {
-            setSubmitting(false);
-        }
-    };
+    }, [searchParams, setMessage]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex sm:items-center justify-center py-6 sm:py-12 px-2 sm:px-4 lg:px-8">
@@ -87,9 +65,9 @@ export default function LoginView() {
                 </div>
 
                 <div className="bg-white py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6 shadow rounded-lg">
-                    {error && (
+                    {message.content && message.type === 'error' && (
                         <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-xs sm:text-sm">
-                            {error}
+                            {message.content}
                         </div>
                     )}
 
@@ -109,6 +87,9 @@ export default function LoginView() {
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
                                 placeholder="Enter your email address"
                             />
+                            {errors.email && (
+                                <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+                            )}
                         </div>
 
                         <div>
@@ -126,6 +107,9 @@ export default function LoginView() {
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
                                 placeholder="Enter your password"
                             />
+                            {errors.password && (
+                                <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                            )}
                         </div>
 
                         <div className="flex items-center justify-between">
@@ -165,7 +149,7 @@ export default function LoginView() {
                     <button
                         type="button"
                         onClick={() => oauthSignIn('google')}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || vmSubmitting}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Image
@@ -198,7 +182,7 @@ export default function LoginView() {
                         </div>
 
                         <Link
-                            href={ROUTES.PROPERTIES}
+                            href={ROUTES.PROPERTIES.ROOT}
                             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Guest User

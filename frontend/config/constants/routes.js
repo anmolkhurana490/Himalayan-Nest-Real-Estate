@@ -4,7 +4,6 @@
 const ROUTES = {
     // Public routes
     HOME: '/',
-    PROPERTIES: '/properties',
     ABOUT: '/home/about',
     CONTACT: '/home/contact',
 
@@ -18,7 +17,21 @@ const ROUTES = {
     CALCULATOR: '/calculator',
     ALERTS: '/alerts',
 
-    // Dashboard routes
+    // Properties routes (Public)
+    PROPERTIES: {
+        ROOT: '/properties',
+        DETAIL: (id) => `/properties/${id}`,
+        WITH_FILTERS: (filters) => {
+            const params = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) params.append(key, value);
+            });
+            const queryString = params.toString();
+            return `/properties${queryString ? `?${queryString}` : ''}`;
+        },
+    },
+
+    // Dashboard routes (Dealers/Admins)
     DASHBOARD: {
         ROOT: '/dashboard',
         OVERVIEW: '/dashboard/overview',
@@ -31,17 +44,20 @@ const ROUTES = {
         PROPERTY_DETAIL: (id) => `/dashboard/properties/${id}`,
     },
 
-    // Dynamic public routes
-    PROPERTY_DETAIL: (id) => `/properties/${id}`,
+    // Customer Account routes (Buyers/Sellers)
+    ACCOUNT: {
+        ROOT: '/account',
+        DASHBOARD: '/account/dashboard',
+        SAVED: '/account/saved',
+        PROPERTIES: '/account/properties',
+        ADD_PROPERTY: '/account/add-property',
+        ENQUIRIES: '/account/enquiries',
+        SETTINGS: '/account/settings',
+        COMPARISON: '/account/comparison',
 
-    // Query params helpers
-    PROPERTIES_WITH_FILTERS: (filters) => {
-        const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value) params.append(key, value);
-        });
-        const queryString = params.toString();
-        return `/properties${queryString ? `?${queryString}` : ''}`;
+        // Dynamic routes
+        PROPERTY_DETAIL: (id) => `/account/properties/${id}`,
+        EDIT_PROPERTY: (id) => `/account/properties/${id}/edit`,
     },
 };
 

@@ -62,7 +62,17 @@ const DashboardSidebar = () => {
     }, [pathname]);
 
     const handleMenuClick = (tabId) => {
-        router.push(`${ROUTES.DASHBOARD.ROOT}/${tabId}`);
+        if (tabId === 'overview') {
+            router.push(ROUTES.DASHBOARD.OVERVIEW);
+        } else if (tabId === 'properties') {
+            router.push(ROUTES.DASHBOARD.PROPERTIES);
+        } else if (tabId === 'create-property') {
+            router.push(ROUTES.DASHBOARD.CREATE_PROPERTY);
+        } else if (tabId === 'queries') {
+            router.push(ROUTES.DASHBOARD.QUERIES);
+        } else if (tabId === 'profile') {
+            router.push(ROUTES.DASHBOARD.PROFILE);
+        }
         setActiveTab(tabId);
     };
 

@@ -6,37 +6,42 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import { fetchImageUrl } from '@/utils/imageHelpers';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
 import { Building, Eye, MessageCircleMore, Plus, Search } from 'lucide-react';
+import { toast } from 'sonner';
+import { formatDate } from '@/utils/helpers';
 
 const PropertiesManagementView = () => {
     const { getMyProperties, updateProperty, deleteProperty, myProperties } = usePropertyViewModel();
-    const [properties, setProperties] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredProperties, setFilteredProperties] = useState([]);
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Detect if we're in account or dashboard context
+    const isAccountContext = pathname?.startsWith('/account');
+    const propertyDetailRoute = isAccountContext ? ROUTES.ACCOUNT.PROPERTY_DETAIL : ROUTES.DASHBOARD.PROPERTY_DETAIL;
 
     useEffect(() => {
-        loadProperties();
+        getMyProperties();
     }, []);
 
     useEffect(() => {
-        let filtered = properties;
+        let filtered = myProperties || [];
 
         // Apply filter
         if (filter === 'active') {
-            filtered = properties.filter(p => p.isActive);
+            filtered = myProperties.filter(p => p.isActive);
         } else if (filter === 'inactive') {
-            filtered = properties.filter(p => !p.isActive);
+            filtered = myProperties.filter(p => !p.isActive);
         }
 
         // Apply search term
         if (searchTerm) {
             const lowerSearchTerm = searchTerm.toLowerCase();
-            filtered = properties.filter(p =>
+            filtered = myProperties.filter(p =>
                 p.title.toLowerCase().includes(lowerSearchTerm) ||
                 p.description.toLowerCase().includes(lowerSearchTerm) ||
                 p.location.toLowerCase().includes(lowerSearchTerm)
@@ -44,34 +49,19 @@ const PropertiesManagementView = () => {
         }
 
         setFilteredProperties(filtered);
-    }, [properties, filter, searchTerm]);
-
-    const loadProperties = async () => {
-        try {
-            setLoading(true);
-            const result = await getMyProperties();
-
-            if (result && result.success) {
-                setProperties(result.properties || []);
-            }
-        } catch (error) {
-            console.error('Error loading properties:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [myProperties, filter, searchTerm]);
 
     const handleStatusToggle = async (propertyId, currentStatus) => {
         const result = await updateProperty(propertyId, { isActive: !currentStatus });
         if (result && result.success) {
-            alert(`Property ${currentStatus ? 'Deactivated' : 'Activated'} successfully`);
+            toast.success(`Property ${currentStatus ? 'Deactivated' : 'Activated'} successfully`);
             setFilteredProperties(prev =>
                 prev.map(property =>
                     property.id === propertyId ? { ...property, isActive: !currentStatus } : property
                 )
             );
         } else {
-            alert(result.error || 'Failed to update property status');
+            toast.error(result?.error || 'Failed to update property status');
         }
     };
 
@@ -80,18 +70,12 @@ const PropertiesManagementView = () => {
             const result = await deleteProperty(propertyId);
             if (result && result.success) {
                 setFilteredProperties(prev => prev.filter(property => property.id !== propertyId));
-                alert(result.message || 'Property deleted successfully');
+                toast.success(result.message || 'Property deleted successfully');
+            } else {
+                toast.error(result.message || 'Failed to delete property');
             }
         }
     };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                {/* <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div> */}
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-4 sm:space-y-6">
@@ -119,7 +103,7 @@ const PropertiesManagementView = () => {
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
-                            All ({properties.length})
+                            All ({myProperties.length})
                         </button>
                         <button
                             onClick={() => setFilter('active')}
@@ -128,7 +112,7 @@ const PropertiesManagementView = () => {
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
-                            Active ({properties.filter(p => p.isActive).length})
+                            Active ({myProperties.filter(p => p.isActive).length})
                         </button>
                         <button
                             onClick={() => setFilter('inactive')}
@@ -137,7 +121,7 @@ const PropertiesManagementView = () => {
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
-                            Inactive ({properties.filter(p => !p.isActive).length})
+                            Inactive ({myProperties.filter(p => !p.isActive).length})
                         </button>
                     </div>
 
@@ -210,7 +194,7 @@ const PropertiesManagementView = () => {
                                     {property.isActive ? 'Deactivate' : 'Activate'}
                                 </button>
                                 <button
-                                    onClick={() => router.push(ROUTES.DASHBOARD.PROPERTY_DETAIL(property.id))}
+                                    onClick={() => router.push(propertyDetailRoute(property.id))}
                                     className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
                                 >
                                     View & Edit
@@ -236,7 +220,7 @@ const PropertiesManagementView = () => {
                                     </span>
                                 </div>
                                 <span className="text-xs text-gray-500">
-                                    {new Date(property.createdAt).toLocaleDateString()}
+                                    {formatDate(property.createdAt)}
                                 </span>
                             </div>
                         </div>

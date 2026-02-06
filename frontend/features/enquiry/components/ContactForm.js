@@ -2,69 +2,38 @@
 // Handles contact form submission with validation and user feedback
 
 "use client";
-import React, { useState } from 'react'
+import React from 'react'
 import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel'
+import { useForm } from '@/shared/hooks';
 
 const ContactForm = () => {
-    const { submitEnquiry, error: viewModelError, success: viewModelSuccess, isSubmitting } = useEnquiryViewModel();
-    // Form data state management
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-    });
+    const { submitEnquiry } = useEnquiryViewModel();
 
-    const [message, setMessage] = useState({ type: '', content: '' }); // Success/error messages
-
-    // Handle input field changes
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage({ type: '', content: '' });
-
-        try {
-            // Submit contact form to API
-            const result = await submitEnquiry(formData);
-
-            if (result && result.success) {
-                // Show success message and clear form
-                setMessage({
-                    type: 'success',
-                    content: result.message || 'Thank you for contacting us! We will get back to you soon.'
-                });
-                // Reset form data on successful submission
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    subject: '',
-                    message: ''
-                });
-            } else {
-                // Handle submission failure
-                const errorMessage = result?.error || result?.message || 'Failed to send message. Please try again.';
-                setMessage({
-                    type: 'error',
-                    content: errorMessage
-                });
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange,
+        handleSubmit,
+        reset
+    } = useForm(
+        {
+            name: '',
+            email: '',
+            phone: '',
+            subject: '',
+            message: ''
+        },
+        null, // No validation schema
+        async (data) => {
+            const result = await submitEnquiry(data);
+            if (result?.success) {
+                reset();
             }
-        } catch (error) {
-            console.error('Error submitting contact form:', error);
-            setMessage({
-                type: 'error',
-                content: 'Something went wrong. Please try again.'
-            });
+            return result;
         }
-    };
+    );
 
     return (
         <div>
@@ -93,6 +62,9 @@ const ContactForm = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your full name"
                         />
+                        {errors.name && (
+                            <p className="mt-1 text-xs text-red-600">{errors.name}</p>
+                        )}
                     </div>
 
                     <div>
@@ -109,6 +81,9 @@ const ContactForm = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your email address"
                         />
+                        {errors.email && (
+                            <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+                        )}
                     </div>
 
                     <div>
@@ -125,6 +100,9 @@ const ContactForm = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your phone number"
                         />
+                        {errors.phone && (
+                            <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+                        )}
                     </div>
 
                     <div>
@@ -151,6 +129,9 @@ const ContactForm = () => {
                             <option value="complaint">Complaint/Feedback</option>
                             <option value="other">Other</option>
                         </select>
+                        {errors.subject && (
+                            <p className="mt-1 text-xs text-red-600">{errors.subject}</p>
+                        )}
                     </div>
 
                     <div className="md:col-span-2">
@@ -167,6 +148,9 @@ const ContactForm = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Please describe your inquiry in detail..."
                         ></textarea>
+                        {errors.message && (
+                            <p className="mt-1 text-xs text-red-600">{errors.message}</p>
+                        )}
                     </div>
                 </div>
 

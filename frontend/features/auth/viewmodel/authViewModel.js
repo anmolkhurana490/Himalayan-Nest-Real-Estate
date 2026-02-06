@@ -47,12 +47,12 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Registration error:', error);
-            const errorMessage = error.data?.message || error.message || 'Registration failed';
+            const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
             set({ error: errorMessage });
             return {
                 success: false,
                 error: errorMessage,
-                message: error.data?.message || error.message || 'Registration failed. Please try again.'
+                message: error.response?.data?.message || error.message || 'Registration failed. Please try again.'
             };
         } finally {
             set({ isSubmitting: false });

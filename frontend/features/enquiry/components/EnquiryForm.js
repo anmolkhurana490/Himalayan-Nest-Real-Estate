@@ -1,86 +1,40 @@
 "use client";
-import React, { useState } from 'react'
+import React from 'react'
 import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel'
 import { createEnquirySchema } from '@/features/enquiry/validation'
-import { validateWithSchema } from '@/utils/validator'
 import { LEGACY_PROPERTY_TYPES } from '@/config/constants/property'
+import { useForm } from '@/shared/hooks';
 
 const EnquiryForm = ({ propertyId }) => {
-    const { submitEnquiry, error: viewModelError, success: viewModelSuccess, isSubmitting } = useEnquiryViewModel();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        propertyType: '',
-        budget: ''
-    });
+    const { submitEnquiry } = useEnquiryViewModel();
 
-    const [message, setMessage] = useState({ type: '', content: '' });
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage({ type: '', content: '' });
-
-        // Validate form data using Zod
-        const errors = validateWithSchema(createEnquirySchema, formData);
-        if (errors.length > 0) {
-            setMessage({
-                type: 'error',
-                content: errors[0].message
-            });
-            return;
-        }
-
-        try {
-            const enquiryData = {
-                ...formData,
-                propertyId
-            };
-
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange,
+        handleSubmit,
+        reset
+    } = useForm(
+        {
+            name: '',
+            email: '',
+            phone: '',
+            message: '',
+            propertyType: '',
+            budget: ''
+        },
+        createEnquirySchema,
+        async (data) => {
+            const enquiryData = { ...data, propertyId };
             const result = await submitEnquiry(enquiryData);
-
-            if (result && result.success) {
-                // Handle successful submission
-                setMessage({
-                    type: 'success',
-                    content: result.message || 'Thank you for your enquiry! We will get back to you soon.'
-                });
-                // Clear form on success
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    message: '',
-                    propertyType: '',
-                    budget: ''
-                });
-            } else {
-                // Handle submission failure
-                const errorMessage = result?.error || result?.message || 'Failed to submit enquiry. Please try again.';
-                setMessage({
-                    type: 'error',
-                    content: errorMessage
-                });
+            if (result?.success) {
+                reset();
             }
-        } catch (error) {
-            console.error('Error submitting enquiry:', error);
-            setMessage({
-                type: 'error',
-                content: 'Something went wrong. Please try again.'
-            });
-        } finally {
-            setIsSubmitting(false);
+            return result;
         }
-    };
-
+    );
 
     return (
         <div>
@@ -109,6 +63,9 @@ const EnquiryForm = ({ propertyId }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your full name"
                         />
+                        {errors.name && (
+                            <p className="mt-1 text-xs text-red-600">{errors.name}</p>
+                        )}
                     </div>
 
                     <div>
@@ -125,6 +82,9 @@ const EnquiryForm = ({ propertyId }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your email address"
                         />
+                        {errors.email && (
+                            <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+                        )}
                     </div>
 
                     <div>
@@ -141,6 +101,9 @@ const EnquiryForm = ({ propertyId }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Enter your phone number"
                         />
+                        {errors.phone && (
+                            <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+                        )}
                     </div>
 
                     <div>
@@ -174,6 +137,9 @@ const EnquiryForm = ({ propertyId }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="e.g., 10-15 Lakh or 8000-12000/month"
                         />
+                        {errors.budget && (
+                            <p className="mt-1 text-xs text-red-600">{errors.budget}</p>
+                        )}
                     </div>
 
                     <div className="md:col-span-2">
@@ -190,6 +156,9 @@ const EnquiryForm = ({ propertyId }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                             placeholder="Tell us about your requirements..."
                         ></textarea>
+                        {errors.message && (
+                            <p className="mt-1 text-xs text-red-600">{errors.message}</p>
+                        )}
                     </div>
                 </div>
 

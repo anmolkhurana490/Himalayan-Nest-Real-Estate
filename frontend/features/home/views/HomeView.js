@@ -55,7 +55,7 @@ const HeroSection = () => {
             });
 
             // Navigate to properties page with search parameters
-            router.push(`${ROUTES.PROPERTIES}?${urlParams.toString()}`);
+            router.push(`${ROUTES.PROPERTIES.ROOT}?${urlParams.toString()}`);
         } catch (error) {
             console.error('Search error:', error);
         } finally {

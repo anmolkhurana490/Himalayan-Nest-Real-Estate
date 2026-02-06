@@ -4,6 +4,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, User, Mail, Phone, Calendar, Eye, CheckCircle, Clock } from 'lucide-react';
+import { formatDate } from '@/utils/helpers';
 
 const QueriesManagementView = () => {
     const [queries, setQueries] = useState([]);
@@ -138,7 +139,7 @@ const QueriesManagementView = () => {
             <div className="space-y-3 sm:space-y-4">
                 {filteredQueries.map((query) => (
                     <div key={query.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="p-4 sm:p-6">
+                        <div className="p-3 sm:p-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -147,7 +148,7 @@ const QueriesManagementView = () => {
                                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                                         <span className="flex items-center">
                                             <Calendar className="w-4 h-4 mr-1" />
-                                            {new Date(query.date).toLocaleDateString()}
+                                            {formatDate(query.date)}
                                         </span>
                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${query.status === 'pending'
                                             ? 'bg-yellow-100 text-yellow-800'
@@ -270,7 +271,7 @@ const QueriesManagementView = () => {
                                 <div>
                                     <label className="text-sm font-medium text-gray-500">Date</label>
                                     <p className="text-gray-900 mt-1">
-                                        {new Date(selectedQuery.date).toLocaleDateString()}
+                                        {formatDate(selectedQuery.date)}
                                     </p>
                                 </div>
                             </div>

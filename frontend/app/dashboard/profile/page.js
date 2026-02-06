@@ -1,1 +1,1 @@
-export { default } from '@/features/dashboard/views/ProfileManagementView';
+export { default } from '@/features/auth/views/ProfileManagementView';

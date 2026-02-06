@@ -20,6 +20,7 @@ export const AUTH_ENDPOINTS = {
 export const PROPERTY_ENDPOINTS = {
     GET_ALL: '/properties',
     GET_BY_ID: (id) => `/properties/${id}`,
+    GET_BY_IDS: (ids) => `/properties?ids=${ids.join(',')}`,
     CREATE: '/properties',
     UPDATE: (id) => `/properties/${id}`,
     DELETE: (id) => `/properties/${id}`,

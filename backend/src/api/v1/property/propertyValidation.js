@@ -93,7 +93,7 @@ export const updatePropertyValidation = z.object({
         .max(200, 'Location must be at most 200 characters')
         .optional(),
 
-    isActive: z.boolean()
+    isActive: z.coerce.boolean()
         .optional(),
 
     imagesToDelete: z.string()

@@ -9,14 +9,19 @@ import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
 import { LoaderCircle } from 'lucide-react';
 import { registerSchema } from '../validation'
-import { validateWithSchema } from '@/utils/validator';
 import Image from 'next/image';
+import { useForm } from '@/shared/hooks';
 
 export default function RegisterView() {
     const searchParams = useSearchParams();
     const oauthSignup = searchParams.get('oauthSignup') === 'true';
+    const router = useRouter();
+    const { registerUser, oauthSignIn } = useAuthViewModel();
+    const [passwordErrors, setPasswordErrors] = useState([]);
+    const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
 
-    const [formData, setFormData] = useState({
+    // Define initial form values
+    const initialValues = {
         firstName: '',
         lastName: '',
         email: '',
@@ -26,11 +31,87 @@ export default function RegisterView() {
         confirmPassword: '',
         userType: USER_ROLES.CUSTOMER,
         agreeToTerms: false,
-    });
+    };
 
+    // Define submit handler
+    const handleFormSubmit = async (data) => {
+        try {
+            setStatus('registering');
+
+            const registrationData = {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                phone: data.phone,
+                password: data.password,
+                userType: data.userType,
+                provider: data.provider,
+                providerAccountId: data.providerAccountId,
+            };
+
+            const result = await registerUser(registrationData);
+
+            if (!result.success) {
+                setStatus('idle');
+                return result;
+            }
+
+            // If OAuth signup, automatically sign in with provider
+            if (oauthSignup) {
+                setStatus('signing-in');
+                const signInResult = await oauthSignIn(registrationData.provider, false);
+
+                if (signInResult.success) {
+                    setStatus('success');
+                    setTimeout(() => {
+                        router.push(ROUTES.DASHBOARD.ROOT);
+                    }, 1500);
+                    return { success: true, message: 'Registration successful! Redirecting to dashboard...' };
+                } else {
+                    setStatus('idle');
+                    setTimeout(() => {
+                        router.push(ROUTES.LOGIN);
+                    }, 2000);
+                    return { success: false, message: 'Registration successful but auto-login failed. Please login manually.' };
+                }
+            } else {
+                // For regular signup, show success and redirect to login
+                setStatus('success');
+                setTimeout(() => {
+                    router.push(ROUTES.LOGIN);
+                }, 2000);
+                return { success: true, message: 'Account created successfully! Redirecting to login...' };
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            setStatus('idle');
+            return { success: false, message: error.message || 'An unexpected error occurred. Please try again.' };
+        }
+    };
+
+    const {
+        formData,
+        errors,
+        isSubmitting,
+        message,
+        handleChange: baseHandleChange,
+        handleSubmit,
+        setFormData,
+        setMessage
+    } = useForm(initialValues, registerSchema, handleFormSubmit);
+
+    // Set initial error from URL params
+    useEffect(() => {
+        const urlError = searchParams.get('error');
+        if (urlError) {
+            setMessage({ type: 'error', content: urlError });
+        }
+    }, [searchParams, setMessage]);
+
+    // Populate form from OAuth params
     useEffect(() => {
         if (oauthSignup) {
-            setFormData(prev => ({
+            setFormData({
                 firstName: searchParams.get('name')?.split(' ')[0] || '',
                 lastName: searchParams.get('name')?.split(' ').slice(1).join(' ') || '',
                 email: searchParams.get('email') || '',
@@ -41,29 +122,16 @@ export default function RegisterView() {
                 agreeToTerms: false,
                 provider: searchParams.get('provider'),
                 providerAccountId: searchParams.get('providerAccountId') || '',
-            }));
+            });
         }
-    }, []);
+    }, [oauthSignup, searchParams, setFormData]);
 
-    const { registerUser, oauthSignIn, error: viewModelError, isSubmitting, setSubmitting } = useAuthViewModel();
-    const [passwordErrors, setPasswordErrors] = useState([]);
-    const [error, setError] = useState(searchParams.get('error'));
-    const [success, setSuccess] = useState('');
-    const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
-    const router = useRouter();
-
+    // Enhanced handleChange with password validation
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
+        baseHandleChange(e);
 
-        if (error) setError('');
-        if (success) setSuccess('');
-
-        if (name === 'password') {
-            validatePassword(value);
+        if (e.target.name === 'password') {
+            validatePassword(e.target.value);
         }
     };
 
@@ -75,76 +143,6 @@ export default function RegisterView() {
         if (!/\d/.test(password)) errors.push("At least one number");
         if (!/[!@#$%^&*]/.test(password)) errors.push("At least one special character");
         setPasswordErrors(errors);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-
-        // Validate form data using Zod
-        const errors = validateWithSchema(registerSchema, formData);
-        if (errors.length > 0) {
-            setError(errors[0].message);
-            return;
-        }
-
-        try {
-            setStatus('registering');
-            setSubmitting(true);
-
-            const registrationData = {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                email: formData.email,
-                phone: formData.phone,
-                password: formData.password,
-                userType: formData.userType,
-                provider: formData.provider,
-                providerAccountId: formData.providerAccountId,
-            };
-
-            const result = await registerUser(registrationData);
-
-            if (!result.success) {
-                setStatus('idle');
-                setError(result.message || 'Registration failed. Please try again.');
-                return;
-            }
-
-            // If OAuth signup, automatically sign in with provider
-            if (oauthSignup) {
-                setStatus('signing-in');
-                const signInResult = await oauthSignIn(registrationData.provider, false); // 'false' indicates sign-in flow
-
-                if (signInResult.success) {
-                    setStatus('success');
-                    setSuccess('Registration successful! Redirecting to dashboard...');
-                    setTimeout(() => {
-                        router.push(ROUTES.DASHBOARD.ROOT);
-                    }, 1500);
-                } else {
-                    setStatus('idle');
-                    setError('Registration successful but auto-login failed. Please login manually.');
-                    setTimeout(() => {
-                        router.push(ROUTES.LOGIN);
-                    }, 2000);
-                }
-            } else {
-                // For regular signup, show success and redirect to login
-                setStatus('success');
-                setSuccess('Account created successfully! Redirecting to login...');
-                setTimeout(() => {
-                    router.push(ROUTES.LOGIN);
-                }, 2000);
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            setStatus('idle');
-            setError(error.message || 'An unexpected error occurred. Please try again.');
-        } finally {
-            setSubmitting(false);
-        }
     };
 
     return (
@@ -168,21 +166,21 @@ export default function RegisterView() {
                 </div>
 
                 <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 shadow rounded-lg">
-                    {oauthSignup && !error && (
+                    {oauthSignup && !message.content && (
                         <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-md text-sm">
                             Email not found. Please sign up first to continue.
                         </div>
                     )}
 
-                    {error && (
+                    {message.content && message.type === 'error' && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
-                            {error}
+                            {message.content}
                         </div>
                     )}
 
-                    {success && (
+                    {message.content && message.type === 'success' && (
                         <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm">
-                            {success}
+                            {message.content}
                         </div>
                     )}
 
@@ -202,6 +200,7 @@ export default function RegisterView() {
                                     className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
                                     placeholder="First name"
                                 />
+                                {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
                             </div>
                             <div>
                                 <label htmlFor="lastName" className="block text-xs sm:text-sm font-medium text-gray-700">
@@ -217,6 +216,7 @@ export default function RegisterView() {
                                     className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
                                     placeholder="Last name"
                                 />
+                                {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
                             </div>
                         </div>
 
@@ -236,6 +236,7 @@ export default function RegisterView() {
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm disabled:bg-gray-100"
                                 placeholder="Enter your email address"
                             />
+                            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                         </div>
 
                         <div>
@@ -252,6 +253,7 @@ export default function RegisterView() {
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                                 placeholder="Enter your phone number"
                             />
+                            {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
                         </div>
 
                         <div>
@@ -416,7 +418,7 @@ export default function RegisterView() {
                         </div>
 
                         <Link
-                            href={ROUTES.PROPERTIES}
+                            href={ROUTES.PROPERTIES.ROOT}
                             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Guest User

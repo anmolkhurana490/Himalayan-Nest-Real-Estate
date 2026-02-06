@@ -3,6 +3,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import PropertySaveButton from "@/features/savedProperties/components/PropertySaveButton";
+import ROUTES from "@/config/constants/routes";
 
 export default function PropertyCard({ property }) {
     return (
@@ -14,6 +16,11 @@ export default function PropertyCard({ property }) {
                     onError={(e) => e.target.src = '/logos/default-property.jpg'}
                     fill sizes='(100vw) 100vw, (min-width: 400px) 50vw, (min-width: 724px) 33vw'
                     className="object-cover"
+                />
+                <PropertySaveButton
+                    propertyId={property.id}
+                    property={property}
+                    className="absolute top-2 right-2 shadow-lg"
                 />
             </div>
 
@@ -32,7 +39,7 @@ export default function PropertyCard({ property }) {
                     <span className="text-base sm:text-lg font-bold text-green-600">{property.formattedprice}</span>
                 </div>
 
-                <Link href={`/properties/${property.id}`} className="w-full text-center mt-2 sm:mt-3 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-sm sm:text-base">
+                <Link href={ROUTES.PROPERTIES.DETAIL(property.id)} className="w-full text-center mt-2 sm:mt-3 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-sm sm:text-base">
                     View Details
                 </Link>
             </div>

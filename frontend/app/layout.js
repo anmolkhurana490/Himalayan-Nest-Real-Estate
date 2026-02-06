@@ -1,11 +1,11 @@
 // Root Layout Component - Main Application Layout
 // Provides global styling, fonts, context providers, and persistent UI elements
-
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar, { MobileMenu } from "@/shared/components/Navbar";
 import Footer from "@/shared/components/Footer";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import AuthProvider from "@/shared/components/AuthProvider";
+import { Toaster } from "sonner";
 import "./styles/globals.css";
 
 // Font configurations for consistent typography
@@ -56,6 +56,9 @@ export default function RootLayout({ children }) {
 
           {/* Global loading indicator */}
           <LoadingSpinner />
+
+          {/* Global toast notifications */}
+          <Toaster position="bottom-left" richColors />
 
         </AuthProvider>
       </body>

@@ -3,20 +3,27 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import EditProperty from '@/features/properties/components/EditProperty';
 import ROUTES from '@/config/constants/routes';
 import { MapPin, IndianRupee, Calendar, Eye, MessageCircleMore, ArrowLeft, Edit } from 'lucide-react';
 import PropertyImageSlideshow from '../components/PropertyImageSlideshow';
+import { toast } from 'sonner';
+import { formatDate } from '@/utils/helpers';
 
 const PropertyDetailView = () => {
     const router = useRouter();
     const params = useParams();
+    const pathname = usePathname();
     const { getPropertyById } = usePropertyViewModel();
     const [property, setProperty] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showEditModal, setShowEditModal] = useState(false);
+
+    // Detect if we're in account or dashboard context
+    const isAccountContext = pathname?.startsWith('/account');
+    const propertiesListRoute = isAccountContext ? ROUTES.ACCOUNT.PROPERTIES : ROUTES.DASHBOARD.PROPERTIES;
 
     useEffect(() => {
         if (params?.id) {
@@ -32,13 +39,13 @@ const PropertyDetailView = () => {
             if (result && result.success) {
                 setProperty(result.property);
             } else {
-                alert('Property not found');
-                router.push(ROUTES.DASHBOARD.PROPERTIES);
+                toast.error('Property not found');
+                router.push(propertiesListRoute);
             }
         } catch (error) {
             console.error('Error loading property:', error);
-            alert('Failed to load property');
-            router.push(ROUTES.DASHBOARD.PROPERTIES);
+            toast.error('Failed to load property');
+            router.push(propertiesListRoute);
         } finally {
             setLoading(false);
         }
@@ -70,7 +77,7 @@ const PropertyDetailView = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 {/* <button
-                    onClick={() => router.push(ROUTES.DASHBOARD.PROPERTIES)}
+                    onClick={() => router.push(propertiesListRoute)}
                     className="inline-flex items-center text-gray-600 hover:text-gray-900"
                 >
                     <ArrowLeft className="w-5 h-5 mr-2" />
@@ -88,7 +95,7 @@ const PropertyDetailView = () => {
             {/* Property Details */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {/* Property Image */}
-                <div className="relative h-96">
+                <div className="relative">
                     <PropertyImageSlideshow images={property.images} title={property.title} />
 
                     <div className="absolute top-6 left-6">
@@ -146,7 +153,7 @@ const PropertyDetailView = () => {
                                 <Calendar className="w-5 h-5" />
                             </div>
                             <p className="text-sm font-medium text-gray-900">
-                                {new Date(property.createdAt).toLocaleDateString()}
+                                {formatDate(property.createdAt, 'long')}
                             </p>
                             <p className="text-sm text-gray-500">Posted</p>
                         </div>
