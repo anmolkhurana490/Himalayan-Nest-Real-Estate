@@ -27,14 +27,16 @@ export default function PropertyDetailView() {
     }, [id]);
 
     const handlePhoneClick = () => {
-        if (data.dealer?.phone) {
-            window.location.href = `tel:${data.dealer.phone}`;
+        if (data.author?.phone) {
+            toast.info("Call feature coming soon!");
+            // window.location.href = `tel:${data.author.phone}`;
         }
     };
 
     const handleMessageClick = () => {
-        if (data.dealer?.phone) {
-            window.location.href = `sms:${data.dealer.phone}`;
+        if (data.author?.phone) {
+            toast.info("Message feature coming soon!");
+            // window.location.href = `sms:${data.author.phone}`;
         }
     };
 
@@ -101,8 +103,30 @@ export default function PropertyDetailView() {
                 </div>
 
                 <div className="space-y-4">
+                    <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-800">Property Author</h3>
+
+                        <button
+                            className="flex items-center gap-4 w-full text-left hover:bg-gray-100 rounded-lg p-2 transition-colors"
+                            onClick={() => toast.info("Author profile feature coming soon!")}
+                        >
+                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                                <img
+                                    src={data.author.avatar || '/logos/default-profile.png'}
+                                    alt={data.author?.name || 'Author Avatar'}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-gray-800 font-medium">{data.author?.name || 'N/A'}</p>
+                                <p className="text-gray-600 text-sm">📞 {data.author?.phone || 'N/A'}</p>
+                                <p className="text-gray-600 text-sm">✉️ {data.author?.email || 'N/A'}</p>
+                            </div>
+                        </button>
+                    </div>
+
                     <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 sticky top-4">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Property Owner</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Property Author</h3>
                         <div className="space-y-3">
                             <button
                                 onClick={handlePhoneClick}

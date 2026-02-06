@@ -20,7 +20,8 @@ export class Property {
         this.image = data.image || data.images?.[0] || '';
         this.images = data.images || [];
 
-        this.owner = data.owner || null;
+        this.author = data.author || null;
+        this.views = data.viewCount || 0;
         this.createdAt = data.createdAt || null;
         this.updatedAt = data.updatedAt || null;
         this.featured = data.featured || false;

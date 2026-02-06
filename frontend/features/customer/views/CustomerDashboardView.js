@@ -48,11 +48,6 @@ export default function CustomerDashboardView() {
         });
     }, [savedProperties, myProperties]);
 
-    if (!user || user.role !== 'customer') {
-        router.push(ROUTES.LOGIN);
-        return null;
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 py-6 px-2 sm:px-4 lg:px-8">
             <div className="max-w-7xl mx-auto">

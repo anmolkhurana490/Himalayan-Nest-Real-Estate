@@ -62,6 +62,17 @@ export const useEnquiryViewModel = create((set, get) => ({
      * Get All Enquiries (Admin/Owner)
      */
     getEnquiries: async (filters = {}) => {
+        const { enquiries } = get();
+
+        // Return cached data if exists
+        if (enquiries.length > 0) {
+            return {
+                success: true,
+                enquiries,
+                fromCache: true
+            };
+        }
+
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });

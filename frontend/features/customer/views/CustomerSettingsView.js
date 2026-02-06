@@ -65,11 +65,6 @@ export default function CustomerSettingsView() {
         }
     }, [preferences, setFormData]);
 
-    if (!user || user.role !== 'customer') {
-        router.push(ROUTES.LOGIN);
-        return null;
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 py-6 px-2 sm:px-4 lg:px-8">
             <div className="max-w-4xl mx-auto">
@@ -100,8 +95,8 @@ export default function CustomerSettingsView() {
                 {/* Message Display */}
                 {message.content && (
                     <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === 'success'
-                            ? 'bg-green-100 border border-green-400 text-green-700'
-                            : 'bg-red-100 border border-red-400 text-red-700'
+                        ? 'bg-green-100 border border-green-400 text-green-700'
+                        : 'bg-red-100 border border-red-400 text-red-700'
                         }`}>
                         {message.content}
                     </div>

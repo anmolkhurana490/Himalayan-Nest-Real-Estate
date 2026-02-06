@@ -3,7 +3,7 @@
 
 import express from 'express';
 import propertyController from './propertyController.js';
-import AuthMiddleware, { validateDealer } from '../../../middlewares/AuthMiddleware.js';
+import AuthMiddleware from '../../../middlewares/AuthMiddleware.js';
 import { uploadPropertyImages, handleMulterError } from '../../../middlewares/FileUploadMiddleware.js';
 import { validate, validateUUID } from '../../../middlewares/ValidationMiddleware.js';
 import { createPropertyValidation, updatePropertyValidation, searchPropertyValidation } from './propertyValidation.js';
@@ -17,17 +17,15 @@ router.get('/', validate(searchPropertyValidation, 'params'), (req, res) => prop
 // Protected routes (authentication required) - MUST come before /:id to avoid conflicts
 router.get('/my-properties',
     AuthMiddleware,
-    // validateDealer,
     (req, res) => propertyController.getUserProperties(req, res)
 );
 
 // Single property - comes after specific routes
 router.get('/:id', validateUUID(), (req, res) => propertyController.getPropertyById(req, res));
 
-// Dealer-only routes (authentication + dealer role required)
+// Protected routes for creating, updating, deleting properties
 router.post('/',
     AuthMiddleware,
-    // validateDealer,
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
@@ -38,7 +36,6 @@ router.post('/',
 router.put('/:id',
     validateUUID(),
     AuthMiddleware,
-    // validateDealer,
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
@@ -49,7 +46,6 @@ router.put('/:id',
 router.delete('/:id',
     validateUUID(),
     AuthMiddleware,
-    // validateDealer,
     (req, res) => propertyController.deleteProperty(req, res)
 );
 

@@ -15,29 +15,34 @@ class PropertyRepository {
     }
 
     /**
-     * Find property by ID
+     * Find property by ID, and increment view count
      * @param {String} id - Property ID
      * @param {Object} options - Optional query options
      * @returns {Promise<Property|null>}
      */
     async findById(id, options = {}) {
-        return await Property.findByPk(id, options);
+        const property = await Property.findByPk(id, options);
+        await property.increment('viewCount'); // Increment view count on each access
+        return property;
     }
 
     /**
-     * Find property by ID with dealer information
+     * Find property by ID with author information, and increment view count
      * @param {String} id - Property ID
      * @returns {Promise<Object|null>}
      */
-    async findByIdWithDealer(id) {
+    async findByIdWithAuthor(id) {
         const property = await Property.findByPk(id);
         if (!property) return null;
 
-        if (property.dealer_id) {
-            const dealer = await User.findByPk(property.dealer_id, {
+        // Increment view count
+        await property.increment('viewCount');
+
+        if (property.author_id) {
+            const author = await User.findByPk(property.author_id, {
                 attributes: ['id', 'name', 'email', 'phone']
             });
-            return { ...property.toJSON(), dealer };
+            return { ...property.toJSON(), author };
         }
 
         return property;
@@ -59,13 +64,13 @@ class PropertyRepository {
     }
 
     /**
-     * Get properties by dealer ID
-     * @param {String} dealerId - Dealer user ID
+     * Get properties by author ID
+     * @param {String} authorId - Author user ID
      * @returns {Promise<Array<Property>>}
      */
-    async findByDealerId(dealerId) {
+    async findByAuthorId(authorId) {
         return await Property.findAll({
-            where: { dealer_id: dealerId },
+            where: { author_id: authorId },
             order: [['createdAt', 'DESC']]
         });
     }

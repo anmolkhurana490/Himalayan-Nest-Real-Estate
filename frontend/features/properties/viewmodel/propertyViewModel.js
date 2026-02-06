@@ -68,6 +68,17 @@ export const usePropertyViewModel = create((set, get) => ({
      * Get Featured Properties
      */
     getFeaturedProperties: async (limit = 6) => {
+        const { featuredProperties } = get();
+
+        // Return cached data if exists
+        if (featuredProperties.length > 0) {
+            return {
+                success: true,
+                properties: featuredProperties,
+                fromCache: true
+            };
+        }
+
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });
@@ -161,6 +172,17 @@ export const usePropertyViewModel = create((set, get) => ({
      * Get My Properties (authenticated user)
      */
     getMyProperties: async () => {
+        const { myProperties } = get();
+
+        // Return cached data if exists
+        if (myProperties.length > 0) {
+            return {
+                success: true,
+                properties: myProperties,
+                fromCache: true
+            };
+        }
+
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });
@@ -227,7 +249,12 @@ export const usePropertyViewModel = create((set, get) => ({
             const data = await propertyRepo.createPropertyAPI(formData);
             const property = new Property(data.property || data.data);
 
-            set({ success: 'Property created successfully!' });
+            // Add new property to myProperties
+            const { myProperties } = get();
+            set({
+                success: 'Property created successfully!',
+                myProperties: [...myProperties, property]
+            });
 
             return {
                 success: true,
@@ -287,7 +314,14 @@ export const usePropertyViewModel = create((set, get) => ({
             const data = await propertyRepo.updatePropertyAPI(propertyId, formData);
             const property = new Property(data.property || data.data);
 
-            set({ currentProperty: property, success: 'Property updated successfully!' });
+            // Update property in myProperties
+            const { myProperties } = get();
+            const updatedProperties = myProperties.map(p => (p.id === property.id) ? property : p);
+            set({
+                currentProperty: property,
+                success: 'Property updated successfully!',
+                myProperties: updatedProperties
+            });
 
             return {
                 success: true,
@@ -328,7 +362,13 @@ export const usePropertyViewModel = create((set, get) => ({
 
             const data = await propertyRepo.deletePropertyAPI(propertyId);
 
-            set({ success: 'Property deleted successfully!' });
+            // Remove property from myProperties
+            const { myProperties } = get();
+            const filteredProperties = myProperties.filter(p => p.id !== propertyId);
+            set({
+                success: 'Property deleted successfully!',
+                myProperties: filteredProperties
+            });
 
             return {
                 success: true,

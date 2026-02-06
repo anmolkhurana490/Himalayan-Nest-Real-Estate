@@ -7,7 +7,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/shared/stores/authStore';
 import { useSavedPropertiesViewModel } from '@/features/savedProperties/viewmodel/savedPropertiesViewModel';
 import SavedPropertyCard from '@/features/savedProperties/components/SavedPropertyCard';
 import { Heart, ArrowLeft } from 'lucide-react';
@@ -16,17 +15,11 @@ import Link from 'next/link';
 
 export default function SavedPropertiesView() {
     const router = useRouter();
-    const { user, viewMode } = useAuthStore();
     const { savedProperties, getSavedProperties } = useSavedPropertiesViewModel();
 
     useEffect(() => {
         getSavedProperties();
     }, []);
-
-    if (!user || user.role !== 'customer') {
-        router.push(ROUTES.LOGIN);
-        return null;
-    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-6 px-2 sm:px-4 lg:px-8">

@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { PROPERTY_CATEGORIES, PROPERTY_PURPOSES } from '../constants/property.js';
+import { vi } from "zod/v4/locales";
 
 const PropertyModel = (sequelize) => {
     const Property = sequelize.define("Properties", {
@@ -44,7 +45,7 @@ const PropertyModel = (sequelize) => {
             allowNull: true,
             defaultValue: [],
         },
-        dealer_id: {
+        author_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: { model: 'Users', key: 'id' },
@@ -52,6 +53,10 @@ const PropertyModel = (sequelize) => {
         isActive: {
             type: DataTypes.BOOLEAN,
             defaultValue: true, // Property is active by default
+        },
+        viewCount: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0, // Initialize view count to 0
         },
         createdAt: {
             type: DataTypes.DATE,

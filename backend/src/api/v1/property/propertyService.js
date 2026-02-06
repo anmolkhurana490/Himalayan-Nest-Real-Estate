@@ -18,7 +18,7 @@ class PropertyService {
         // Fetch properties with filters
         let properties = await propertyRepository.findAll(filters, {
             attributes: {
-                exclude: ['dealer_id']
+                exclude: ['author_id']
             },
             order: [['createdAt', 'DESC']]
         });
@@ -37,12 +37,12 @@ class PropertyService {
     }
 
     /**
-     * Get single property by ID with dealer information
+     * Get single property by ID with author information
      * @param {String} id - Property ID
      * @returns {Promise<Object>} - Property details
      */
     async getPropertyById(id) {
-        const property = await propertyRepository.findByIdWithDealer(id);
+        const property = await propertyRepository.findByIdWithAuthor(id);
 
         if (!property) {
             throw new Error('Property not found');
@@ -52,12 +52,12 @@ class PropertyService {
     }
 
     /**
-     * Get properties by dealer
-     * @param {String} dealerId - Dealer user ID
-     * @returns {Promise<Array>} - Dealer's properties
+     * Get properties by author
+     * @param {String} authorId - Author user ID
+     * @returns {Promise<Array>} - Author's properties
      */
-    async getUserProperties(dealerId) {
-        let properties = await propertyRepository.findByDealerId(dealerId);
+    async getUserProperties(authorId) {
+        let properties = await propertyRepository.findByAuthorId(authorId);
 
         // Transform for listing view
         properties = properties.map(p => ({
@@ -73,10 +73,10 @@ class PropertyService {
      * Create new property
      * @param {Object} propertyData - Property data
      * @param {Array} files - Uploaded files (buffers from multer)
-     * @param {String} dealerId - Dealer user ID
+     * @param {String} authorId - Author user ID
      * @returns {Promise<Object>} - Created property
      */
-    async createProperty(propertyData, files, dealerId) {
+    async createProperty(propertyData, files, authorId) {
         const { title, description, category, property_subtype, purpose, location, price } = propertyData;
 
         // Validate file count
@@ -98,7 +98,7 @@ class PropertyService {
             location,
             price: parseFloat(price),
             images: imageUrls,
-            dealer_id: dealerId
+            author_id: authorId
         };
 
         try {
@@ -120,10 +120,10 @@ class PropertyService {
      * @param {String} id - Property ID
      * @param {Object} updateData - Update data
      * @param {Array} files - New uploaded files (buffers from multer)
-     * @param {String} dealerId - Dealer user ID
+     * @param {String} authorId - Author user ID
      * @returns {Promise<Object>} - Updated property
      */
-    async updateProperty(id, updateData, files, dealerId) {
+    async updateProperty(id, updateData, files, authorId) {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
@@ -131,7 +131,7 @@ class PropertyService {
         }
 
         // Check ownership
-        if (property.dealer_id !== dealerId) {
+        if (property.author_id !== authorId) {
             throw new Error('You are not authorized to perform this action');
         }
 
@@ -196,10 +196,10 @@ class PropertyService {
     /**
      * Delete property
      * @param {String} id - Property ID
-     * @param {String} dealerId - Dealer user ID
+     * @param {String} authorId - Author user ID
      * @returns {Promise<Boolean>}
      */
-    async deleteProperty(id, dealerId) {
+    async deleteProperty(id, authorId) {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
@@ -207,7 +207,7 @@ class PropertyService {
         }
 
         // Check ownership
-        if (property.dealer_id !== dealerId) {
+        if (property.author_id !== authorId) {
             throw new Error('You are not authorized to perform this action');
         }
 

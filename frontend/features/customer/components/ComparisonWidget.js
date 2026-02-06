@@ -9,7 +9,6 @@ import { X, ArrowRight } from 'lucide-react';
 import { useCustomerViewModel } from '../viewmodel/customerViewModel';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/config/constants/routes';
-import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 export default function ComparisonWidget() {
@@ -21,7 +20,8 @@ export default function ComparisonWidget() {
     }
 
     const handleCompare = () => {
-        router.push(ROUTES.ACCOUNT.COMPARISON);
+        toast.info('Comparison feature coming soon!'); // Placeholder for future implementation
+        // router.push(ROUTES.ACCOUNT.COMPARISON);
     };
 
     const handleRemove = (propertyId) => {

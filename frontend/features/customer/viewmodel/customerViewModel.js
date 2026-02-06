@@ -6,7 +6,6 @@
 import { create } from 'zustand';
 import * as customerRepo from '../repositories';
 import { CustomerPreferences } from '../model/CustomerPreferences';
-import { Property } from '@/features/properties/model/propertyModel';
 import { useAppStore } from '@/shared/stores/appStore';
 import { getFromStorage, setInStorage, removeFromStorage } from '@/utils/storage';
 
@@ -37,6 +36,17 @@ export const useCustomerViewModel = create((set, get) => ({
      * Get user preferences
      */
     getPreferences: async () => {
+        const { preferences } = get();
+
+        // Return cached data if exists
+        if (preferences !== null) {
+            return {
+                success: true,
+                preferences,
+                fromCache: true
+            };
+        }
+
         try {
             set({ isLoading: true, error: null });
 
@@ -145,6 +155,17 @@ export const useCustomerViewModel = create((set, get) => ({
      * Get customer enquiries
      */
     getCustomerEnquiries: async () => {
+        const { customerEnquiries } = get();
+
+        // Return cached data if exists
+        if (customerEnquiries.length > 0) {
+            return {
+                success: true,
+                enquiries: customerEnquiries,
+                fromCache: true
+            };
+        }
+
         try {
             set({ isLoading: true, error: null });
 

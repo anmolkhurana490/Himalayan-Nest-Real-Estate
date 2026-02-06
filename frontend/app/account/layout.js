@@ -6,14 +6,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/shared/stores/authStore';
 import ROUTES from '@/config/constants/routes';
 import ComparisonWidget from '@/features/customer/components/ComparisonWidget';
 
 export default function AccountLayout({ children }) {
     const router = useRouter();
-    const pathname = usePathname();
     const { user, authChecked } = useAuthStore();
 
     useEffect(() => {
@@ -33,18 +32,7 @@ export default function AccountLayout({ children }) {
     }, [user, authChecked, router]);
 
     if (!authChecked || !user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!user || user.role !== 'customer') {
-        return null;
+        return null; // or a loading spinner
     }
 
     return (

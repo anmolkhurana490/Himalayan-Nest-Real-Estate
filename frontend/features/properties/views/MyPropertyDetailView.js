@@ -109,7 +109,7 @@ const PropertyDetailView = () => {
                 </div>
 
                 {/* Property Info */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     <div className="flex items-start justify-between mb-4">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
@@ -152,7 +152,7 @@ const PropertyDetailView = () => {
                             <div className="flex items-center justify-center text-gray-400 mb-2">
                                 <Calendar className="w-5 h-5" />
                             </div>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-base font-medium text-gray-900">
                                 {formatDate(property.createdAt, 'long')}
                             </p>
                             <p className="text-sm text-gray-500">Posted</p>
