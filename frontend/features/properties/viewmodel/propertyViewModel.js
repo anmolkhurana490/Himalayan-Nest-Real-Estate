@@ -114,8 +114,8 @@ export const usePropertyViewModel = create((set, get) => ({
             useAppStore.getState().setLoading(true);
             set({ error: null, currentProperty: null });
 
-            const data = await propertyRepo.getPropertyByIdAPI(id);
-            const property = new Property(data.property || data.data);
+            const data = await propertyRepo.getPropertyByIdAPI(id, { includeAuthor: true });
+            const property = new Property(data.property || data.data?.property);
 
             set({ currentProperty: property });
 
@@ -146,7 +146,7 @@ export const usePropertyViewModel = create((set, get) => ({
             set({ error: null });
 
             const data = await propertyRepo.searchPropertiesAPI(searchQuery);
-            const properties = (data.properties || data.data || []).map(p => new Property(p));
+            const properties = (data.properties || []).map(p => new Property(p));
 
             set({ properties });
 
@@ -247,7 +247,7 @@ export const usePropertyViewModel = create((set, get) => ({
             }
 
             const data = await propertyRepo.createPropertyAPI(formData);
-            const property = new Property(data.property || data.data);
+            const property = new Property(data.property || data.data?.property);
 
             // Add new property to myProperties
             const { myProperties } = get();
@@ -312,7 +312,7 @@ export const usePropertyViewModel = create((set, get) => ({
             }
 
             const data = await propertyRepo.updatePropertyAPI(propertyId, formData);
-            const property = new Property(data.property || data.data);
+            const property = new Property(data.property || data.data?.property);
 
             // Update property in myProperties
             const { myProperties } = get();

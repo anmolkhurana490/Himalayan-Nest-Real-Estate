@@ -105,11 +105,11 @@ export const useAuthViewModel = create((set, get) => ({
      * OAuth Sign-In Handler
      * @param {boolean} signUp - Indicates if it's a sign-up flow
      */
-    oauthSignIn: async (provider, signUp = false) => {
+    oauthSignIn: async (provider, callbackUrl = ROUTES.DASHBOARD.ROOT) => {
         try {
             set({ isSubmitting: true, error: null });
             useAppStore.getState().setLoading(true);
-            await signIn(provider, { callbackUrl: ROUTES.DASHBOARD.ROOT });
+            await signIn(provider, { callbackUrl });
             return {
                 success: true,
                 message: `${provider} OAuth Sign-In successful!`

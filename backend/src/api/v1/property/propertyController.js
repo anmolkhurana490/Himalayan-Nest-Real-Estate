@@ -36,7 +36,7 @@ class PropertyController {
         const { id } = req.params;
 
         try {
-            const property = await propertyService.getPropertyById(id);
+            const property = await propertyService.getPropertyById(id, req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

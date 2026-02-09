@@ -14,14 +14,15 @@ const EnquiryModel = (sequelize) => {
             allowNull: false,
             references: { model: 'Properties', key: 'id' },
         },
-        user_id: {
+        sender_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: { model: 'Users', key: 'id' },
         },
-        message: {
-            type: DataTypes.TEXT,
-            allowNull: true,
+        receiver_id: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: { model: 'Users', key: 'id' },
         },
         status: {
             type: DataTypes.STRING,
@@ -32,6 +33,10 @@ const EnquiryModel = (sequelize) => {
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW, // Automatically set the creation date
+        },
+        closedAt: {
+            type: DataTypes.DATE,
+            allowNull: true, // Closed date can be null until the enquiry is resolved
         },
     });
 }

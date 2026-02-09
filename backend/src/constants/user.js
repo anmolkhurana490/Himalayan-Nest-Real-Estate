@@ -13,6 +13,9 @@ export const AUTH_PROVIDERS = {
     FACEBOOK: 'facebook',
 };
 
+// Association Attributes for Sequelize Models
+export const USER_ASSOCIATIONS_ATTRIBUTES = ['id', 'name', 'email', 'role', 'phone'];
+
 // Subscription Plan Constants
 export const SUBSCRIPTION_PLANS = {
     BASIC: 'basic',

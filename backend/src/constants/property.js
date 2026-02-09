@@ -20,9 +20,19 @@ export const PROPERTY_PURPOSES = {
     SALE: 'sale',
 };
 
+// Property Association Attributes for Sequelize Models
+export const PROPERTY_ASSOCIATIONS_ATTRIBUTES = ['id', 'title', 'category', 'purpose', 'price', 'location'];
+
 // Enquiry Status Constants
 export const ENQUIRY_STATUS = {
     PENDING: 'pending',
     RESPONDED: 'responded',
     CLOSED: 'closed',
+    REJECTED: 'rejected',
+    EXPIRED: 'expired',
 };
+
+export const MESSAGE = {
+    minLength: 5,
+    maxLength: 1000,
+}

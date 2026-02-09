@@ -3,6 +3,10 @@
 
 import { Property, User } from '../config/db.js';
 import { Op } from 'sequelize';
+import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
+
+// Define Associations for Property model
+Property.belongsTo(User, { as: 'author', foreignKey: 'author_id' });
 
 class PropertyRepository {
     /**
@@ -17,34 +21,25 @@ class PropertyRepository {
     /**
      * Find property by ID, and increment view count
      * @param {String} id - Property ID
-     * @param {Object} options - Optional query options
+     * @param {Object} options - Optional query options (for including associations, etc.)
      * @returns {Promise<Property|null>}
      */
     async findById(id, options = {}) {
-        const property = await Property.findByPk(id, options);
-        await property.increment('viewCount'); // Increment view count on each access
-        return property;
-    }
-
-    /**
-     * Find property by ID with author information, and increment view count
-     * @param {String} id - Property ID
-     * @returns {Promise<Object|null>}
-     */
-    async findByIdWithAuthor(id) {
-        const property = await Property.findByPk(id);
-        if (!property) return null;
-
-        // Increment view count
-        await property.increment('viewCount');
-
-        if (property.author_id) {
-            const author = await User.findByPk(property.author_id, {
-                attributes: ['id', 'name', 'email', 'phone']
+        const include = [];
+        if (options.includeAuthor) {
+            include.push({
+                model: User,
+                as: 'author',
+                attributes: USER_ASSOCIATIONS_ATTRIBUTES
             });
-            return { ...property.toJSON(), author };
         }
 
+        const property = await Property.findByPk(id, {
+            include: include.length > 0 ? include : undefined
+        });
+        if (!property) return null;
+
+        await property.increment('viewCount'); // Increment view count on each access
         return property;
     }
 

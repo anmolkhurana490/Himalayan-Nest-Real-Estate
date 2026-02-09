@@ -37,12 +37,16 @@ class PropertyService {
     }
 
     /**
-     * Get single property by ID with author information
+     * Get single property by ID
      * @param {String} id - Property ID
+     * @param {Object} query - Optional query parameters to include related data
      * @returns {Promise<Object>} - Property details
      */
-    async getPropertyById(id) {
-        const property = await propertyRepository.findByIdWithAuthor(id);
+    async getPropertyById(id, query = {}) {
+        const options = {
+            includeAuthor: !!query.includeAuthor,
+        };
+        const property = await propertyRepository.findById(id, options);
 
         if (!property) {
             throw new Error('Property not found');

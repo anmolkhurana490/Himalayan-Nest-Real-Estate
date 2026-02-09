@@ -6,6 +6,7 @@ import UserModel from '../models/User.js';
 import PropertyModel from '../models/Property.js';
 import SubscriptionModel from '../models/Subscription.js';
 import EnquiryModel from '../models/Enquiry.js';
+import EnquiryMessageModel from '../models/EnquiryMessage.js';
 import AccountModel from '../models/Account.js';
 import { config } from 'dotenv';
 
@@ -40,4 +41,5 @@ export const User = UserModel(sequelize);
 export const Property = PropertyModel(sequelize);
 export const Subscription = SubscriptionModel(sequelize);
 export const Enquiry = EnquiryModel(sequelize);
+export const EnquiryMessage = EnquiryMessageModel(sequelize);
 export const Account = AccountModel(sequelize);

@@ -21,10 +21,10 @@ export const getFeaturedPropertiesAPI = async (limit = 6) => {
 };
 
 /**
- * Get property by ID
+ * Get property by ID with optional related data (e.g., author)
  */
-export const getPropertyByIdAPI = async (id) => {
-    const response = await api.get(PROPERTY_ENDPOINTS.GET_BY_ID(id));
+export const getPropertyByIdAPI = async (id, params = {}) => {
+    const response = await api.get(PROPERTY_ENDPOINTS.GET_BY_ID(id), { params });
     return response.data;
 };
 

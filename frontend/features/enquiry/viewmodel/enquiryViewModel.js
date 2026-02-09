@@ -2,13 +2,14 @@
 // Handles business logic for enquiry operations using repositories
 
 import { create } from 'zustand';
-import { Enquiry } from '../model/enquiryModel';
+import { Enquiry, Message } from '../model/enquiryModel';
 import * as enquiryRepo from '../repositories';
 import { useAppStore } from '@/shared/stores/appStore';
 
 export const useEnquiryViewModel = create((set, get) => ({
     // State
-    enquiries: [],
+    sentEnquiries: [],
+    receivedEnquiries: [],
     propertyEnquiries: [],
     currentEnquiry: null,
     isSubmitting: false,
@@ -16,7 +17,6 @@ export const useEnquiryViewModel = create((set, get) => ({
     success: null,
 
     // Actions
-    setEnquiries: (enquiries) => set({ enquiries }),
     setPropertyEnquiries: (propertyEnquiries) => set({ propertyEnquiries }),
     setCurrentEnquiry: (currentEnquiry) => set({ currentEnquiry }),
     setSubmitting: (isSubmitting) => set({ isSubmitting }),
@@ -35,7 +35,8 @@ export const useEnquiryViewModel = create((set, get) => ({
             const data = await enquiryRepo.submitEnquiryAPI(enquiryData);
             const enquiry = new Enquiry(data.enquiry || data.data);
 
-            set({ success: 'Enquiry submitted successfully!' });
+            const { propertyEnquiries } = get();
+            set({ propertyEnquiries: [enquiry, ...propertyEnquiries], success: 'Enquiry submitted successfully!' });
 
             return {
                 success: true,
@@ -62,22 +63,11 @@ export const useEnquiryViewModel = create((set, get) => ({
      * Get All Enquiries (Admin/Owner)
      */
     getEnquiries: async (filters = {}) => {
-        const { enquiries } = get();
-
-        // Return cached data if exists
-        if (enquiries.length > 0) {
-            return {
-                success: true,
-                enquiries,
-                fromCache: true
-            };
-        }
-
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });
 
-            const params = {};
+            const params = { includeProperty: true, includeSender: true, includeReceiver: true };
 
             Object.entries(filters).forEach(([key, value]) => {
                 if (value && value !== '') {
@@ -85,15 +75,15 @@ export const useEnquiryViewModel = create((set, get) => ({
                 }
             });
 
-            const data = await enquiryRepo.getEnquiriesAPI(params);
-            const enquiries = (data.enquiries || data.data || []).map(e => new Enquiry(e));
+            const data = await enquiryRepo.getEnquiriesAPI(params,);
+            const sent = (data.sent || data.data?.sent || []).map(e => new Enquiry(e));
+            const received = (data.received || data.data?.received || []).map(e => new Enquiry(e));
 
-            set({ enquiries });
+            set({ sentEnquiries: sent, receivedEnquiries: received });
 
             return {
                 success: true,
                 data: data,
-                enquiries,
                 message: data.message || 'Enquiries fetched successfully'
             };
         } catch (error) {
@@ -122,20 +112,25 @@ export const useEnquiryViewModel = create((set, get) => ({
     /**
      * Get Property Enquiries
      */
-    getPropertyEnquiries: async (propertyId) => {
+    getPropertyEnquiries: async (propertyId, type, { includeSender = false, includeReceiver = false }) => {
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });
 
-            const data = await enquiryRepo.getPropertyEnquiriesAPI(propertyId);
-            const propertyEnquiries = (data.enquiries || data.data || []).map(e => new Enquiry(e));
+            const data = await enquiryRepo.getEnquiriesAPI({ property_id: propertyId, type, includeSender, includeReceiver });
 
-            set({ propertyEnquiries });
+            if (type === 'sent') {
+                const sent = (data.sent || data.data?.sent || []).map(e => new Enquiry(e));
+                set({ propertyEnquiries: sent || [] });
+            }
+            else {
+                const received = (data.received || data.data?.received || []).map(e => new Enquiry(e));
+                set({ propertyEnquiries: received || [] });
+            }
 
             return {
                 success: true,
                 data: data,
-                enquiries: propertyEnquiries,
                 message: data.message || 'Property enquiries fetched successfully'
             };
         } catch (error) {
@@ -211,16 +206,30 @@ export const useEnquiryViewModel = create((set, get) => ({
             set({ isSubmitting: true, error: null, success: null });
             useAppStore.getState().setLoading(true);
 
-            const data = await enquiryRepo.updateEnquiryStatusAPI(enquiryId, { status });
-            const enquiry = new Enquiry(data.enquiry || data.data);
+            await enquiryRepo.updateEnquiryStatusAPI(enquiryId, status);
 
-            set({ currentEnquiry: enquiry, success: 'Enquiry status updated successfully!' });
+            // Update the enquiry in the appropriate state array
+            const { sentEnquiries, receivedEnquiries, propertyEnquiries } = get();
+
+            const enquiry = sentEnquiries.find(e => e.id === enquiryId) || propertyEnquiries.find(e => e.id === enquiryId);
+            enquiry.status = status;
+
+            const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
+            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+
+            set({
+                currentEnquiry: enquiry,
+                sentEnquiries: updatedSent,
+                receivedEnquiries: updatedReceived,
+                propertyEnquiries: updatedPropertyEnquiries,
+                success: 'Enquiry status updated successfully!'
+            });
 
             return {
                 success: true,
-                data: data,
                 enquiry,
-                message: data.message || 'Enquiry status updated successfully'
+                message: 'Enquiry status updated successfully'
             };
         } catch (error) {
             console.error('Update enquiry status error:', error);
@@ -256,7 +265,16 @@ export const useEnquiryViewModel = create((set, get) => ({
 
             const data = await enquiryRepo.deleteEnquiryAPI(enquiryId);
 
-            set({ success: 'Enquiry deleted successfully!' });
+            // Remove the enquiry from the appropriate state array
+            const { sentEnquiries, propertyEnquiries } = get();
+            const updatedSent = sentEnquiries.filter(e => e.id !== enquiryId);
+            const updatedReceived = propertyEnquiries.filter(e => e.id !== enquiryId);
+
+            set({
+                sentEnquiries: updatedSent,
+                propertyEnquiries: updatedReceived,
+                success: 'Enquiry deleted successfully!'
+            });
 
             return {
                 success: true,
@@ -280,6 +298,119 @@ export const useEnquiryViewModel = create((set, get) => ({
                 success: false,
                 error: errorMessage,
                 message: 'Failed to delete enquiry'
+            };
+        } finally {
+            set({ isSubmitting: false });
+            useAppStore.getState().setLoading(false);
+        }
+    },
+
+    /**
+     * Close Enquiry (sender only)
+     */
+    closeEnquiry: async (enquiryId) => {
+        try {
+            set({ isSubmitting: true, error: null, success: null });
+            useAppStore.getState().setLoading(true);
+
+            await enquiryRepo.closeEnquiryAPI(enquiryId);
+
+            // Update the enquiry in sent enquiries (only sender can close)
+            const { sentEnquiries, propertyEnquiries } = get();
+
+            const enquiry = sentEnquiries.find(e => e.id === enquiryId);
+            enquiry.status = 'closed';
+            enquiry.closedAt = new Date();
+
+            const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
+            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+
+            set({
+                currentEnquiry: enquiry,
+                sentEnquiries: updatedSent,
+                propertyEnquiries: updatedPropertyEnquiries,
+                success: 'Enquiry closed successfully!'
+            });
+
+            return {
+                success: true,
+                enquiry,
+                message: 'Enquiry closed successfully'
+            };
+        } catch (error) {
+            console.error('Close enquiry error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to close enquiry';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to close enquiry'
+                };
+            }
+
+            return {
+                success: false,
+                error: errorMessage,
+                message: 'Failed to close enquiry'
+            };
+        } finally {
+            set({ isSubmitting: false });
+            useAppStore.getState().setLoading(false);
+        }
+    },
+
+    /**
+     * Respond to Enquiry (receiver only)
+     */
+    respondToEnquiry: async (enquiryId, message) => {
+        try {
+            set({ isSubmitting: true, error: null, success: null });
+            useAppStore.getState().setLoading(true);
+
+            const data = await enquiryRepo.respondToEnquiryAPI(enquiryId, message);
+            const response = new Message(data.data || data.message);
+
+            // Update the enquiry in received enquiries (only receiver can respond)
+            const { propertyEnquiries, receivedEnquiries } = get();
+
+            const enquiry = propertyEnquiries.find(e => e.id === enquiryId) || receivedEnquiries.find(e => e.id === enquiryId);
+            enquiry.response = response;
+
+            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
+            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+
+            set({
+                currentEnquiry: enquiry,
+                propertyEnquiries: updatedPropertyEnquiries,
+                receivedEnquiries: updatedReceived,
+                success: 'Response sent successfully!'
+            });
+
+            return {
+                success: true,
+                data: data,
+                enquiry,
+                message: data.message || 'Response sent successfully'
+            };
+        } catch (error) {
+            console.error('Respond to enquiry error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to send response';
+            set({ error: errorMessage });
+
+            if (error.response?.status === 401) {
+                return {
+                    success: false,
+                    error: 'Authentication required. Please login.',
+                    message: 'Failed to send response'
+                };
+            }
+
+            return {
+                success: false,
+                error: errorMessage,
+                message: 'Failed to send response'
             };
         } finally {
             set({ isSubmitting: false });

@@ -29,7 +29,15 @@ export const getEnquiryByIdAPI = async (id) => {
 };
 
 /**
- * Update enquiry status
+ * Update enquiry
+ */
+export const updateEnquiryAPI = async (id, updates) => {
+    const response = await api.put(ENQUIRY_ENDPOINTS.UPDATE(id), updates);
+    return response.data;
+};
+
+/**
+ * Update enquiry status to resolved/rejected (Admin/Owner)
  */
 export const updateEnquiryStatusAPI = async (id, status) => {
     const response = await api.put(ENQUIRY_ENDPOINTS.UPDATE_STATUS(id), { status });
@@ -45,9 +53,17 @@ export const deleteEnquiryAPI = async (id) => {
 };
 
 /**
- * Get property enquiries
+ * Close enquiry (sender only)
  */
-export const getPropertyEnquiriesAPI = async (propertyId) => {
-    const response = await api.get(ENQUIRY_ENDPOINTS.GET_PROPERTY_ENQUIRIES(propertyId));
+export const closeEnquiryAPI = async (id) => {
+    const response = await api.post(ENQUIRY_ENDPOINTS.CLOSE(id));
+    return response.data;
+};
+
+/**
+ * Respond to enquiry (receiver only)
+ */
+export const respondToEnquiryAPI = async (id, message) => {
+    const response = await api.post(ENQUIRY_ENDPOINTS.RESPOND(id), { message });
     return response.data;
 };

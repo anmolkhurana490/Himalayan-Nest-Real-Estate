@@ -1,17 +1,28 @@
 // Property Detail View - Displays detailed property information
 "use client"
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
 import PropertyImageSlideshow from '@/features/properties/components/PropertyImageSlideshow'
 import PropertySaveButton from '@/features/savedProperties/components/PropertySaveButton'
+import EnquiryForm from '@/features/enquiry/components/EnquiryForm'
+import SenderPropertyEnquiries from '@/features/enquiry/components/SenderPropertyEnquiries'
+import { useAuthStore } from '@/shared/stores/authStore'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Send } from 'lucide-react'
 
 export default function PropertyDetailView() {
     const { id } = useParams()
+    const { user } = useAuthStore();
+    const router = useRouter();
+    const pathname = usePathname();
+
     const { getPropertyById } = usePropertyViewModel();
-    const [data, setData] = useState({})
+
+    const [data, setData] = useState({});
     const [showFullDec, setShowFullDec] = useState(false);
+    const [showEnquiryForm, setShowEnquiryForm] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,6 +36,19 @@ export default function PropertyDetailView() {
         }
         fetchData();
     }, [id]);
+
+    const toggleEnquiryFormHandler = () => {
+        if (showEnquiryForm) {
+            setShowEnquiryForm(false);
+        }
+        else if (!user) {
+            toast.error('You must be logged in to send an enquiry');
+            router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+        }
+        else {
+            setShowEnquiryForm(true);
+        }
+    };
 
     const handlePhoneClick = () => {
         if (data.author?.phone) {
@@ -125,6 +149,39 @@ export default function PropertyDetailView() {
                         </button>
                     </div>
 
+                    {/* Send Enquiry Section */}
+                    <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800">Send Enquiry</h3>
+                            {showEnquiryForm && (
+                                <button
+                                    onClick={toggleEnquiryFormHandler}
+                                    className="text-sm text-gray-600 hover:text-gray-900"
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
+
+                        {!showEnquiryForm ? (
+                            <button
+                                onClick={toggleEnquiryFormHandler}
+                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                            >
+                                <Send className="w-5 h-5" />
+                                Send Enquiry
+                            </button>
+                        ) : (
+                            <EnquiryForm
+                                propertyId={id}
+                                onSuccess={() => {
+                                    setShowEnquiryForm(false);
+                                    toast.success('Enquiry sent successfully!');
+                                }}
+                            />
+                        )}
+                    </div>
+
                     <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 sticky top-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Property Author</h3>
                         <div className="space-y-3">
@@ -150,6 +207,9 @@ export default function PropertyDetailView() {
                     </div>
                 </div>
             </div>
+
+            {/* Show user's sent enquiries for this property */}
+            {user && <SenderPropertyEnquiries propertyId={id} />}
         </div>
     );
 }

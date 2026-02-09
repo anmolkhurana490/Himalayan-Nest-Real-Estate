@@ -13,8 +13,10 @@ import { useForm } from '@/shared/hooks';
 
 export default function LoginView() {
     const { loginUser, oauthSignIn, isSubmitting: vmSubmitting } = useAuthViewModel();
+
     const router = useRouter();
     const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get('redirect');
 
     const {
         formData,
@@ -30,7 +32,8 @@ export default function LoginView() {
         async (data) => {
             const result = await loginUser(data);
             if (result?.success) {
-                router.push(ROUTES.PROPERTIES.ROOT);
+                if (redirectUrl) router.push(redirectUrl);
+                else router.push(ROUTES.PROPERTIES.ROOT);
             }
             return result;
         }
@@ -148,7 +151,7 @@ export default function LoginView() {
 
                     <button
                         type="button"
-                        onClick={() => oauthSignIn('google')}
+                        onClick={() => oauthSignIn('google', redirectUrl)}
                         disabled={isSubmitting || vmSubmitting}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

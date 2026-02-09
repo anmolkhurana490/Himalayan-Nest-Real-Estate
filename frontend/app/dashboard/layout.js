@@ -58,7 +58,7 @@ function DashboardLayout({ children }) {
             <div className="flex-1 flex flex-col">
                 <div className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3">
                     <Link
-                        href={ROUTES.PROPERTIES}
+                        href={ROUTES.PROPERTIES.ROOT}
                         className="flex items-center w-fit p-1 sm:p-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
                     >
                         <MoveLeft className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -11,7 +11,13 @@ class EnquiryController {
      */
     async createEnquiry(req, res) {
         try {
-            const enquiry = await enquiryService.createEnquiry(req.body);
+            const { property_id, message } = req.body;
+
+            const enquiry = await enquiryService.createEnquiry({
+                property_id,
+                message,
+                senderUser: req.user,
+            });
 
             res.status(HTTP_STATUS.CREATED).json({
                 success: true,
@@ -34,7 +40,7 @@ class EnquiryController {
      */
     async getEnquiries(req, res) {
         try {
-            const enquiries = await enquiryService.getAllEnquiries(req.query);
+            const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
@@ -117,6 +123,80 @@ class EnquiryController {
             res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 message: error.message
+            });
+        }
+    }
+
+    /**
+     * Close an enquiry (sender only)
+     * @route POST /api/v1/enquiries/:id/close
+     */
+    async closeEnquiry(req, res) {
+        const { id } = req.params;
+
+        try {
+            const enquiry = await enquiryService.closeEnquiry(id, req.user);
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: 'Enquiry closed successfully',
+                data: enquiry,
+            });
+        } catch (error) {
+            console.error('Error closing enquiry:', error);
+            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
+
+    /**
+     * Receiver responds to an enquiry with a message
+     * @route POST /api/v1/enquiries/:id/respond
+     */
+    async respondToEnquiry(req, res) {
+        const { id } = req.params;
+        const { message } = req.body;
+
+        try {
+            const responseMessage = await enquiryService.respondToEnquiry(id, req.user, message);
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: 'Enquiry responded successfully',
+                data: responseMessage,
+            });
+        } catch (error) {
+            console.error('Error responding to enquiry:', error);
+            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
+
+    /**
+     * Update enquiry status (receiver only)
+     * @route PUT /api/v1/enquiries/:id/status
+     */
+    async updateEnquiryStatus(req, res) {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        try {
+            const enquiry = await enquiryService.updateEnquiryStatus(id, req.user, status);
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: 'Enquiry status updated successfully',
+                data: enquiry,
+            });
+        } catch (error) {
+            console.error('Error updating enquiry status:', error);
+            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error.message,
             });
         }
     }

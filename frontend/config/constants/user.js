@@ -11,9 +11,10 @@ export const USER_ROLES = {
 // Enquiry Statuses
 export const ENQUIRY_STATUS = {
     PENDING: 'pending',
-    IN_PROGRESS: 'in-progress',
-    RESOLVED: 'resolved',
+    RESPONDED: 'responded',
+    REJECTED: 'rejected',
     CLOSED: 'closed',
+    EXPIRED: 'expired',
 };
 
 // Enquiry Priority Levels

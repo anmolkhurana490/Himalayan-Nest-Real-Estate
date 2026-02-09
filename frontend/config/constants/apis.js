@@ -34,9 +34,11 @@ export const ENQUIRY_ENDPOINTS = {
     SUBMIT: '/enquiries',
     GET_ALL: '/enquiries',
     GET_BY_ID: (id) => `/enquiries/${id}`,
+    UPDATE: (id) => `/enquiries/${id}`,
     UPDATE_STATUS: (id) => `/enquiries/${id}/status`,
     DELETE: (id) => `/enquiries/${id}`,
-    GET_PROPERTY_ENQUIRIES: (propertyId) => `/enquiries/property/${propertyId}`,
+    CLOSE: (id) => `/enquiries/${id}/close`,
+    RESPOND: (id) => `/enquiries/${id}/respond`,
 };
 
 // Subscription Endpoints

@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { PROPERTY_CATEGORIES, PROPERTY_PURPOSES } from '../constants/property.js';
-import { vi } from "zod/v4/locales";
 
 const PropertyModel = (sequelize) => {
     const Property = sequelize.define("Properties", {

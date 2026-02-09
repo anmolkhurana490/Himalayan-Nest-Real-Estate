@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 import EditProperty from '@/features/properties/components/EditProperty';
+import ReceiverPropertyEnquiries from '@/features/enquiry/components/ReceiverPropertyEnquiries';
 import ROUTES from '@/config/constants/routes';
 import { MapPin, IndianRupee, Calendar, Eye, MessageCircleMore, ArrowLeft, Edit } from 'lucide-react';
 import PropertyImageSlideshow from '../components/PropertyImageSlideshow';
@@ -160,6 +161,9 @@ const PropertyDetailView = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Property Enquiries Section */}
+            <ReceiverPropertyEnquiries propertyId={params?.id} />
 
             {/* Edit Modal */}
             {showEditModal && (
