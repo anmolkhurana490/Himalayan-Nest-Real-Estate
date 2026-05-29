@@ -4,7 +4,7 @@
 import authService from './authService.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 import userRepository from '../../../repositories/userRepository.js';
-import accountRepository from '../../../repositories/accountRepository.js';
+// import accountRepository from '../../../repositories/accountRepository.js';
 
 class AuthController {
     /**
@@ -15,24 +15,12 @@ class AuthController {
         const userData = req.body;
 
         try {
-            // Find existing user by email
-            const existingUser = await userRepository.findByEmail(userData.email);
-
-            if (existingUser) {
-                // Find existing account (credentials or OAuth)
-                const account = await accountRepository.findByUserAndProvider(existingUser.id);
-
-                if (account) {
-                    throw new Error(`User already exists with ${account.provider} account. Please login instead.`);
-                }
-            }
-
             const result = await authService.register(userData);
 
             return res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: 'User registered successfully',
-                user: result.user,
+                user: result.user
             });
         } catch (error) {
             console.error('Error registering user:', error);
@@ -48,20 +36,10 @@ class AuthController {
      * @route POST /api/v1/auth/login
      */
     async login(req, res) {
-        const userData = req.body;
+        const { email, password } = req.body;
 
         try {
-            const user = await userRepository.findByEmail(userData.email);
-            if (!user) {
-                throw new Error('User not found');
-            }
-
-            const account = await accountRepository.findByUserAndProvider(user.id, userData.provider || 'credentials');
-            if (!account) {
-                throw new Error('Account not found for this provider! Please register first or use another login method.');
-            }
-
-            const result = await authService.login(user, account, { password: userData.password });
+            const result = await authService.login(email, password);
 
             // Set cookie with JWT token
             // res.cookie('authToken', result.token, {
@@ -75,6 +53,7 @@ class AuthController {
                 success: true,
                 message: 'Login successful',
                 user: result.user,
+                accessToken: result.token
             });
         } catch (error) {
             console.error('Error logging in user:', error.message);
@@ -137,12 +116,12 @@ class AuthController {
      */
     async getCurrentUser(req, res) {
         try {
-            const user = await authService.getCurrentUser(req.user.id);
+            const result = await authService.getCurrentUser(req.user.id);
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Profile fetched successfully',
-                user
+                user: result.user
             });
         } catch (error) {
             console.error('Error fetching current user:', error.message);
@@ -161,12 +140,12 @@ class AuthController {
         const { name, phone, bio } = req.body;
 
         try {
-            const user = await authService.updateProfile(req.user.id, { name, phone, bio });
+            const result = await authService.updateProfile(req.user.id, { name, phone, bio });
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Profile updated successfully',
-                user
+                user: result.user
             });
         } catch (error) {
             console.error('Error updating user profile:', error.message);
@@ -201,7 +180,8 @@ class AuthController {
                     ? 'Logged in successfully'
                     : 'Provider linked and logged in successfully',
                 user: result.user,
-                action: result.action
+                action: result.action,
+                accessToken: result.token
             });
         } catch (error) {
             console.error('Error resolving authentication:', error.message);

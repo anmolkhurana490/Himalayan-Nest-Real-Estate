@@ -1,12 +1,12 @@
 // Authentication Middleware for Protected Routes
 // Validates JWT tokens and user permissions for secure API access
 
-import { User } from '../config/db.js';
+import userRepository from '../repositories/userRepository.js';
 import { verifyToken } from '../utils/jwtHandlers.js';
 
 // Main authentication middleware - validates JWT token from cookies
 const AuthMiddleware = async (req, res, next) => {
-    // Extract access token from Authorization header
+    // Extract access token from Authorization header (Bearer token)
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -18,7 +18,8 @@ const AuthMiddleware = async (req, res, next) => {
         const decoded = verifyToken(token);
 
         // Fetch user from database to ensure they still exist and have correct role
-        const user = await User.findByPk(decoded.id);
+        // in practical, we might want to cache user info into Redis
+        const user = await userRepository.findById(decoded.id);
         if (!user || user.role !== decoded.role) {
             return res.status(404).json({ message: 'User not found' });
         }

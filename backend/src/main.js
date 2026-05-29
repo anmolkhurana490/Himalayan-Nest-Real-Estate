@@ -2,8 +2,6 @@
 // Main entry point for the Express.js application
 
 import express from 'express';
-import { connectToDB } from './config/db.js';
-import { registerRelations } from './models/index.js';
 import { setupAppMiddlewares } from './middlewares/AppMiddlewares.js';
 import apiV1Routes from './api/v1/index.js';
 import dotenv from 'dotenv';
@@ -15,11 +13,6 @@ const app = express();
 
 // Apply App middlewares
 setupAppMiddlewares(app);
-
-// Serve static uploaded files
-// Initialize database and model relationships
-registerRelations(); // Set up Sequelize model associations
-connectToDB(); // Connect to PostgreSQL database
 
 // Root Route (Debugging Purpose)
 app.get('/', (req, res) => {

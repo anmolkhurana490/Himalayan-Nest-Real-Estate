@@ -5,22 +5,15 @@ import { z } from 'zod';
 import { USER_ROLES, AUTH_PROVIDERS } from '../../../constants/user.js';
 
 const ROLE_VALUES = Object.values(USER_ROLES);
-const AUTH_PROVIDER_VALUES = Object.values(AUTH_PROVIDERS);
+const AUTH_PROVIDER_VALUES = Object.values(AUTH_PROVIDERS).filter(provider => provider !== 'credentials'); // Exclude credentials from OAuth providers
 
 export const registerValidation = z.object({
-    firstName: z.string({
-        required_error: 'First name is required',
-        invalid_type_error: 'First name must be a string'
+    name: z.string({
+        required_error: 'Name is required',
+        invalid_type_error: 'Name must be a string'
     })
-        .min(2, 'First name must be at least 2 characters')
-        .max(50, 'First name must be at most 50 characters'),
-
-    lastName: z.string({
-        required_error: 'Last name is required',
-        invalid_type_error: 'Last name must be a string'
-    })
-        .min(2, 'Last name must be at least 2 characters')
-        .max(50, 'Last name must be at most 50 characters'),
+        .min(2, 'Name must be at least 2 characters')
+        .max(100, 'Name must be at most 100 characters'),
 
     email: z.string({
         required_error: 'Email is required',
@@ -29,45 +22,16 @@ export const registerValidation = z.object({
         z.email('Invalid email address')
     ),
 
-    phone: z.string({
-        required_error: 'Phone number is required',
-        invalid_type_error: 'Phone must be a string'
-    })
-        .regex(/^[0-9]{10}$/, 'Phone must be 10 digits'),
+    phone: z.string()
+        .regex(/^[0-9]{10}$/, 'Phone must be 10 digits')
+        .optional(),
 
-    password: z.string().optional(),
-
-    provider: z.enum(AUTH_PROVIDER_VALUES, {
-        required_error: 'Provider is required',
-        invalid_type_error: 'Invalid provider type'
-    }),
-
-    providerAccountId: z.string().optional(),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
 
     userType: z.enum(ROLE_VALUES, {
         required_error: 'User type is required',
         invalid_type_error: 'Invalid user type'
     })
-}).superRefine((data, ctx) => {
-    // Validate based on provider type
-    if (data.provider === 'credentials') {
-        // For credentials, password is required
-        if (!data.password || data.password.length < 6) {
-            ctx.addIssue({
-                message: 'Password must be at least 6 characters',
-                path: ['password'],
-            });
-        }
-    }
-    else {
-        // For OAuth providers, providerAccountId is required
-        if (!data.providerAccountId) {
-            ctx.addIssue({
-                message: 'Provider account ID is required for OAuth providers',
-                path: ['providerAccountId'],
-            });
-        }
-    }
 });
 
 export const loginValidation = z.object({
@@ -81,23 +45,17 @@ export const loginValidation = z.object({
         required_error: 'Password is required'
     })
         .min(1, 'Password cannot be empty'),
-
-    provider: z.enum(AUTH_PROVIDER_VALUES).optional().default('credentials')
 });
 
 export const updateProfileValidation = z.object({
-    name: z.string({
-        required_error: 'Name is required',
-        invalid_type_error: 'Name must be a string'
-    })
+    name: z.string()
         .min(2, 'Name must be at least 2 characters')
-        .max(100, 'Name must be at most 100 characters'),
+        .max(100, 'Name must be at most 100 characters')
+        .optional(),
 
-    phone: z.string({
-        required_error: 'Phone is required',
-        invalid_type_error: 'Phone must be a string'
-    })
-        .regex(/^[0-9]{10}$/, 'Phone must be 10 digits'),
+    phone: z.string()
+        .regex(/^[0-9]{10}$/, 'Phone must be 10 digits')
+        .optional(),
 
     bio: z.string()
         .max(500, 'Bio must be at most 500 characters')
@@ -119,36 +77,17 @@ export const emailParamValidation = z.object({
 });
 
 export const resolveValidation = z.object({
-    email: z.string({
-        required_error: 'Email is required'
-    }).pipe(
-        z.email('Invalid email address')
-    ),
-
     provider: z.enum(AUTH_PROVIDER_VALUES, {
         required_error: 'Provider is required',
         invalid_type_error: 'Invalid provider type'
     }),
 
-    providerAccountId: z.string().optional(),
+    id_token: z.string({
+        required_error: 'ID token is required'
+    }).min(1, 'ID token cannot be empty'),
 
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    phone: z.string().optional(),
-    userType: z.enum(ROLE_VALUES).optional()
-
-}).superRefine((data, ctx) => {
-    // Validate based on provider type
-    if (data.provider === 'credentials') {
-        ctx.addIssue({
-            message: 'Credentials provider is not supported for OAuth resolution',
-            path: ['provider'],
-        });
-    } else if (!data.providerAccountId) {
-        // For OAuth providers, providerAccountId is required
-        ctx.addIssue({
-            message: 'Provider account ID is required for OAuth providers',
-            path: ['providerAccountId'],
-        });
-    }
+    userType: z.enum(ROLE_VALUES, {
+        required_error: 'User type is required',
+        invalid_type_error: 'Invalid user type'
+    })
 });

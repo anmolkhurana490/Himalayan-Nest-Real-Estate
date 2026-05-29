@@ -18,6 +18,6 @@ router.post('/oauth-resolve', validate(resolveValidation), (req, res) => authCon
 // Protected routes (authentication required)
 router.post('/logout', AuthMiddleware, (req, res) => authController.logout(req, res));
 router.get('/profile', AuthMiddleware, (req, res) => authController.getCurrentUser(req, res));
-router.put('/profile', AuthMiddleware, validate(updateProfileValidation), (req, res) => authController.updateUserProfile(req, res));
+router.patch('/profile', AuthMiddleware, validate(updateProfileValidation), (req, res) => authController.updateUserProfile(req, res));
 
 export default router;

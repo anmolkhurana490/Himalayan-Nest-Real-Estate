@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  DEALER
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+  FACEBOOK
+}
+
+model User {
+  id    String  @id @default(cuid())
+  name  String
+  email String  @unique
+  phone String?
+  role  String
+  bio   String?
+
+  password          String
+  provider          AuthProvider @default(CREDENTIALS)
+  providerAccountId String? // For OAuth
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties Property[]
+}
+
+model Property {
+  id               String @id @default(cuid())
+  title            String
+  description      String
+  category         String
+  property_subtype String
+  price            Float
+  location         String
+
+  authorId  String
+  isActive  Boolean  @default(true)
+  viewCount Int      @default(0)
+  images    String[] // Array of image URLs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id])
+  enquiries Enquiry[]
+}
+
+enum EnquiryStatus {
+  PENDING
+  RESPONDED
+  REJECTED
+  CLOSED
+  EXPIRED
+}
+
+model Enquiry {
+  id         String        @id @default(cuid())
+  propertyId String
+  senderId   String
+  receiverId String
+  status     EnquiryStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  closedAt   DateTime?
+
+  property        Property         @relation(fields: [propertyId], references: [id])
+  enquiryMessages EnquiryMessage[]
+}
+
+model EnquiryMessage {
+  id        String   @id @default(cuid())
+  enquiryId String
+  senderId  String
+  message   String
+  createdAt DateTime @default(now())
+
+  enquiry Enquiry @relation(fields: [enquiryId], references: [id])
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PREMIUM
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  dealerId  String
+  planType  PlanType @default(FREE)
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

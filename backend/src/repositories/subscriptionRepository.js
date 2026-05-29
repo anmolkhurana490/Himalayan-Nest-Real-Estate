@@ -1,7 +1,5 @@
-// Subscription Repository - Database Operations Layer
-// Handles all CRUD operations for Subscription model
-
-import { Subscription } from '../config/db.js';
+// Subscription Repository - Prisma Implementation
+import prisma from '../config/prismaClient.js';
 
 class SubscriptionRepository {
     /**
@@ -10,7 +8,7 @@ class SubscriptionRepository {
      * @returns {Promise<Subscription>}
      */
     async create(subscriptionData) {
-        return await Subscription.create(subscriptionData);
+        return await prisma.subscription.create({ data: subscriptionData });
     }
 
     /**
@@ -19,7 +17,7 @@ class SubscriptionRepository {
      * @returns {Promise<Subscription|null>}
      */
     async findById(id) {
-        return await Subscription.findByPk(id);
+        return await prisma.subscription.findUnique({ where: { id } });
     }
 
     /**
@@ -28,9 +26,7 @@ class SubscriptionRepository {
      * @returns {Promise<Subscription|null>}
      */
     async findByDealerId(dealerId) {
-        return await Subscription.findOne({
-            where: { dealerId }
-        });
+        return await prisma.subscription.findFirst({ where: { dealerId } });
     }
 
     /**
@@ -39,9 +35,9 @@ class SubscriptionRepository {
      * @returns {Promise<Array<Subscription>>}
      */
     async findAll(filters = {}) {
-        return await Subscription.findAll({
+        return await prisma.subscription.findMany({
             where: filters,
-            order: [['createdAt', 'DESC']]
+            orderBy: { createdAt: 'desc' }
         });
     }
 
@@ -52,10 +48,9 @@ class SubscriptionRepository {
      * @returns {Promise<Subscription|null>}
      */
     async update(id, updates) {
-        const subscription = await this.findById(id);
-        if (!subscription) return null;
-
-        return await subscription.update(updates);
+        const existing = await this.findById(id);
+        if (!existing) return null;
+        return await prisma.subscription.update({ where: { id }, data: updates });
     }
 
     /**
@@ -67,8 +62,7 @@ class SubscriptionRepository {
     async updateByDealerId(dealerId, updates) {
         const subscription = await this.findByDealerId(dealerId);
         if (!subscription) return null;
-
-        return await subscription.update(updates);
+        return await prisma.subscription.update({ where: { id: subscription.id }, data: updates });
     }
 
     /**
@@ -77,10 +71,9 @@ class SubscriptionRepository {
      * @returns {Promise<Boolean>}
      */
     async delete(id) {
-        const subscription = await this.findById(id);
-        if (!subscription) return false;
-
-        await subscription.destroy();
+        const existing = await this.findById(id);
+        if (!existing) return false;
+        await prisma.subscription.delete({ where: { id } });
         return true;
     }
 
@@ -92,7 +85,6 @@ class SubscriptionRepository {
     async hasActiveSubscription(dealerId) {
         const subscription = await this.findByDealerId(dealerId);
         if (!subscription) return false;
-
         return new Date(subscription.endDate) > new Date();
     }
 }

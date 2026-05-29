@@ -2,51 +2,50 @@
 // Handles enquiry management business logic
 
 import { ENQUIRY_STATUS } from '../../../constants/property.js';
-import { Property } from '../../../config/db.js';
+import propertyRepository from '../../../repositories/propertyRepository.js';
 import enquiryRepository from '../../../repositories/enquiryRepository.js';
-import enquiryMessageRepository from '../../../repositories/enquiryMessageRepository.js';
 
 class EnquiryService {
     /**
      * Create a new enquiry for a property.
-     * - sender_id is derived from the authenticated user
-     * - receiver_id is derived from the property's author_id
+     * - senderId is derived from the authenticated user
+     * - receiverId is derived from the property's authorId
      * - prevents multiple open enquiries per (sender, property)
      */
-    async createEnquiry({ property_id, message, senderUser }) {
+    async createEnquiry({ propertyId, message, senderUser }) {
         const senderId = senderUser.id;
 
         // Ensure the property exists
-        const property = await Property.findByPk(property_id);
+        const property = await propertyRepository.findById(id);
         if (!property) {
             throw new Error('Property not found');
         }
 
-        const receiverId = property.author_id;
+        const receiverId = property.authorId;
 
         if (receiverId === senderId) {
             throw new Error('You cannot send an enquiry to your own property');
         }
 
         // Prevent duplicate open enquiries for the same sender and property
-        const existingOpen = await enquiryRepository.findOpenBySenderAndProperty(senderId, property_id);
+        const existingOpen = await enquiryRepository.findOpenBySenderAndProperty(senderId, propertyId);
         if (existingOpen) {
             throw new Error('An open enquiry already exists for this property');
         }
 
         const enquiryPayload = {
-            property_id,
-            sender_id: senderId,
-            receiver_id: receiverId,
+            propertyId,
+            senderId: senderId,
+            receiverId: receiverId,
             status: ENQUIRY_STATUS.PENDING,
         };
 
         const enquiry = await enquiryRepository.create(enquiryPayload);
 
         // Create the initial message for the enquiry
-        const messageData = await enquiryMessageRepository.create({
-            enquiry_id: enquiry.id,
-            sender_id: senderId,
+        const messageData = await enquiryRepository.createEnquiryMessage({
+            enquiryId: enquiry.id,
+            senderId: senderId,
             message: message.trim(),
         });
 
@@ -56,10 +55,10 @@ class EnquiryService {
 
     /**
      * Get all enquiries for the authenticated user (sent and/or received),
-     * with optional filters (status, property_id, type).
+     * with optional filters (status, propertyId, type).
      */
     async getAllEnquiriesForUser(user, query = {}) {
-        const { status, property_id, type, includeProperty, includeSender, includeReceiver } = query;
+        const { status, propertyId, type, includeProperty, includeSender, includeReceiver } = query;
 
         const options = {
             includeProperty: !!includeProperty,
@@ -69,18 +68,18 @@ class EnquiryService {
 
         const baseFilters = {
             ...(status && { status }),
-            ...(property_id && { property_id }),
+            ...(propertyId && { propertyId }),
         };
 
         const enquiries = {};
 
         if (!type || type === 'sent') {
-            const sent = await enquiryRepository.findAll({ ...baseFilters, sender_id: user.id }, options);
+            const sent = await enquiryRepository.findAll({ ...baseFilters, senderId: user.id }, options);
             enquiries.sent = await Promise.all(sent.map(this.addMessagesForEnquiry));
         }
 
         if (!type || type === 'received') {
-            const received = await enquiryRepository.findAll({ ...baseFilters, receiver_id: user.id }, options);
+            const received = await enquiryRepository.findAll({ ...baseFilters, receiverId: user.id }, options);
             enquiries.received = await Promise.all(received.map(this.addMessagesForEnquiry));
         }
 
@@ -145,7 +144,7 @@ class EnquiryService {
     async closeEnquiry(id, senderUser) {
         const enquiry = await this.getEnquiryById(id);
 
-        if (enquiry.sender_id !== senderUser.id) {
+        if (enquiry.senderId !== senderUser.id) {
             throw new Error('You are not allowed to close this enquiry');
         }
 
@@ -167,7 +166,7 @@ class EnquiryService {
     async respondToEnquiry(id, receiverUser, message) {
         const enquiry = await this.getEnquiryById(id);
 
-        if (enquiry.receiver_id !== receiverUser.id) {
+        if (enquiry.receiverId !== receiverUser.id) {
             throw new Error('You are not allowed to respond to this enquiry');
         }
 
@@ -176,9 +175,9 @@ class EnquiryService {
         }
 
         // Create the response message
-        const messageData = await enquiryMessageRepository.create({
-            enquiry_id: enquiry.id,
-            sender_id: receiverUser.id,
+        const messageData = await enquiryRepository.createEnquiryMessage({
+            enquiryId: enquiry.id,
+            senderId: receiverUser.id,
             message: message.trim(),
         });
 
@@ -198,7 +197,7 @@ class EnquiryService {
         const enquiry = await this.getEnquiryById(id);
 
         // Only receiver can update status
-        if (enquiry.receiver_id !== receiverUser.id) {
+        if (enquiry.receiverId !== receiverUser.id) {
             throw new Error('Only the receiver can update the enquiry status');
         }
 

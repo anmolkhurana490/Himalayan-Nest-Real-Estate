@@ -1,12 +1,10 @@
-// Property Repository - Database Operations Layer
-// Handles all CRUD operations for Property model
-
-import { Property, User } from '../config/db.js';
+// Property Repository - Prisma Implementation
+import prisma from '../config/prismaClient.js';
 import { Op } from 'sequelize';
 import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
+import { PROPERTY_ASSOCIATIONS_ATTRIBUTES } from '../constants/property.js';
 
-// Define Associations for Property model
-Property.belongsTo(User, { as: 'author', foreignKey: 'author_id' });
+const toSelect = (arr) => arr ? arr.reduce((s, k) => { s[k] = true; return s }, {}) : undefined;
 
 class PropertyRepository {
     /**
@@ -15,7 +13,7 @@ class PropertyRepository {
      * @returns {Promise<Property>}
      */
     async create(propertyData) {
-        return await Property.create(propertyData);
+        return await prisma.property.create({ data: propertyData });
     }
 
     /**
@@ -25,22 +23,20 @@ class PropertyRepository {
      * @returns {Promise<Property|null>}
      */
     async findById(id, options = {}) {
-        const include = [];
-        if (options.includeAuthor) {
-            include.push({
-                model: User,
-                as: 'author',
-                attributes: USER_ASSOCIATIONS_ATTRIBUTES
-            });
-        }
+        const include = options.includeAuthor ? {
+            author: { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) }
+        } : undefined;
 
-        const property = await Property.findByPk(id, {
-            include: include.length > 0 ? include : undefined
-        });
+        const property = await prisma.property.findUnique({ where: { id } });
         if (!property) return null;
 
-        await property.increment('viewCount'); // Increment view count on each access
-        return property;
+        // increment viewCount
+        const updated = await prisma.property.update({
+            where: { id },
+            data: { viewCount: { increment: 1 } },
+            ...(include ? { include } : {})
+        });
+        return updated;
     }
 
     /**
@@ -50,12 +46,11 @@ class PropertyRepository {
      * @returns {Promise<Array<Property>>}
      */
     async findAll(filters = {}, options = {}) {
-        const queryOptions = {
-            where: filters,
-            ...options
-        };
-
-        return await Property.findAll(queryOptions);
+        const query = { where: filters };
+        if (options.order) query.orderBy = options.order;
+        if (options.limit) query.take = options.limit;
+        if (options.offset) query.skip = options.offset;
+        return await prisma.property.findMany(query);
     }
 
     /**
@@ -64,9 +59,9 @@ class PropertyRepository {
      * @returns {Promise<Array<Property>>}
      */
     async findByAuthorId(authorId) {
-        return await Property.findAll({
-            where: { author_id: authorId },
-            order: [['createdAt', 'DESC']]
+        return await prisma.property.findMany({
+            where: { authorId },
+            orderBy: { createdAt: 'desc' }
         });
     }
 
@@ -77,10 +72,9 @@ class PropertyRepository {
      * @returns {Promise<Property|null>}
      */
     async update(id, updates) {
-        const property = await this.findById(id);
-        if (!property) return null;
-
-        return await property.update(updates);
+        const existing = await prisma.property.findUnique({ where: { id } });
+        if (!existing) return null;
+        return await prisma.property.update({ where: { id }, data: updates });
     }
 
     /**
@@ -89,10 +83,9 @@ class PropertyRepository {
      * @returns {Promise<Boolean>}
      */
     async delete(id) {
-        const property = await this.findById(id);
-        if (!property) return false;
-
-        await property.destroy();
+        const existing = await prisma.property.findUnique({ where: { id } });
+        if (!existing) return false;
+        await prisma.property.delete({ where: { id } });
         return true;
     }
 
@@ -104,29 +97,27 @@ class PropertyRepository {
     buildSearchFilters(query) {
         const filters = {};
 
-        // Basic filters
         if (query.location) filters.location = query.location;
         if (query.category) filters.category = query.category;
         if (query.purpose) filters.purpose = query.purpose === 'buy' ? 'sale' : 'rent';
 
-        // Price range filtering
         if (query.minPrice || query.maxPrice || query.budget) {
-            filters.price = {};
+            const price = {};
             if (query.budget) {
-                filters.price[Op.gte] = Number(query.budget / 10);
-                filters.price[Op.lte] = Number(query.budget);
+                price.gte = Number(query.budget / 10);
+                price.lte = Number(query.budget);
             }
-            if (query.minPrice) filters.price[Op.gte] = Number(query.minPrice);
-            if (query.maxPrice) filters.price[Op.lte] = Number(query.maxPrice);
+            if (query.minPrice) price.gte = Number(query.minPrice);
+            if (query.maxPrice) price.lte = Number(query.maxPrice);
+            filters.price = price;
         }
 
-        // Keyword search in title and description
         if (query.keywords) {
-            const list = query.keywords.replace(/\s{2,}/g, " ").split(' ');
-            filters[Op.or] = list.map(keyword => ({
-                [Op.or]: [
-                    { title: { [Op.like]: `%${keyword}%` } },
-                    { description: { [Op.like]: `%${keyword}%` } }
+            const list = query.keywords.replace(/\s{2,}/g, ' ').split(' ');
+            filters.OR = list.map(keyword => ({
+                OR: [
+                    { title: { contains: keyword } },
+                    { description: { contains: keyword } }
                 ]
             }));
         }
@@ -140,7 +131,7 @@ class PropertyRepository {
      * @returns {Promise<Number>}
      */
     async count(filters = {}) {
-        return await Property.count({ where: filters });
+        return await prisma.property.count({ where: filters });
     }
 }
 

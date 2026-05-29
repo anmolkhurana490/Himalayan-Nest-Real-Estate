@@ -3,79 +3,62 @@
 
 import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
-import accountRepository from '../../../repositories/accountRepository.js';
 import { generateToken } from '../../../utils/jwtHandlers.js';
+import { OAuth2Client } from 'google-auth-library';
+
+const SALT_ROUNDS = 10;
+
+const selectFields = { id: true, name: true, email: true, phone: true, role: true, bio: true };
 
 class AuthService {
+    constructor() {
+        this.googleClient = new OAuth2Client();
+    }
+
     /**
-     * Register a new user with credentials or OAuth
+     * Register a new user with credentials
      * @param {Object} userData - User registration data
      * @returns {Promise<Object>} - User data and token
      */
     async register(userData) {
-        const { firstName, lastName, email, phone, password, provider, userType } = userData;
+        const { name, email, phone, password, userType } = userData;
+
+        // Find existing user by email
+        const existingUser = await userRepository.findByEmail(userData.email);
+
+        if (existingUser) {
+            throw new Error(`User already exists with ${existingUser.provider} account. Please login instead.`);
+        }
+
+        // Hash password and create credentials account
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
         // Create new user
         const user = await userRepository.create({
-            name: `${firstName} ${lastName}`,
-            email,
-            phone,
-            role: userType
-        });
+            name: name,
+            email, phone, role: userType,
+            password: hashedPassword
+        }, selectFields);
 
-        if (provider === 'credentials') {
-            // Hash password and create credentials account
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await accountRepository.create({
-                userId: user.id,
-                provider: 'credentials',
-                providerAccountId: null,
-                password: hashedPassword
-            });
-        } else {
-            // Create OAuth account
-            await accountRepository.create({
-                userId: user.id,
-                provider,
-                providerAccountId: userData.providerAccountId,
-                password: null
-            });
-        }
-
-        // Prepare user response
-        const userResponse = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-        };
-
-        return { user: userResponse };
+        return { user };
     }
 
     /**
      * Login user
-     * @param {Object} user - User object from database
-     * @param {Object} account - Account object from database
-     * @param {Object} credentials - Login credentials (password or providerAccountId)
+     * @param {String} email - User email
+     * @param {String} password - User password
      * @returns {Promise<Object>} - User data
      */
-    async login(user, account, credentials = {}) {
-        if (account.provider === 'credentials') {
-            // Validate password is provided
-            if (!credentials.password) {
-                throw new Error('Password is required for credentials login');
-            }
-
-            // Check password
-            const isPasswordValid = await bcrypt.compare(credentials.password, account.password);
-            if (!isPasswordValid) {
-                throw new Error('Invalid credentials');
-            }
+    async login(email, password) {
+        const user = await userRepository.findByEmail(email);
+        if (!user) {
+            throw new Error('User not found');
         }
-        else if (credentials.providerAccountId && credentials.providerAccountId !== account.providerAccountId) {
-            throw new Error('Provider account ID does not match');
+
+        // Check password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid credentials');
         }
 
         // Generate JWT token
@@ -87,10 +70,9 @@ class AuthService {
             name: user.name,
             email: user.email,
             role: user.role,
-            accessToken: token
         };
 
-        return { user: userResponse };
+        return { user: userResponse, token };
     }
 
     /**
@@ -109,25 +91,12 @@ class AuthService {
      * @returns {Promise<Object>} - User profile data
      */
     async getCurrentUser(userId) {
-        const user = await userRepository.findById(userId);
+        const user = await userRepository.findById(userId, selectFields);
         if (!user) {
             throw new Error('User not found');
         }
 
-        // Prepare user response
-        const userResponse = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            firstName: user.name.split(' ')[0],
-            lastName: user.name.split(' ')[1] || '',
-            phone: user.phone,
-            bio: user.bio,
-            createdAt: user.createdAt,
-        };
-
-        return userResponse;
+        return { user };
     }
 
     /**
@@ -145,78 +114,79 @@ class AuthService {
         }
 
         // Update user details
-        const updates = { name, phone };
-        if (bio !== undefined) updates.bio = bio;
+        const updates = {};
+        if (name) updates.name = name;
+        if (phone) updates.phone = phone;
+        if (bio) updates.bio = bio;
 
-        const updatedUser = await userRepository.update(userId, updates);
+        const updatedUser = await userRepository.update(userId, updates, selectFields);
 
-        // Prepare user response
-        const userResponse = {
-            id: updatedUser.id,
-            name: updatedUser.name,
-            email: updatedUser.email,
-            role: updatedUser.role,
-            firstName: updatedUser.name.split(' ')[0],
-            lastName: updatedUser.name.split(' ')[1] || '',
-            phone: updatedUser.phone,
-            bio: updatedUser.bio,
-        };
-
-        return userResponse;
+        return { user: updatedUser };
     }
 
     /**
      * Resolve authentication with provider (only OAuth)
-     * @param {Object} userData - Authentication data { email, provider, providerAccountId }
+     * @param {Object} userData - Authentication data { provider, id_token }
      * @returns {Promise<Object>} - User data, token, and action
      */
     async resolveAuth(userData) {
-        const { email, provider, providerAccountId } = userData;
+        const { provider, id_token } = userData;
 
-        // Find user by email
-        const user = await userRepository.findByEmail(email);
+        // Validate provider token and extract user info (this is a placeholder, implement actual validation)
+        const { email, name, providerAccountId } = await this.validateProviderToken(provider, id_token);
+
+        // Find user by provider account ID
+        const user = await userRepository.findOne({ provider, providerAccountId }, selectFields);
 
         if (!user) {
-            // User doesn't exist - register new user
-            const result = await this.register(userData);
+            const existingEmailUser = await userRepository.findByEmail(email);
+            if (existingEmailUser) {
+                throw new Error(`Email is already associated with another account. Please register with a different email or login with existing account.`);
+            }
+
+            const newUser = await userRepository.create({
+                email, name,
+                role: userData.userType,
+                provider, providerAccountId
+            }, selectFields);
 
             // Generate JWT token
-            const token = generateToken(result.user);
-            result.user.token = token;
+            const token = generateToken(newUser);
 
-            return { user: result.user, action: 'register' };
-        }
-
-        // Check if provider account exists
-        const account = await accountRepository.findByUserAndProvider(user.id, provider);
-
-        if (account) {
-            // Provider exists - login
-            const result = await this.login(user, account, { providerAccountId });
-            return { ...result, action: 'login' };
-        }
-
-        // Check if user already has credentials account
-        const credentialsAccount = await accountRepository.findByUserAndProvider(user.id, 'credentials');
-        if (credentialsAccount) {
-            throw new Error('User already has credentials account. Cannot link OAuth provider.');
+            return { user: newUser, action: 'register', token };
         }
 
         // Generate JWT token
         const token = generateToken(user);
 
-        const userResponse = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            accessToken: token
-        };
+        return { user, action: 'login', token };
+    }
 
-        // Provider (OAuth) does not exist - link it
-        await userRepository.linkAccount(user.id, provider, providerAccountId);
+    /**
+     * Validate provider token and extract user info
+     * @param {String} provider - Authentication provider (e.g., 'google', 'facebook')
+     * @param {String} id_token - ID token from provider
+     * @returns {Promise<Object>} - Extracted user info (email, name, providerAccountId)
+     */
+    async validateProviderToken(provider, id_token) {
+        if (provider === 'google') {
+            // Validate Google ID token and extract user info
+            const ticket = await this.googleClient.verifyIdToken({
+                idToken: id_token,
+                audience: process.env.GOOGLE_CLIENT_ID
+            });
+            const payload = ticket.getPayload();
 
-        return { user: userResponse, action: 'linked' };
+            return {
+                providerAccountId: payload.sub,
+                email: payload.email,
+                name: payload.name,
+                // picture: payload.picture
+            };
+        }
+        else {
+            throw new Error('Unsupported authentication provider');
+        }
     }
 }
 

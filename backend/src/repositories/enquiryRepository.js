@@ -1,15 +1,9 @@
-// Enquiry Repository - Database Operations Layer
-// Handles all CRUD operations for Enquiry model
-
-import { Op } from 'sequelize';
-import { Enquiry, Property, User } from '../config/db.js';
+// Enquiry Repository - Prisma Implementation
+import prisma from '../config/prismaClient.js';
 import { PROPERTY_ASSOCIATIONS_ATTRIBUTES } from '../constants/property.js';
 import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
 
-// Define Associations for Enquiry model
-Enquiry.belongsTo(Property, { as: 'property', foreignKey: 'property_id' });
-Enquiry.belongsTo(User, { as: 'sender', foreignKey: 'sender_id' });
-Enquiry.belongsTo(User, { as: 'receiver', foreignKey: 'receiver_id' });
+const toSelect = (arr) => arr ? arr.reduce((s, k) => { s[k] = true; return s }, {}) : undefined;
 
 class EnquiryRepository {
     /**
@@ -18,7 +12,7 @@ class EnquiryRepository {
      * @returns {Promise<Enquiry>}
      */
     async create(enquiryData) {
-        return await Enquiry.create(enquiryData);
+        return await prisma.enquiry.create({ data: enquiryData });
     }
 
     /**
@@ -27,7 +21,7 @@ class EnquiryRepository {
      * @returns {Promise<Enquiry|null>}
      */
     async findById(id) {
-        return await Enquiry.findByPk(id);
+        return await prisma.enquiry.findUnique({ where: { id } });
     }
 
     /**
@@ -36,34 +30,15 @@ class EnquiryRepository {
      * @returns {Promise<Array<Enquiry>>}
      */
     async findAll(filters = {}, options = {}) {
-        const include = [];
+        const include = {};
+        if (options.includeProperty) include.property = { select: toSelect(PROPERTY_ASSOCIATIONS_ATTRIBUTES) };
+        if (options.includeSender) include.sender = { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) };
+        if (options.includeReceiver) include.receiver = { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) };
 
-        if (options.includeProperty) {
-            include.push({
-                model: Property,
-                as: 'property',
-                attributes: PROPERTY_ASSOCIATIONS_ATTRIBUTES
-            });
-        }
-        if (options.includeSender) {
-            include.push({
-                model: User,
-                as: 'sender',
-                attributes: USER_ASSOCIATIONS_ATTRIBUTES
-            });
-        }
-        if (options.includeReceiver) {
-            include.push({
-                model: User,
-                as: 'receiver',
-                attributes: USER_ASSOCIATIONS_ATTRIBUTES
-            });
-        }
-
-        return await Enquiry.findAll({
-            include: include.length > 0 ? include : undefined,
+        return await prisma.enquiry.findMany({
             where: filters,
-            order: [['createdAt', 'DESC']],
+            ...(Object.keys(include).length ? { include } : {}),
+            orderBy: { createdAt: 'desc' }
         });
     }
 
@@ -75,14 +50,12 @@ class EnquiryRepository {
      * @returns {Promise<Enquiry|null>}
      */
     async findOpenBySenderAndProperty(senderId, propertyId) {
-        return await Enquiry.findOne({
+        return await prisma.enquiry.findFirst({
             where: {
-                sender_id: senderId,
-                property_id: propertyId,
-                status: {
-                    [Op.notIn]: ['closed', 'expired'],
-                },
-            },
+                senderId,
+                propertyId,
+                status: { notIn: ['CLOSED', 'EXPIRED'] }
+            }
         });
     }
 
@@ -93,10 +66,9 @@ class EnquiryRepository {
      * @returns {Promise<Enquiry|null>}
      */
     async update(id, updates) {
-        const enquiry = await this.findById(id);
-        if (!enquiry) return null;
-
-        return await enquiry.update(updates);
+        const existing = await this.findById(id);
+        if (!existing) return null;
+        return await prisma.enquiry.update({ where: { id }, data: updates });
     }
 
     /**
@@ -105,11 +77,35 @@ class EnquiryRepository {
      * @returns {Promise<Boolean>}
      */
     async delete(id) {
-        const enquiry = await this.findById(id);
-        if (!enquiry) return false;
-
-        await enquiry.destroy();
+        const existing = await this.findById(id);
+        if (!existing) return false;
+        await prisma.enquiry.delete({ where: { id } });
         return true;
+    }
+
+    // Enquiry Message specific methods
+
+    /**
+     * Create a new enquiry message
+     * @param {Object} messageData - Enquiry message data
+     * @returns {Promise<EnquiryMessage>}
+     */
+    async createEnquiryMessage(messageData) {
+        return await prisma.enquiryMessage.create({ data: messageData });
+    }
+
+    /**
+     * Get all messages for a given enquiry
+     * @param {String} enquiryId - Enquiry ID
+     * @param {Number} limit - Optional limit on number of messages to retrieve
+     * @returns {Promise<Array<EnquiryMessage>>}
+     */
+    async findAllMessagesByEnquiryId(enquiryId, limit = null) {
+        return await prisma.enquiryMessage.findAll({
+            where: { enquiryId: enquiryId },
+            orderBy: { createdAt: 'asc' },
+            ...(limit ? { take: limit } : {})
+        });
     }
 }
 
