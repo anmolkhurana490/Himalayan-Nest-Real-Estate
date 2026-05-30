@@ -9,10 +9,11 @@ dotenv.config({ quiet: true });
 
 import pg from 'pg';
 
-console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('CA_CERT set:', !!process.env.SSL_CA_CERT);
 console.log('CA_CERT preview:', process.env.SSL_CA_CERT?.slice(0, 30));
-console.log('SSL config:', process.env.NODE_ENV === 'production' ? 'SSL ON' : 'SSL OFF');
+console.log('CA_CERT preview:', process.env.SSL_CA_CERT?.slice(-30));
+console.log('CA_CERT has real newlines:', process.env.SSL_CA_CERT?.includes('\n'));
+console.log('CA_CERT has literal \\n:', process.env.SSL_CA_CERT?.includes('\\n'));
 
 // Configure PostgreSQL connection pool with SSL settings for production
 const pool = new pg.Pool({
