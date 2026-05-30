@@ -8,7 +8,16 @@ import dotenv from 'dotenv';
 dotenv.config({ quiet: true });
 
 import pg from 'pg';
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+
+// Configure PostgreSQL connection pool with SSL settings for production
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: true,
+    ca: process.env.SSL_CA_CERT
+  } : false,
+});
+
 const adapter = new PrismaPg(pool);
 const prismaClient = new PrismaClient({ adapter });
 
