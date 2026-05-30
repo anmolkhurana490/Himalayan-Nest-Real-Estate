@@ -10,6 +10,7 @@ import { loginSchema } from '../validation'
 import ROUTES from '@/config/constants/routes'
 import Image from 'next/image';
 import { useForm } from '@/shared/hooks';
+import { toast } from 'sonner';
 
 export default function LoginView() {
     const { loginUser, oauthSignIn, isSubmitting: vmSubmitting } = useAuthViewModel();
@@ -43,7 +44,8 @@ export default function LoginView() {
     useEffect(() => {
         const errorParam = searchParams.get('error');
         if (errorParam) {
-            setMessage({ type: 'error', content: 'Authentication failed. Please try again.' });
+            console.error("OAuth error:", errorParam);
+            toast.error(errorParam);
         }
     }, [searchParams, setMessage]);
 
@@ -151,7 +153,7 @@ export default function LoginView() {
 
                     <button
                         type="button"
-                        onClick={() => oauthSignIn('google', redirectUrl)}
+                        onClick={() => oauthSignIn('google', ROUTES.LOGIN)}
                         disabled={isSubmitting || vmSubmitting}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

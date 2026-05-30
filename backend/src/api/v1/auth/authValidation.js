@@ -34,6 +34,37 @@ export const registerValidation = z.object({
     })
 });
 
+export const completeOAuthSignupValidation = z.object({
+    name: z.string({
+        required_error: 'Name is required',
+        invalid_type_error: 'Name must be a string'
+    })
+        .min(2, 'Name must be at least 2 characters')
+        .max(100, 'Name must be at most 100 characters'),
+
+    email: z.string({
+        required_error: 'Email is required',
+        invalid_type_error: 'Email must be a string'
+    }).pipe(
+        z.email('Invalid email address')
+    ),
+
+    phone: z.string()
+        .regex(/^[0-9]{10}$/, 'Phone must be 10 digits')
+        .optional(),
+
+    userType: z.enum(ROLE_VALUES, {
+        required_error: 'User type is required',
+        invalid_type_error: 'Invalid user type'
+    }),
+
+    signupToken: z.string({
+        required_error: 'Signup token is required',
+        invalid_type_error: 'Signup token must be a string'
+    }).min(1, 'Signup token cannot be empty')
+});
+
+
 export const loginValidation = z.object({
     email: z.string({
         required_error: 'Email is required'
@@ -85,9 +116,4 @@ export const resolveValidation = z.object({
     id_token: z.string({
         required_error: 'ID token is required'
     }).min(1, 'ID token cannot be empty'),
-
-    userType: z.enum(ROLE_VALUES, {
-        required_error: 'User type is required',
-        invalid_type_error: 'Invalid user type'
-    })
 });

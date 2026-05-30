@@ -61,7 +61,7 @@ class PropertyRepository {
     async findByAuthorId(authorId) {
         return await prisma.property.findMany({
             where: { authorId },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
 

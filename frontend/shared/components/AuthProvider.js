@@ -22,9 +22,11 @@ function AuthSync({ children }) {
         }
         setLoading(false);
 
-        if (status === 'authenticated' && session?.user) {
+        const sessionUser = session?.user?.user || session?.user;
+
+        if (status === 'authenticated' && sessionUser) {
             // Sync session user to Zustand store
-            setUser(session.user);
+            setUser(sessionUser);
             setAuthChecked(true);
         } else if (status === 'unauthenticated') {
             clearUser();

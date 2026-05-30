@@ -1,7 +1,7 @@
 // Property Repository - API integrations for properties
 // Handles all HTTP requests related to properties
 
-import api from '@/config/api.config';
+import api from '@/lib/api';
 import { PROPERTY_ENDPOINTS } from '@/config/constants/apis';
 
 /**

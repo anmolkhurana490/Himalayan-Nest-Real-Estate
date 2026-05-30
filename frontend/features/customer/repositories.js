@@ -3,7 +3,7 @@
  * API calls for customer-specific features (favorites, preferences)
  */
 
-import api from '@/config/api.config';
+import api from '@/lib/api';
 
 /**
  * Toggle property as favorite/saved

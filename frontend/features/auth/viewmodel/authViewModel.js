@@ -3,12 +3,10 @@
 "use client";
 import { create } from 'zustand';
 import { User } from '../model/userModel';
-import { setInStorage, getFromStorage, removeFromStorage } from '@/utils/storage';
 import * as authRepo from '../repositories';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 import { useAppStore } from '@/shared/stores/appStore';
 import { useAuthStore } from '@/shared/stores/authStore';
-import ROUTES from '@/config/constants/routes';
 
 export const useAuthViewModel = create((set, get) => ({
     // State
@@ -26,16 +24,15 @@ export const useAuthViewModel = create((set, get) => ({
     /**
      * User Registration Handler
      */
-    registerUser: async (userData) => {
+    registerUser: async (userData, oauthSignup, signupToken) => {
         try {
             set({ isSubmitting: true, error: null, success: null });
             useAppStore.getState().setLoading(true);
 
-            const data = await authRepo.registerUserAPI(userData);
-
-            if (data.user) {
-                useAuthStore.getState().setUser(data.user);
-            }
+            // Signup token is present if this registration is part of an OAuth signup flow
+            const data = oauthSignup ?
+                await authRepo.completeOAuthSignupAPI(userData, signupToken)
+                : await authRepo.registerUserAPI(userData);
 
             set({ success: data.message || 'Registration successful!' });
 
@@ -77,7 +74,6 @@ export const useAuthViewModel = create((set, get) => ({
                 throw new Error(data.error || 'Login failed');
             }
 
-            useAuthStore.getState().setUser(data.user);
             set({ success: data.message || 'Login successful!' });
 
             return {
@@ -103,13 +99,16 @@ export const useAuthViewModel = create((set, get) => ({
 
     /**
      * OAuth Sign-In Handler
-     * @param {boolean} signUp - Indicates if it's a sign-up flow
+     * @param {string} provider - The OAuth provider (e.g., 'google', 'github')
+     * @param {string} redirectTo - The URL to redirect to after OAuth consent page
      */
-    oauthSignIn: async (provider, callbackUrl = ROUTES.DASHBOARD.ROOT) => {
+    oauthSignIn: async (provider, redirectTo) => {
         try {
             set({ isSubmitting: true, error: null });
             useAppStore.getState().setLoading(true);
-            await signIn(provider, { callbackUrl });
+
+            await signIn(provider, { redirectTo });
+
             return {
                 success: true,
                 message: `${provider} OAuth Sign-In successful!`
@@ -242,20 +241,5 @@ export const useAuthViewModel = create((set, get) => ({
             set({ isSubmitting: false });
             useAppStore.getState().setLoading(false);
         }
-    },
-
-    /**
-     * Check if user is authenticated
-     */
-    isAuthenticated: () => {
-        return !!useAuthStore.getState().user;
-    },
-
-    /**
-     * Get stored user data
-     */
-    getStoredUser: () => {
-        const userData = getFromStorage('user');
-        return userData ? new User(userData) : null;
     },
 }));

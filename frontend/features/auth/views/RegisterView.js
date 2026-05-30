@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuthStore } from '@/shared/stores/authStore'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
@@ -12,22 +11,24 @@ import { registerSchema } from '../validation'
 import Image from 'next/image';
 import { useForm } from '@/shared/hooks';
 
+const OAuthProviders = ['google']; // Extend this array as you add more providers
+
 export default function RegisterView() {
     const searchParams = useSearchParams();
-    const oauthSignup = searchParams.get('oauthSignup') === 'true';
+    const oauthSignup = searchParams.get('oauth'); // specifies provider name for OAuth signups (e.g., 'google')
+    const [oauthFieldsRequired, setOauthFieldsRequired] = useState({});
+
     const router = useRouter();
-    const { registerUser, oauthSignIn } = useAuthViewModel();
+    const { registerUser, loginUser, oauthSignIn } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
 
     // Define initial form values
     const initialValues = {
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
         phone: '',
         password: '',
-        provider: 'credentials',
         confirmPassword: '',
         userType: USER_ROLES.CUSTOMER,
         agreeToTerms: false,
@@ -38,56 +39,59 @@ export default function RegisterView() {
         try {
             setStatus('registering');
 
+            // Register the user (with signupToken if it's an OAuth signup flow)
             const registrationData = {
-                firstName: data.firstName,
-                lastName: data.lastName,
+                name: data.name,
                 email: data.email,
                 phone: data.phone,
                 password: data.password,
                 userType: data.userType,
-                provider: data.provider,
-                providerAccountId: data.providerAccountId,
             };
 
-            const result = await registerUser(registrationData);
+            const signupToken = oauthSignup ? searchParams.get('signupToken') : null;
+
+            const result = await registerUser(registrationData, oauthSignup, signupToken);
 
             if (!result.success) {
                 setStatus('idle');
                 return result;
             }
 
-            // If OAuth signup, automatically sign in with provider
-            if (oauthSignup) {
-                setStatus('signing-in');
-                const signInResult = await oauthSignIn(registrationData.provider, false);
+            // Registration successful, now log the user in
+            setStatus('signing-in');
 
-                if (signInResult.success) {
-                    setStatus('success');
-                    setTimeout(() => {
-                        router.push(ROUTES.DASHBOARD.ROOT);
-                    }, 1500);
-                    return { success: true, message: 'Registration successful! Redirecting to dashboard...' };
-                } else {
-                    setStatus('idle');
-                    setTimeout(() => {
-                        router.push(ROUTES.LOGIN);
-                    }, 2000);
-                    return { success: false, message: 'Registration successful but auto-login failed. Please login manually.' };
-                }
-            } else {
-                // For regular signup, show success and redirect to login
-                setStatus('success');
-                setTimeout(() => {
-                    router.push(ROUTES.LOGIN);
-                }, 2000);
-                return { success: true, message: 'Account created successfully! Redirecting to login...' };
+            if (oauthSignup) {
+                await oauthSignIn(oauthSignup, ROUTES.REGISTER);
             }
+            else {
+                await loginUser({
+                    email: registrationData.email,
+                    password: registrationData.password,
+                });
+            }
+
+            // For regular signup, show success and redirect to login
+            setStatus('success');
+            setTimeout(() => {
+                router.push(ROUTES.PROPERTIES.ROOT);
+            }, 1000);
+
+            return { success: true, message: 'Account created successfully! Redirecting to login...' };
         } catch (error) {
             console.error('Registration error:', error);
             setStatus('idle');
             return { success: false, message: error.message || 'An unexpected error occurred. Please try again.' };
         }
     };
+
+    const handleOAuthSignIn = async (provider) => {
+        setStatus('signing-in');
+
+        await oauthSignIn(provider, ROUTES.REGISTER);
+        setTimeout(() => {
+            router.push(ROUTES.PROPERTIES.ROOT);
+        }, 1000);
+    }
 
     const {
         formData,
@@ -110,24 +114,56 @@ export default function RegisterView() {
 
     // Populate form from OAuth params
     useEffect(() => {
-        if (oauthSignup) {
-            setFormData({
-                firstName: searchParams.get('name')?.split(' ')[0] || '',
-                lastName: searchParams.get('name')?.split(' ').slice(1).join(' ') || '',
-                email: searchParams.get('email') || '',
-                phone: '',
-                password: '',
-                confirmPassword: '',
-                userType: USER_ROLES.CUSTOMER,
-                agreeToTerms: false,
-                provider: searchParams.get('provider'),
-                providerAccountId: searchParams.get('providerAccountId') || '',
-            });
+        if (!oauthSignup) return;
+
+        if (!OAuthProviders.includes(oauthSignup)) {
+            router.replace(ROUTES.REGISTER); // Redirect to regular register if provider is invalid
+            return;
         }
+
+        const message = searchParams.get('message');
+        if (message) setMessage({ type: 'success', content: message });
+
+        const data = (() => {
+            try {
+                return JSON.parse(searchParams.get('data') || '{}');
+            } catch {
+                return {};
+            }
+        })();
+
+        if (!data || !data.required) {
+            router.replace(ROUTES.REGISTER); // Redirect to regular register if no valid data is present
+            return;
+        }
+
+        console.log('OAuth Signup Data:', data);
+
+        // Pre-fill form with available data from OAuth provider
+        setFormData({
+            name: data.filled?.name || '',
+            email: data.filled?.email || '',
+            phone: data.filled?.phone || '',
+            userType: data.filled?.userType || USER_ROLES.CUSTOMER,
+            agreeToTerms: false,
+        });
+
+        // Set which fields are required
+        setOauthFieldsRequired(data.required || {});
+
     }, [oauthSignup, searchParams, setFormData]);
 
     // Enhanced handleChange with password validation
     const handleChange = (e) => {
+        if (e.target.name === "firstName") {
+            e.target.name = "name";
+            e.target.value = `${e.target.value} ${formData.name.split(' ')[1] || ''}`.trim();
+        }
+        else if (e.target.name === "lastName") {
+            e.target.name = "name";
+            e.target.value = `${formData.name.split(' ')[0] || ''} ${e.target.value}`.trim();
+        }
+
         baseHandleChange(e);
 
         if (e.target.name === 'password') {
@@ -166,12 +202,6 @@ export default function RegisterView() {
                 </div>
 
                 <div className="bg-white py-6 sm:py-8 px-4 sm:px-6 shadow rounded-lg">
-                    {oauthSignup && !message.content && (
-                        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-md text-sm">
-                            Email not found. Please sign up first to continue.
-                        </div>
-                    )}
-
                     {message.content && message.type === 'error' && (
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
                             {message.content}
@@ -195,12 +225,13 @@ export default function RegisterView() {
                                     name="firstName"
                                     type="text"
                                     required
-                                    value={formData.firstName}
+                                    value={formData.name.split(' ')[0] || ''}
+                                    disabled={oauthSignup && !oauthFieldsRequired.name}
                                     onChange={handleChange}
-                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
+                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm disabled:bg-gray-100"
                                     placeholder="First name"
                                 />
-                                {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
+                                {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
                             </div>
                             <div>
                                 <label htmlFor="lastName" className="block text-xs sm:text-sm font-medium text-gray-700">
@@ -211,12 +242,12 @@ export default function RegisterView() {
                                     name="lastName"
                                     type="text"
                                     required
-                                    value={formData.lastName}
+                                    value={formData.name.split(' ')[1] || ''}
+                                    disabled={oauthSignup && !oauthFieldsRequired.name}
                                     onChange={handleChange}
-                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
+                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm disabled:bg-gray-100"
                                     placeholder="Last name"
                                 />
-                                {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
                             </div>
                         </div>
 
@@ -231,8 +262,8 @@ export default function RegisterView() {
                                 autoComplete="email"
                                 required
                                 value={formData.email}
+                                disabled={oauthSignup && !oauthFieldsRequired.email}
                                 onChange={handleChange}
-                                disabled={oauthSignup}
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm disabled:bg-gray-100"
                                 placeholder="Enter your email address"
                             />
@@ -249,6 +280,7 @@ export default function RegisterView() {
                                 type="tel"
                                 required
                                 value={formData.phone}
+                                disabled={oauthSignup && !oauthFieldsRequired.phone}
                                 onChange={handleChange}
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                                 placeholder="Enter your phone number"
@@ -265,6 +297,7 @@ export default function RegisterView() {
                                 name="userType"
                                 value={formData.userType}
                                 onChange={handleChange}
+                                disabled={oauthSignup && !oauthFieldsRequired.userType}
                                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                             >
                                 <option value={USER_ROLES.CUSTOMER}>Property Buyer/Seller</option>
@@ -326,32 +359,35 @@ export default function RegisterView() {
                             )}
                         </div>}
 
-                        <div className="flex items-center">
-                            <input
-                                id="agreeToTerms"
-                                name="agreeToTerms"
-                                type="checkbox"
-                                checked={formData.agreeToTerms}
-                                onChange={handleChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                required
-                            />
-                            <label htmlFor="agreeToTerms" className="ml-2 block text-xs sm:text-sm text-gray-900">
-                                I agree to the{' '}
-                                <a href="#" className="text-green-600 hover:text-green-500">
-                                    Terms of Service
-                                </a>
-                                {' '}and{' '}
-                                <a href="#" className="text-green-600 hover:text-green-500">
-                                    Privacy Policy
-                                </a>
-                            </label>
+                        <div>
+                            <div className="flex items-center">
+                                <input
+                                    id="agreeToTerms"
+                                    name="agreeToTerms"
+                                    type="checkbox"
+                                    checked={formData.agreeToTerms}
+                                    onChange={handleChange}
+                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                    required
+                                />
+                                <label htmlFor="agreeToTerms" className="ml-2 block text-xs sm:text-sm text-gray-900">
+                                    I agree to the{' '}
+                                    <a href="#" className="text-green-600 hover:text-green-500">
+                                        Terms of Service
+                                    </a>
+                                    {' '}and{' '}
+                                    <a href="#" className="text-green-600 hover:text-green-500">
+                                        Privacy Policy
+                                    </a>
+                                </label>
+                            </div>
+                            {errors.agreeToTerms && <p className="mt-1 text-xs text-red-600">{errors.agreeToTerms}</p>}
                         </div>
 
                         <div>
                             <button
                                 type="submit"
-                                disabled={status !== 'idle'}
+                                disabled={status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms}
                                 className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white ${status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
@@ -377,14 +413,14 @@ export default function RegisterView() {
                                         Success!
                                     </span>
                                 )}
-                                {status === 'idle' && 'Create Account'}
+                                {status === 'idle' && oauthSignup ? `Complete Signup with ${oauthSignup}` : 'Create Account'}
                             </button>
                         </div>
                     </form>
 
-                    <button
+                    {!oauthSignup && <button
                         type="button"
-                        onClick={() => oauthSignIn('google', true)} // 'true' indicate sign-up flow
+                        onClick={() => handleOAuthSignIn('google')}
                         disabled={status !== 'idle'}
                         className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -395,7 +431,7 @@ export default function RegisterView() {
                             className="mr-2"
                         />
                         Sign Up with Google
-                    </button>
+                    </button>}
 
                     <div className="mt-6">
                         <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">

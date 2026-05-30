@@ -1,7 +1,7 @@
 // Dashboard Repository - API integrations for dashboard
 // Handles all HTTP requests related to dashboard operations
 
-import api from '@/config/api.config';
+import api from '@/lib/api';
 
 /**
  * Get dashboard overview stats

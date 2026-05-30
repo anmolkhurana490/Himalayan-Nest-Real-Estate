@@ -7,6 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 // Authentication Endpoints
 export const AUTH_ENDPOINTS = {
     REGISTER: '/auth/register',
+    OAUTH_SIGNUP: '/auth/complete-oauth-signup',
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
     CHECK_EMAIL: (email) => `/auth/check-email/${email}`,

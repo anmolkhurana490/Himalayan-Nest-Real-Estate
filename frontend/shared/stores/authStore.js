@@ -3,6 +3,7 @@
 
 import { create } from 'zustand';
 import { getFromStorage, setInStorage, removeFromStorage } from '@/utils/storage';
+import { getAuthUser } from '@/lib/authSession';
 
 export const useAuthStore = create((set, get) => ({
     // User state
@@ -13,34 +14,12 @@ export const useAuthStore = create((set, get) => ({
     // Actions
     setUser: async (user) => {
         set({ user });
-        if (user) {
-            setInStorage('user', user);
-
-            // Initialize customer data if user is a customer
-            if (user.role === 'customer') {
-                // Dynamically import to avoid circular dependencies
-                const { useCustomerViewModel } = await import('@/features/customer/viewmodel/customerViewModel');
-                useCustomerViewModel.getState().initializeCustomerData();
-            }
-        } else {
-            removeFromStorage('user');
-        }
     },
 
     setAuthChecked: (checked) => set({ authChecked: checked }),
 
     clearUser: async () => {
-        const { user } = get();
-
-        // Clear customer data if user was a customer
-        if (user?.role === 'customer') {
-            // Dynamically import to avoid circular dependencies
-            const { useCustomerViewModel } = await import('@/features/customer/viewmodel/customerViewModel');
-            useCustomerViewModel.getState().clearCustomerData();
-        }
-
         set({ user: null, viewMode: null });
-        removeFromStorage('user');
         removeFromStorage('userViewMode');
     },
 
@@ -70,7 +49,7 @@ export const useAuthStore = create((set, get) => ({
 
     // Initialize user from storage
     initializeAuth: async () => {
-        const storedUser = getFromStorage('user');
+        const storedUser = await getAuthUser();
         const storedViewMode = getFromStorage('userViewMode');
 
         if (storedUser) {

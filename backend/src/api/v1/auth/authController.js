@@ -32,6 +32,30 @@ class AuthController {
     }
 
     /**
+     * Complete user registration with OAuth
+     * @route POST /api/v1/auth/complete-oauth
+     */
+    async completeOAuthSignup(req, res) {
+        const { signupToken, ...data } = req.body;
+
+        try {
+            const result = await authService.completeOAuthRegistration(data, signupToken);
+
+            return res.status(HTTP_STATUS.CREATED).json({
+                success: true,
+                message: 'User registered successfully',
+                user: result.user
+            });
+        } catch (error) {
+            console.error('Error completing OAuth registration:', error);
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    /**
      * Login user
      * @route POST /api/v1/auth/login
      */
@@ -174,13 +198,20 @@ class AuthController {
             //     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             // });
 
+            if (result.signup) {
+                // If additional information is required to complete registration, return that info to the client
+                return res.status(HTTP_STATUS.OK).json({
+                    success: true,
+                    signup: true,
+                    message: 'Additional information required to complete registration',
+                    data: result.data,
+                    signupToken: result.signupToken
+                });
+            }
+
             return res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: result.action === 'login'
-                    ? 'Logged in successfully'
-                    : 'Provider linked and logged in successfully',
                 user: result.user,
-                action: result.action,
                 accessToken: result.token
             });
         } catch (error) {

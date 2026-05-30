@@ -1,7 +1,7 @@
 // Auth Repository - API integrations for authentication
 // Handles all HTTP requests related to authentication
 
-import api from '@/config/api.config';
+import api from '@/lib/api';
 import { AUTH_ENDPOINTS } from '@/config/constants/apis';
 
 /**
@@ -9,6 +9,14 @@ import { AUTH_ENDPOINTS } from '@/config/constants/apis';
  */
 export const registerUserAPI = async (userData) => {
     const response = await api.post(AUTH_ENDPOINTS.REGISTER, userData);
+    return response.data;
+};
+
+/**
+ * Complete OAuth signup process
+ */
+export const completeOAuthSignupAPI = async (userData, signupToken) => {
+    const response = await api.post(AUTH_ENDPOINTS.OAUTH_SIGNUP, { ...userData, signupToken });
     return response.data;
 };
 

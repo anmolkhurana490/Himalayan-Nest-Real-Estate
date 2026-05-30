@@ -12,15 +12,15 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
-  CUSTOMER
-  DEALER
+  admin
+  dealer
+  customer
 }
 
 enum AuthProvider {
-  CREDENTIALS
-  GOOGLE
-  FACEBOOK
+  credentials
+  google
+  facebook
 }
 
 model User {
@@ -31,9 +31,9 @@ model User {
   role  String
   bio   String?
 
-  password          String
-  provider          AuthProvider @default(CREDENTIALS)
-  providerAccountId String? // For OAuth
+  provider          AuthProvider @default(credentials)
+  password          String? // Only for credentials provider
+  providerAccountId String? // Only for OAuth
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,11 +63,11 @@ model Property {
 }
 
 enum EnquiryStatus {
-  PENDING
-  RESPONDED
-  REJECTED
-  CLOSED
-  EXPIRED
+  pending
+  responded
+  rejected
+  closed
+  expired
 }
 
 model Enquiry {
@@ -75,7 +75,7 @@ model Enquiry {
   propertyId String
   senderId   String
   receiverId String
-  status     EnquiryStatus @default(PENDING)
+  status     EnquiryStatus @default(pending)
   createdAt  DateTime      @default(now())
   closedAt   DateTime?
 
@@ -94,15 +94,15 @@ model EnquiryMessage {
 }
 
 enum PlanType {
-  FREE
-  BASIC
-  PREMIUM
+  free
+  basic
+  premium
 }
 
 model Subscription {
   id        String   @id @default(cuid())
   dealerId  String
-  planType  PlanType @default(FREE)
+  planType  PlanType @default(free)
   endDate   DateTime
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

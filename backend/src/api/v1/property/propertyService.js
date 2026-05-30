@@ -17,10 +17,7 @@ class PropertyService {
 
         // Fetch properties with filters
         let properties = await propertyRepository.findAll(filters, {
-            attributes: {
-                exclude: ['author_id']
-            },
-            order: [['createdAt', 'DESC']]
+            order: { createdAt: 'desc' }
         });
 
         // Transform properties for listing view - show only first image

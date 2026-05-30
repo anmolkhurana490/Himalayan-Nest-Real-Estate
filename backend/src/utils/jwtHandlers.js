@@ -4,15 +4,11 @@
 import jwt from 'jsonwebtoken';
 
 // Generate JWT token for authenticated user
-const generateToken = (user) => {
+const generateToken = (user, expiresIn) => {
     return jwt.sign(
-        {
-            id: user.id,
-            email: user.email,
-            role: user.role
-        }, // Payload data
+        user, // Payload data
         process.env.JWT_SECRET, // Secret key from environment
-        { expiresIn: '7d' } // Token expires in 7 days
+        { expiresIn } // Token expiration time
     );
 }
 

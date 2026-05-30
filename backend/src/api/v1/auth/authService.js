@@ -3,7 +3,7 @@
 
 import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
-import { generateToken } from '../../../utils/jwtHandlers.js';
+import { generateToken, verifyToken } from '../../../utils/jwtHandlers.js';
 import { OAuth2Client } from 'google-auth-library';
 
 const SALT_ROUNDS = 10;
@@ -44,6 +44,36 @@ class AuthService {
     }
 
     /**
+     * Complete user registration with OAuth
+     * @param {Object} data - Registration data { name, phone, userType }
+     * @param {String} signupToken - Short-lived token from resolveAuth
+     * @returns {Promise<Object>} - User data and token
+     */
+    async completeOAuthRegistration(data, signupToken) {
+        // Validate signup token and extract user info
+        const decodedData = await verifyToken(signupToken);
+
+        const userData = { ...data, ...decodedData };
+
+        // Check if user already exists (should not happen if token is valid)
+        const existingUser = await userRepository.findByEmail(userData.email);
+        if (existingUser) {
+            throw new Error(`User already exists with ${existingUser.provider} account. Please login instead.`);
+        }
+
+        const newUser = await userRepository.create({
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            role: userData.userType,
+            provider: userData.provider,
+            providerAccountId: userData.providerAccountId
+        }, selectFields);
+
+        return { user: newUser };
+    }
+
+    /**
      * Login user
      * @param {String} email - User email
      * @param {String} password - User password
@@ -62,7 +92,11 @@ class AuthService {
         }
 
         // Generate JWT token
-        const token = generateToken(user);
+        const token = generateToken({
+            id: user.id,
+            email: user.email,
+            role: user.role
+        }, `7d`);
 
         // Prepare user response
         const userResponse = {
@@ -144,22 +178,27 @@ class AuthService {
                 throw new Error(`Email is already associated with another account. Please register with a different email or login with existing account.`);
             }
 
-            const newUser = await userRepository.create({
-                email, name,
-                role: userData.userType,
-                provider, providerAccountId
-            }, selectFields);
+            // Short-lived token for signup
+            const signupToken = generateToken({ email, name, provider, providerAccountId }, '15m');
 
-            // Generate JWT token
-            const token = generateToken(newUser);
-
-            return { user: newUser, action: 'register', token };
+            return {
+                signup: true,
+                signupToken,
+                data: {
+                    filled: { email, name },
+                    required: { userType: true, phone: true },
+                },
+            }
         }
 
         // Generate JWT token
-        const token = generateToken(user);
+        const token = generateToken({
+            id: user.id,
+            email: user.email,
+            role: user.role
+        }, `7d`);
 
-        return { user, action: 'login', token };
+        return { user, token };
     }
 
     /**

@@ -1,7 +1,7 @@
 // Enquiry Repository - API integrations for enquiries
 // Handles all HTTP requests related to enquiries
 
-import api from '@/config/api.config';
+import api from '@/lib/api';
 import { ENQUIRY_ENDPOINTS } from '@/config/constants/apis';
 
 /**
