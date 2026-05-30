@@ -4,9 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/main.js",
-    "start": "node src/main.js"
+    "start": "npx prisma migrate deploy && node src/main.js"
   },
   "keywords": [],
   "author": "",
