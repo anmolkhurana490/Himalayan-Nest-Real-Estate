@@ -5,7 +5,7 @@ import express from 'express';
 import propertyController from './propertyController.js';
 import AuthMiddleware from '../../../middlewares/AuthMiddleware.js';
 import { uploadPropertyImages, handleMulterError } from '../../../middlewares/FileUploadMiddleware.js';
-import { validate, validateUUID } from '../../../middlewares/ValidationMiddleware.js';
+import { validate, validateCUID } from '../../../middlewares/ValidationMiddleware.js';
 import { createPropertyValidation, updatePropertyValidation, searchPropertyValidation } from './propertyValidation.js';
 import { multipleImageUploadSchema } from '../files/fileValidation.js';
 
@@ -21,7 +21,7 @@ router.get('/my-properties',
 );
 
 // Single property - comes after specific routes
-router.get('/:id', validateUUID(), (req, res) => propertyController.getPropertyById(req, res));
+router.get('/:id', validateCUID(), (req, res) => propertyController.getPropertyById(req, res));
 
 // Protected routes for creating, updating, deleting properties
 router.post('/',
@@ -34,7 +34,7 @@ router.post('/',
 );
 
 router.put('/:id',
-    validateUUID(),
+    validateCUID(),
     AuthMiddleware,
     uploadPropertyImages,
     handleMulterError,
@@ -44,7 +44,7 @@ router.put('/:id',
 );
 
 router.delete('/:id',
-    validateUUID(),
+    validateCUID(),
     AuthMiddleware,
     (req, res) => propertyController.deleteProperty(req, res)
 );

@@ -58,10 +58,10 @@ export const validate = (schema, source = 'body') => {
  * @param {String} field - Field name to validate (default: 'id')
  * @returns {Function} Express middleware function
  */
-export const validateUUID = (source = 'params', field = 'id') => {
+export const validateCUID = (source = 'params', field = 'id') => {
     const uuidSchema = z.object({
         [field]: z.string().pipe(
-            z.uuid({ message: `Invalid ${field} format` })
+            z.cuid({ message: `Invalid ${field} format` })
         )
     });
 

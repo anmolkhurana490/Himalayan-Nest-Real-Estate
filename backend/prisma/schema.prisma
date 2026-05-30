@@ -38,14 +38,30 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  properties Property[]
+  properties        Property[]
+  enquiryMessages   EnquiryMessage[]
+  sentEnquiries     Enquiry[]        @relation("SentEnquiries")
+  receivedEnquiries Enquiry[]        @relation("ReceivedEnquiries")
+}
+
+enum PropertyCategory {
+  residential
+  commercial
+  land
+  industrial
+}
+
+enum PropertyPurpose {
+  sale
+  rent
 }
 
 model Property {
-  id               String @id @default(cuid())
+  id               String           @id @default(cuid())
   title            String
   description      String
-  category         String
+  purpose          PropertyPurpose
+  category         PropertyCategory
   property_subtype String
   price            Float
   location         String
@@ -80,6 +96,8 @@ model Enquiry {
   closedAt   DateTime?
 
   property        Property         @relation(fields: [propertyId], references: [id])
+  sender          User             @relation("SentEnquiries", fields: [senderId], references: [id])
+  receiver        User             @relation("ReceivedEnquiries", fields: [receiverId], references: [id])
   enquiryMessages EnquiryMessage[]
 }
 
@@ -91,6 +109,7 @@ model EnquiryMessage {
   createdAt DateTime @default(now())
 
   enquiry Enquiry @relation(fields: [enquiryId], references: [id])
+  sender  User    @relation(fields: [senderId], references: [id])
 }
 
 enum PlanType {

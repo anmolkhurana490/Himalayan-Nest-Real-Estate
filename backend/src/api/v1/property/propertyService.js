@@ -22,7 +22,7 @@ class PropertyService {
 
         // Transform properties for listing view - show only first image
         properties = properties.map(p => ({
-            ...p.toJSON(),
+            ...p,
             image: p.images?.[0] || null,
             images: null
         }));
@@ -62,7 +62,7 @@ class PropertyService {
 
         // Transform for listing view
         properties = properties.map(p => ({
-            ...p.toJSON(),
+            ...p,
             image: p.images?.[0] || null,
             images: null
         }));
@@ -99,7 +99,7 @@ class PropertyService {
             location,
             price: parseFloat(price),
             images: imageUrls,
-            author_id: authorId
+            authorId
         };
 
         try {
@@ -132,7 +132,7 @@ class PropertyService {
         }
 
         // Check ownership
-        if (property.author_id !== authorId) {
+        if (property.authorId !== authorId) {
             throw new Error('You are not authorized to perform this action');
         }
 
@@ -208,7 +208,7 @@ class PropertyService {
         }
 
         // Check ownership
-        if (property.author_id !== authorId) {
+        if (property.authorId !== authorId) {
             throw new Error('You are not authorized to perform this action');
         }
 

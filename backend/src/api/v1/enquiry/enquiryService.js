@@ -49,7 +49,7 @@ class EnquiryService {
             message: message.trim(),
         });
 
-        const enquiryWithMessage = { ...enquiry.toJSON(), messages: [messageData] };
+        const enquiryWithMessage = { ...enquiry, messages: [messageData] };
         return enquiryWithMessage;
     }
 
@@ -91,7 +91,7 @@ class EnquiryService {
      */
     async addMessagesForEnquiry(enquiry) {
         const messages = await enquiryMessageRepository.findAllByEnquiryId(enquiry.id, 2);
-        return { ...enquiry.toJSON(), messages };
+        return { ...enquiry, messages };
     }
 
     /**

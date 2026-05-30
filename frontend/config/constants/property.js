@@ -3,10 +3,10 @@
 
 // Property Categories/Types
 export const PROPERTY_CATEGORIES = {
-    RESIDENTIAL: 'Residential',
-    COMMERCIAL: 'Commercial',
-    LAND: 'Land',
-    INDUSTRIAL: 'Industrial',
+    RESIDENTIAL: 'residential',
+    COMMERCIAL: 'commercial',
+    LAND: 'land',
+    INDUSTRIAL: 'industrial',
 };
 
 // Property Purpose
@@ -17,10 +17,10 @@ export const PROPERTY_PURPOSE = {
 
 // Property Sub-types
 export const PROPERTY_SUBTYPES = {
-    RESIDENTIAL: ['Apartment', 'Villa', 'House', 'Flat', 'Penthouse', 'Studio'],
-    COMMERCIAL: ['Office', 'Shop', 'Showroom', 'Warehouse', 'Mall Space'],
-    LAND: ['Residential Plot', 'Commercial Plot', 'Agricultural Land', 'Industrial Land'],
-    INDUSTRIAL: ['Factory', 'Manufacturing Unit', 'Warehouse', 'Industrial Shed'],
+    RESIDENTIAL: ['apartment', 'villa', 'house', 'flat', 'penthouse', 'studio'],
+    COMMERCIAL: ['office', 'shop', 'showroom', 'warehouse', 'mall space'],
+    LAND: ['residential plot', 'commercial plot', 'agricultural land', 'industrial land'],
+    INDUSTRIAL: ['factory', 'manufacturing unit', 'warehouse', 'industrial shed'],
 };
 
 // Legacy Property Types (for backward compatibility with existing forms)
