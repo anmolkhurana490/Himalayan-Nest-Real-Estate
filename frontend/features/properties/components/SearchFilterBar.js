@@ -19,7 +19,7 @@ const SearchFilterBar = ({ onSearch, searchParams }) => {
         keywords: '',
         purpose: 'buy'
     });
-    const loading = useAppStore((state) => state.loading);
+    const { loading, setLoading } = useAppStore();
 
     useEffect(() => {
         const initialFilters = {

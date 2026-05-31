@@ -6,6 +6,8 @@ import SearchFilterBar from '@/features/properties/components/SearchFilterBar'
 import { useAppStore } from '@/shared/stores/appStore'
 import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
 import PropertyCard from '@/features/properties/components/PropertyCard';
+import { searchPropertySchema } from '../validation';
+import { validateWithSchema } from '@/utils/validator';
 
 const PropertiesLoading = () => (
     <div className="min-h-screen bg-gray-50">
@@ -31,10 +33,23 @@ const PropertiesContent = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const searchParams = useSearchParams();
-    const [filters, setFilters] = useState(Object.fromEntries(searchParams.entries()));
 
-    const loadProperties = async (searchFilters) => {
+    const loadProperties = async (searchFilters = {}) => {
         setError('');
+
+        const filters = {};
+        Object.entries(searchFilters).forEach(([key, value]) => {
+            if (value && value.toString().trim()) {
+                filters[key] = value;
+            }
+        });
+
+        const errors = validateWithSchema(searchPropertySchema, filters);
+        if (errors && errors.length > 0) {
+            const errorMessage = errors.map((e) => e.message).join('\\n');
+            setError(errorMessage);
+            return;
+        }
 
         let result = await getProperties(searchFilters || filters);
 
@@ -51,7 +66,8 @@ const PropertiesContent = () => {
     };
 
     useEffect(() => {
-        loadProperties();
+        const filters = Object.fromEntries(searchParams.entries());
+        loadProperties(filters);
     }, [searchParams]);
 
     return (

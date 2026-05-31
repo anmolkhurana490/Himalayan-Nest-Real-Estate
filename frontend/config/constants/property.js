@@ -25,11 +25,10 @@ export const PROPERTY_SUBTYPES = {
 
 // Legacy Property Types (for backward compatibility with existing forms)
 export const LEGACY_PROPERTY_TYPES = [
-    { value: 'flat', label: 'Flat/Apartment' },
-    { value: 'house', label: 'House/Villa' },
-    { value: 'plot', label: 'Plot/Land' },
-    { value: 'pg', label: 'PG/Hostel' },
+    { value: 'residential', label: 'Residential' },
     { value: 'commercial', label: 'Commercial' },
+    { value: 'land', label: 'Plot/Land' },
+    { value: 'industrial', label: 'Industrial' },
 ];
 
 // Property Listing Status

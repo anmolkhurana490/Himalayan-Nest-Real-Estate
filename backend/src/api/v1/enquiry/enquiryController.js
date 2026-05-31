@@ -40,7 +40,7 @@ class EnquiryController {
      */
     async getEnquiries(req, res) {
         try {
-            const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.query);
+            const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.validatedQuery);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

@@ -97,7 +97,6 @@ class PropertyRepository {
     buildSearchFilters(query) {
         const filters = {};
 
-        if (query.location) filters.location = query.location;
         if (query.category) filters.category = query.category;
         if (query.purpose) filters.purpose = query.purpose === 'buy' ? 'sale' : 'rent';
 
@@ -112,14 +111,25 @@ class PropertyRepository {
             filters.price = price;
         }
 
+        if (query.keywords || query.location) filters.OR = []
+
+        if (query.location) {
+            // extract list of keywords
+            const wordList = query.location.replace(/[\s,/;\s]{2,}/g, ' ').split(' ');
+
+            for (const word of wordList) {
+                filters.OR.push({ location: { contains: word, mode: 'insensitive' } });
+            }
+        }
+
         if (query.keywords) {
-            const list = query.keywords.replace(/\s{2,}/g, ' ').split(' ');
-            filters.OR = list.map(keyword => ({
-                OR: [
-                    { title: { contains: keyword } },
-                    { description: { contains: keyword } }
-                ]
-            }));
+            // extract list of keywords
+            const wordList = query.keywords.replace(/[\s,/;\s]{2,}/g, ' ').split(' ');
+
+            for (const word of wordList) {
+                filters.OR.push({ title: { contains: word, mode: 'insensitive' } });
+                filters.OR.push({ description: { contains: word, mode: 'insensitive' } });
+            }
         }
 
         return filters;

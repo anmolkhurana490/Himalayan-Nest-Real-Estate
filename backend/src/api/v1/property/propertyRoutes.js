@@ -12,7 +12,7 @@ import { multipleImageUploadSchema } from '../files/fileValidation.js';
 const router = express.Router();
 
 // Public routes (no authentication required)
-router.get('/', validate(searchPropertyValidation, 'params'), (req, res) => propertyController.getAllProperties(req, res));
+router.get('/', validate(searchPropertyValidation, 'query'), (req, res) => propertyController.getAllProperties(req, res));
 
 // Protected routes (authentication required) - MUST come before /:id to avoid conflicts
 router.get('/my-properties',

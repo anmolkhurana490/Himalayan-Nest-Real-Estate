@@ -11,7 +11,7 @@ class PropertyController {
      */
     async getAllProperties(req, res) {
         try {
-            const result = await propertyService.getAllProperties(req.query);
+            const result = await propertyService.getAllProperties(req.validatedQuery);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
@@ -36,7 +36,7 @@ class PropertyController {
         const { id } = req.params;
 
         try {
-            const property = await propertyService.getPropertyById(id, req.query);
+            const property = await propertyService.getPropertyById(id, req.validatedQuery);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

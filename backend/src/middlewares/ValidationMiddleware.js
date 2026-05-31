@@ -17,7 +17,8 @@ export const validate = (schema, source = 'body') => {
             const validated = schema.parse(req[source]);
 
             // Replace the request data with validated data
-            req[source] = validated;
+            if (source === 'query') req['validatedQuery'] = validated;
+            else req[source] = validated;
 
             next();
         } catch (error) {

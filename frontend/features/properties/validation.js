@@ -134,14 +134,14 @@ export const searchPropertySchema = z.object({
         .max(100, 'Location must be at most 100 characters')
         .optional(),
 
-    category: z.string()
+    category: z.enum(CATEGORY_VALUES)
         .optional(),
 
     purpose: z.string()
         .optional(),
 
     minPrice: z.coerce.number('Minimum price must be a number')
-        .min(PRICE_RANGES.MIN, `Minimum price cannot be less than ${PRICE_RANGES.MIN}`)
+        // .min(PRICE_RANGES.MIN, `Minimum price cannot be less than ${PRICE_RANGES.MIN}`)
         .optional(),
 
     maxPrice: z.coerce.number('Maximum price must be a number')
