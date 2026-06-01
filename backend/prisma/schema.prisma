@@ -42,6 +42,11 @@ model User {
   enquiryMessages   EnquiryMessage[]
   sentEnquiries     Enquiry[]        @relation("SentEnquiries")
   receivedEnquiries Enquiry[]        @relation("ReceivedEnquiries")
+  subscription      Subscription?
+
+  @@index([email])
+  @@index([role])
+  @@index([provider, providerAccountId])
 }
 
 enum PropertyCategory {
@@ -76,6 +81,9 @@ model Property {
 
   author    User      @relation(fields: [authorId], references: [id])
   enquiries Enquiry[]
+
+  @@index([purpose, category, price, location])
+  @@index([authorId])
 }
 
 enum EnquiryStatus {
@@ -99,6 +107,9 @@ model Enquiry {
   sender          User             @relation("SentEnquiries", fields: [senderId], references: [id])
   receiver        User             @relation("ReceivedEnquiries", fields: [receiverId], references: [id])
   enquiryMessages EnquiryMessage[]
+
+  @@index([propertyId])
+  @@index([propertyId, senderId])
 }
 
 model EnquiryMessage {
@@ -110,6 +121,8 @@ model EnquiryMessage {
 
   enquiry Enquiry @relation(fields: [enquiryId], references: [id])
   sender  User    @relation(fields: [senderId], references: [id])
+
+  @@index([enquiryId])
 }
 
 enum PlanType {
@@ -120,9 +133,13 @@ enum PlanType {
 
 model Subscription {
   id        String   @id @default(cuid())
-  dealerId  String
+  dealerId  String   @unique
   planType  PlanType @default(free)
   endDate   DateTime
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+
+  dealer User @relation(fields: [dealerId], references: [id])
+
+  @@index([dealerId])
 }
