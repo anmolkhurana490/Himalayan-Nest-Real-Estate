@@ -94,12 +94,12 @@ export const updatePropertyValidation = z.object({
         .optional(),
 
     isActive: z.preprocess((val) => {
-            if (val === 'true') return true;
-            if (val === 'false') return false;
-            return val;
-        }, z.boolean({
-            invalid_type_error: 'isActive must be a boolean'
-        }))
+        if (val === 'true') return true;
+        if (val === 'false') return false;
+        return val;
+    }, z.boolean({
+        invalid_type_error: 'isActive must be a boolean'
+    }))
         .optional(),
 
     imagesToDelete: z.string()
@@ -156,5 +156,16 @@ export const searchPropertyValidation = z.object({
 
     budget: z.coerce.number()
         .min(0, 'Budget cannot be negative')
-        .optional()
+        .optional(),
+
+    limit: z.coerce.number()
+        .int('Limit must be an integer')
+        .positive('Limit must be positive')
+        .max(100, 'Limit cannot exceed 100')
+        .optional().default(20),
+
+    page: z.coerce.number()
+        .int('Offset must be an integer')
+        .min(0, 'Offset cannot be negative')
+        .optional().default(1),
 }).partial();

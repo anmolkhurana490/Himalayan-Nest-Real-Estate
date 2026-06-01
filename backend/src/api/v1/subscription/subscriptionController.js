@@ -63,7 +63,7 @@ class SubscriptionController {
      */
     async getAllSubscriptions(req, res) {
         try {
-            const subscriptions = await subscriptionService.getAllSubscriptions(req.validatedQuery);
+            const subscriptions = await subscriptionService.getAllSubscriptions(req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

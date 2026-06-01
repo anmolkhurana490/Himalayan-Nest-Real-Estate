@@ -16,7 +16,7 @@ class EnquiryService {
         const senderId = senderUser.id;
 
         // Ensure the property exists
-        const property = await propertyRepository.findById(id);
+        const property = await propertyRepository.findById(propertyId);
         if (!property) {
             throw new Error('Property not found');
         }
@@ -90,7 +90,7 @@ class EnquiryService {
      * Helper to add messages to an enquiry object
      */
     async addMessagesForEnquiry(enquiry) {
-        const messages = await enquiryMessageRepository.findAllByEnquiryId(enquiry.id, 2);
+        const messages = await enquiryRepository.findAllMessagesByEnquiryId(enquiry.id, 2);
         return { ...enquiry, messages };
     }
 

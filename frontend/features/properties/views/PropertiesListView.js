@@ -8,6 +8,8 @@ import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyVi
 import PropertyCard from '@/features/properties/components/PropertyCard';
 import { searchPropertySchema } from '../validation';
 import { validateWithSchema } from '@/utils/validator';
+import Pagination from '../components/Pagination';
+import APP_CONFIG from '@/config/app.config';
 
 const PropertiesLoading = () => (
     <div className="min-h-screen bg-gray-50">
@@ -30,9 +32,9 @@ const PropertiesContent = () => {
     const { getProperties, properties: vmProperties } = usePropertyViewModel();
     const [properties, setProperties] = useState([]);
     const [error, setError] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const searchParams = useSearchParams();
+
+    const [paginationValues, setPaginationValues] = useState({});
 
     const loadProperties = async (searchFilters = {}) => {
         setError('');
@@ -51,13 +53,22 @@ const PropertiesContent = () => {
             return;
         }
 
-        let result = await getProperties(searchFilters || filters);
+        const options = {
+            limit: parseInt(searchParams.get('limit')) || APP_CONFIG.DEFAULT_PAGE_SIZE,
+            page: parseInt(searchParams.get('page')) || 1
+        }
+
+        let result = await getProperties(searchFilters || filters, options);
 
         if (result && result.success) {
             let propertiesData = result.properties || result.data || [];
             setProperties(propertiesData);
-            setTotalPages(result.data?.totalPages || 1);
-            setCurrentPage(result.data?.currentPage || 1);
+
+            setPaginationValues({
+                limit: options.limit,
+                currPage: options.page,
+                totalPages: result.totalPages
+            });
         } else {
             const errorMessage = result?.message || 'Failed to load properties';
             setError(errorMessage);
@@ -98,6 +109,8 @@ const PropertiesContent = () => {
                     ))}
                 </div>
             </div>
+
+            {properties.length > 0 && <Pagination values={paginationValues} />}
         </div>
     );
 };

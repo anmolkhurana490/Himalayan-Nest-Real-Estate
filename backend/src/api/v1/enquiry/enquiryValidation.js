@@ -12,7 +12,7 @@ export const createEnquiryValidation = z.object({
         required_error: 'Property ID is required',
         invalid_type_error: 'Property ID must be a string',
     }).pipe(
-        z.uuid('Invalid property ID format'),
+        z.cuid('Invalid property ID format'),
     ),
 
     message: z.string({

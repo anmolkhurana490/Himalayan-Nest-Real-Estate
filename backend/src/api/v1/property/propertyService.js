@@ -15,10 +15,14 @@ class PropertyService {
         // Build search filters from query parameters
         const filters = propertyRepository.buildSearchFilters(query);
 
+        const options = {
+            order: { createdAt: 'desc' },
+            limit: query.limit,
+            offset: (query.page - 1) * query.limit
+        };
+
         // Fetch properties with filters
-        let properties = await propertyRepository.findAll(filters, {
-            order: { createdAt: 'desc' }
-        });
+        let properties = await propertyRepository.findAll(filters, options);
 
         // Transform properties for listing view - show only first image
         properties = properties.map(p => ({
@@ -27,10 +31,10 @@ class PropertyService {
             images: null
         }));
 
-        return {
-            properties,
-            totalCount: properties.length
-        };
+        const totalCount = await propertyRepository.count(filters);
+        const totalPages = Math.ceil(totalCount / options.limit);
+
+        return { properties, totalPages };
     }
 
     /**

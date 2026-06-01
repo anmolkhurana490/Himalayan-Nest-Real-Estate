@@ -136,7 +136,7 @@ export default function PropertyDetailView() {
                         >
                             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                                 <img
-                                    src={data.author.avatar || '/logos/default-profile.png'}
+                                    src={data.author?.avatar || '/logos/default-profile.png'}
                                     alt={data.author?.name || 'Author Avatar'}
                                     className="w-full h-full object-cover"
                                 />

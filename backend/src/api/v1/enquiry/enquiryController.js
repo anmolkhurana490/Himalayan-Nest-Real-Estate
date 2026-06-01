@@ -14,7 +14,7 @@ class EnquiryController {
             const { property_id, message } = req.body;
 
             const enquiry = await enquiryService.createEnquiry({
-                property_id,
+                propertyId: property_id,
                 message,
                 senderUser: req.user,
             });
@@ -40,7 +40,7 @@ class EnquiryController {
      */
     async getEnquiries(req, res) {
         try {
-            const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.validatedQuery);
+            const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

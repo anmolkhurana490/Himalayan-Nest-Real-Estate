@@ -17,7 +17,7 @@ class PropertyController {
                 success: true,
                 message: 'Properties fetched successfully',
                 properties: result.properties,
-                totalCount: result.totalCount
+                totalPages: result.totalPages
             });
         } catch (error) {
             console.error('Error fetching properties:', error.message);
@@ -36,7 +36,7 @@ class PropertyController {
         const { id } = req.params;
 
         try {
-            const property = await propertyService.getPropertyById(id, req.validatedQuery);
+            const property = await propertyService.getPropertyById(id, req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

@@ -29,7 +29,7 @@ export const usePropertyViewModel = create((set, get) => ({
     /**
      * Get All Properties with Filters
      */
-    getProperties: async (filters = {}) => {
+    getProperties: async (filters = {}, options = {}) => {
         try {
             useAppStore.getState().setLoading(true);
             set({ error: null });
@@ -41,14 +41,16 @@ export const usePropertyViewModel = create((set, get) => ({
                 }
             });
 
-            const data = await propertyRepo.getPropertiesAPI(params);
+            const data = await propertyRepo.getPropertiesAPI({ ...params, ...options });
             const properties = (data.properties || []).map(p => new Property(p));
+            const totalPages = data.totalPages || 1;
 
             set({ properties });
 
             return {
                 success: true,
                 properties,
+                totalPages,
                 message: data.message || 'Properties fetched successfully'
             };
         } catch (error) {

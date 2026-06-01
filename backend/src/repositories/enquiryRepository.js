@@ -54,7 +54,7 @@ class EnquiryRepository {
             where: {
                 senderId,
                 propertyId,
-                status: { notIn: ['CLOSED', 'EXPIRED'] }
+                status: { notIn: ['closed', 'expired'] }
             }
         });
     }
@@ -101,7 +101,7 @@ class EnquiryRepository {
      * @returns {Promise<Array<EnquiryMessage>>}
      */
     async findAllMessagesByEnquiryId(enquiryId, limit = null) {
-        return await prisma.enquiryMessage.findAll({
+        return await prisma.enquiryMessage.findMany({
             where: { enquiryId: enquiryId },
             orderBy: { createdAt: 'asc' },
             ...(limit ? { take: limit } : {})
