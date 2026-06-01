@@ -93,7 +93,13 @@ export const updatePropertyValidation = z.object({
         .max(200, 'Location must be at most 200 characters')
         .optional(),
 
-    isActive: z.coerce.boolean()
+    isActive: z.preprocess((val) => {
+            if (val === 'true') return true;
+            if (val === 'false') return false;
+            return val;
+        }, z.boolean({
+            invalid_type_error: 'isActive must be a boolean'
+        }))
         .optional(),
 
     imagesToDelete: z.string()

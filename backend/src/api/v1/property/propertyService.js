@@ -146,7 +146,8 @@ class PropertyService {
             property_subtype: propertyData.property_subtype || property.property_subtype,
             purpose: propertyData.purpose || property.purpose,
             location: propertyData.location || property.location,
-            price: propertyData.price ? parseFloat(propertyData.price) : property.price
+            price: propertyData.price ? parseFloat(propertyData.price) : property.price,
+            isActive: propertyData.isActive !== undefined ? propertyData.isActive : property.isActive
         };
 
         // Handle image updates
