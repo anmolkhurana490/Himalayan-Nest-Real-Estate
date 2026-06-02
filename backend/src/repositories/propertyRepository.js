@@ -1,6 +1,5 @@
 // Property Repository - Prisma Implementation
 import prisma from '../config/prismaClient.js';
-import { Op } from 'sequelize';
 import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
 import { PROPERTY_ASSOCIATIONS_ATTRIBUTES } from '../constants/property.js';
 

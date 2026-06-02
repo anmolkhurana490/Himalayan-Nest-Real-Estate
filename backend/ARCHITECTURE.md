@@ -10,8 +10,8 @@ backend/
 │   ├── routes.js           # Route definitions
 │   └── validation.js       # Zod schemas
 ├── repositories/           # Data access layer
-├── models/                 # Sequelize models
 ├── middlewares/            # Auth, validation, file upload
+├── prisma/                 # Database schema and migrations
 ├── constants/              # Enums and messages
 ├── config/                 # DB and Cloudinary
 └── utils/                  # JWT helpers
