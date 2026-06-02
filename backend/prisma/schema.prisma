@@ -80,7 +80,7 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author          User            @relation(fields: [authorId], references: [id])
+  author          User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   enquiries       Enquiry[]
   savedProperties SavedProperty[]
 
@@ -105,9 +105,9 @@ model Enquiry {
   createdAt  DateTime      @default(now())
   closedAt   DateTime?
 
-  property        Property         @relation(fields: [propertyId], references: [id])
-  sender          User             @relation("SentEnquiries", fields: [senderId], references: [id])
-  receiver        User             @relation("ReceivedEnquiries", fields: [receiverId], references: [id])
+  property        Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  sender          User             @relation("SentEnquiries", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver        User             @relation("ReceivedEnquiries", fields: [receiverId], references: [id], onDelete: Cascade)
   enquiryMessages EnquiryMessage[]
 
   @@index([propertyId])
@@ -121,8 +121,8 @@ model EnquiryMessage {
   message   String
   createdAt DateTime @default(now())
 
-  enquiry Enquiry @relation(fields: [enquiryId], references: [id])
-  sender  User    @relation(fields: [senderId], references: [id])
+  enquiry Enquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([enquiryId])
 }
@@ -141,7 +141,7 @@ model Subscription {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  dealer User @relation(fields: [dealerId], references: [id])
+  dealer User @relation(fields: [dealerId], references: [id], onDelete: Cascade)
 
   @@index([dealerId])
 }
@@ -152,8 +152,8 @@ model SavedProperty {
   propertyId String
   createdAt  DateTime @default(now())
 
-  user     User     @relation(fields: [userId], references: [id])
-  property Property @relation(fields: [propertyId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
   @@index([userId, propertyId])
