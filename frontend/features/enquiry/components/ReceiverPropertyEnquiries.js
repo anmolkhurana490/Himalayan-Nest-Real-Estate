@@ -47,6 +47,9 @@ const ReceiverPropertyEnquiries = ({ propertyId }) => {
             setResponseMessage('');
             loadEnquiries();
         }
+        else {
+            toast.error(result.message);
+        }
     };
 
     const handleStatusUpdate = async (enquiryId, status) => {
@@ -54,6 +57,9 @@ const ReceiverPropertyEnquiries = ({ propertyId }) => {
         if (result?.success) {
             toast.success(`Enquiry marked as ${status}`);
             loadEnquiries();
+        }
+        else {
+            toast.error(result.message);
         }
     };
 

@@ -7,6 +7,8 @@ import { MessageCircle, Send, X, CheckCircle, Clock, XCircle, Mail, Calendar, Ho
 import { formatDate } from '@/utils/helpers';
 import { useEnquiryViewModel } from '../viewmodel/enquiryViewModel';
 import { useAuthStore } from '@/shared/stores/authStore';
+import { toast } from 'sonner';
+import { ENQUIRY_STATUS } from '@/config/constants/user';
 
 const QueriesManagementView = () => {
     const { user, viewMode } = useAuthStore();
@@ -47,20 +49,19 @@ const QueriesManagementView = () => {
 
         setSubmittingIds(prev => new Set(prev).add(enquiryId));
 
-        try {
-            const result = await closeEnquiry(enquiryId);
-            if (result?.success) {
-                loadEnquiries(); // Refresh list
-            }
-        } catch (error) {
-            console.error('Error closing enquiry:', error);
-        } finally {
-            setSubmittingIds(prev => {
-                const next = new Set(prev);
-                next.delete(enquiryId);
-                return next;
-            });
+        const result = await closeEnquiry(enquiryId);
+        if (result?.success) {
+            loadEnquiries(); // Refresh list
         }
+        else {
+            toast.error(result.message);
+        }
+
+        setSubmittingIds(prev => {
+            const next = new Set(prev);
+            next.delete(enquiryId);
+            return next;
+        });
     };
 
     const handleResolveEnquiry = async (enquiryId) => {
@@ -68,20 +69,19 @@ const QueriesManagementView = () => {
 
         setSubmittingIds(prev => new Set(prev).add(enquiryId));
 
-        try {
-            const result = await updateEnquiryStatus(enquiryId, 'closed');
-            if (result?.success) {
-                loadEnquiries();
-            }
-        } catch (error) {
-            console.error('Error resolving enquiry:', error);
-        } finally {
-            setSubmittingIds(prev => {
-                const next = new Set(prev);
-                next.delete(enquiryId);
-                return next;
-            });
+        const result = await updateEnquiryStatus(enquiryId, ENQUIRY_STATUS.RESPONDED);
+        if (result?.success) {
+            loadEnquiries();
         }
+        else {
+            toast.error(result.message);
+        }
+
+        setSubmittingIds(prev => {
+            const next = new Set(prev);
+            next.delete(enquiryId);
+            return next;
+        });
     };
 
     const handleRejectEnquiry = async (enquiryId) => {
@@ -89,20 +89,19 @@ const QueriesManagementView = () => {
 
         setSubmittingIds(prev => new Set(prev).add(enquiryId));
 
-        try {
-            const result = await updateEnquiryStatus(enquiryId, 'rejected');
-            if (result?.success) {
-                loadEnquiries();
-            }
-        } catch (error) {
-            console.error('Error rejecting enquiry:', error);
-        } finally {
-            setSubmittingIds(prev => {
-                const next = new Set(prev);
-                next.delete(enquiryId);
-                return next;
-            });
+        const result = await updateEnquiryStatus(enquiryId, ENQUIRY_STATUS.REJECTED);
+        if (result?.success) {
+            loadEnquiries();
         }
+        else {
+            toast.error(result.message);
+        }
+
+        setSubmittingIds(prev => {
+            const next = new Set(prev);
+            next.delete(enquiryId);
+            return next;
+        });
     };
 
     const handleRespondToEnquiry = async (enquiryId) => {
@@ -115,21 +114,20 @@ const QueriesManagementView = () => {
 
         setSubmittingIds(prev => new Set(prev).add(enquiryId));
 
-        try {
-            const result = await respondToEnquiry(enquiryId, message);
-            if (result?.success) {
-                setResponseInputs(prev => ({ ...prev, [enquiryId]: '' }));
-                loadEnquiries();
-            }
-        } catch (error) {
-            console.error('Error responding to enquiry:', error);
-        } finally {
-            setSubmittingIds(prev => {
-                const next = new Set(prev);
-                next.delete(enquiryId);
-                return next;
-            });
+        const result = await respondToEnquiry(enquiryId, message);
+        if (result?.success) {
+            setResponseInputs(prev => ({ ...prev, [enquiryId]: '' }));
+            loadEnquiries();
         }
+        else {
+            toast.error(result.message);
+        }
+
+        setSubmittingIds(prev => {
+            const next = new Set(prev);
+            next.delete(enquiryId);
+            return next;
+        });
     };
 
     const handleResponseInputChange = (enquiryId, value) => {

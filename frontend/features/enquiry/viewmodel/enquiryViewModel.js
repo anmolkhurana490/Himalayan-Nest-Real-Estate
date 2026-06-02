@@ -161,13 +161,14 @@ export const useEnquiryViewModel = create((set, get) => ({
         try {
             set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
+            console.log(status);
 
             await enquiryRepo.updateEnquiryStatusAPI(enquiryId, status);
 
             // Update the enquiry in the appropriate state array
             const { sentEnquiries, receivedEnquiries, propertyEnquiries } = get();
 
-            const enquiry = sentEnquiries.find(e => e.id === enquiryId) || propertyEnquiries.find(e => e.id === enquiryId);
+            const enquiry = receivedEnquiries.find(e => e.id === enquiryId) || propertyEnquiries.find(e => e.id === enquiryId);
             enquiry.status = status;
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
