@@ -49,4 +49,12 @@ export const SUBSCRIPTION_ENDPOINTS = {
     UNSUBSCRIBE: (email) => `/subscriptions/${email}`,
 };
 
+// Saved Properties Endpoints
+export const SAVED_PROPERTIES_ENDPOINTS = {
+    GET_ALL: '/saved-properties',
+    ADD: (propertyId) => `/saved-properties/${propertyId}`,
+    REMOVE: (propertyId) => `/saved-properties/${propertyId}`,
+    CLEAR: '/saved-properties',
+};
+
 export { API_BASE_URL };

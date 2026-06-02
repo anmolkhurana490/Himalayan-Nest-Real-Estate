@@ -55,18 +55,18 @@ export const validate = (schema, source = 'body') => {
 
 /**
  * Validate UUID format using Zod
- * @param {String} source - 'params', 'body', 'query'
  * @param {String} field - Field name to validate (default: 'id')
+ * @param {String} source - 'params', 'body', 'query'
  * @returns {Function} Express middleware function
  */
-export const validateCUID = (source = 'params', field = 'id') => {
-    const uuidSchema = z.object({
+export const validateCUID = (field = 'id', source = 'params') => {
+    const cuidSchema = z.object({
         [field]: z.string().pipe(
             z.cuid({ message: `Invalid ${field} format` })
         )
     });
 
-    return validate(uuidSchema, source);
+    return validate(cuidSchema, source);
 };
 
 export default validate;

@@ -43,6 +43,7 @@ model User {
   sentEnquiries     Enquiry[]        @relation("SentEnquiries")
   receivedEnquiries Enquiry[]        @relation("ReceivedEnquiries")
   subscription      Subscription?
+  savedProperties   SavedProperty[]
 
   @@index([email])
   @@index([role])
@@ -79,8 +80,9 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author    User      @relation(fields: [authorId], references: [id])
-  enquiries Enquiry[]
+  author          User            @relation(fields: [authorId], references: [id])
+  enquiries       Enquiry[]
+  savedProperties SavedProperty[]
 
   @@index([purpose, category, price, location])
   @@index([authorId])
@@ -142,4 +144,18 @@ model Subscription {
   dealer User @relation(fields: [dealerId], references: [id])
 
   @@index([dealerId])
+}
+
+model SavedProperty {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([userId, propertyId])
+  @@index([userId, propertyId])
+  @@index([userId])
 }

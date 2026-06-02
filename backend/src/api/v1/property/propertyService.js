@@ -18,7 +18,7 @@ class PropertyService {
         const options = {
             order: { createdAt: 'desc' },
             limit: query.limit,
-            offset: (query.page - 1) * query.limit
+            offset: (query.page - 1) * query.limit,
         };
 
         // Fetch properties with filters
@@ -47,7 +47,7 @@ class PropertyService {
         const options = {
             includeAuthor: !!query.includeAuthor,
         };
-        const property = await propertyRepository.findById(id, options);
+        const property = await propertyRepository.findById(id, options, true);
 
         if (!property) {
             throw new Error('Property not found');

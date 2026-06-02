@@ -72,16 +72,6 @@ export default function SavedPropertiesView() {
                         ))}
                     </div>
                 )}
-
-                {/* Note about localStorage */}
-                {savedProperties.length > 0 && savedProperties.length === 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                        <p className="text-blue-800 text-sm">
-                            <strong>Note:</strong> You have {savedProperties.length} saved {savedProperties.length === 1 ? 'property' : 'properties'},
-                            but the full details are not yet loaded. This feature will be fully functional once the backend API is connected.
-                        </p>
-                    </div>
-                )}
             </div>
         </div>
     );

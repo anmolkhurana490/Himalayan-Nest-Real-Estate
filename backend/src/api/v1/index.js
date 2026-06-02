@@ -6,6 +6,7 @@ import authRoutes from './auth/authRoutes.js';
 import propertyRoutes from './property/propertyRoutes.js';
 import enquiryRoutes from './enquiry/enquiryRoutes.js';
 import subscriptionRoutes from './subscription/subscriptionRoutes.js';
+import savedPropertiesRoutes from './savedProperties/savedPropertiesRoutes.js';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.use('/auth', authRoutes);
 router.use('/properties', propertyRoutes);
 router.use('/enquiries', enquiryRoutes);
 router.use('/subscriptions', subscriptionRoutes);
+router.use('/saved-properties', savedPropertiesRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

@@ -4,22 +4,19 @@
  */
 
 import { create } from 'zustand';
-import { getFromStorage, setInStorage } from '@/utils/storage';
-
-const SAVED_PROPERTIES_KEY = 'savedProperties';
+import * as savedPropertyRepo from "../repositories";
+import { SavedPropertyModel } from '../model/SavedPropertyModel';
+import { getSavedProperties } from '@/features/customer/repositories';
 
 export const useSavedPropertiesViewModel = create((set, get) => ({
     // State
-    savedProperties: getFromStorage(SAVED_PROPERTIES_KEY) || [],
+    savedProperties: [],
     isLoading: false,
     error: null,
     success: null,
 
     // Actions
-    setSavedProperties: (savedProperties) => {
-        setInStorage(SAVED_PROPERTIES_KEY, savedProperties);
-        set({ savedProperties });
-    },
+    setSavedProperties: (savedProperties) => set({ savedProperties }),
     setLoading: (isLoading) => set({ isLoading }),
     setError: (error) => set({ error }),
     setSuccess: (success) => set({ success }),
@@ -34,56 +31,15 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
     },
 
     /**
-     * Toggle property save/favorite status
-     * @param {Object} property - Full property object to save
-     */
-    toggleSaveProperty: async (property) => {
-        try {
-            set({ error: null });
-            const { savedProperties } = get();
-            const propertyId = property.id || property._id;
-            const isSaved = savedProperties.some(p => (p.id === propertyId || p._id === propertyId));
-
-            let newSavedProperties;
-            if (isSaved) {
-                // Remove from saved
-                newSavedProperties = savedProperties.filter(p =>
-                    p.id !== propertyId && p._id !== propertyId
-                );
-            } else {
-                // Add to saved
-                newSavedProperties = [...savedProperties, property];
-            }
-
-            // Update state and localStorage
-            get().setSavedProperties(newSavedProperties);
-
-            // Don't set success message in store, let component handle toast
-
-            return {
-                success: true,
-                isSaved: !isSaved,
-            };
-        } catch (error) {
-            console.error('Toggle save property error:', error);
-            const errorMessage = 'Failed to save property';
-            set({ error: errorMessage });
-
-            return {
-                success: false,
-                message: errorMessage,
-            };
-        }
-    },
-
-    /**
      * Get all saved properties from localStorage
      */
     getSavedProperties: async () => {
         try {
             set({ isLoading: true, error: null });
 
-            const savedProperties = getFromStorage(SAVED_PROPERTIES_KEY) || [];
+            // Fetch saved properties from backend API
+            const data = await savedPropertyRepo.getSavedPropertiesAPI();
+            const savedProperties = data.savedProperties.map(s => new SavedPropertyModel(s));
 
             set({ savedProperties });
 
@@ -105,6 +61,75 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
     },
 
     /**
+     * Toggle property save/favorite status
+     * @param {Object} property - Full property object to save
+     */
+    toggleSaveProperty: async (property) => {
+        try {
+            const { savedProperties } = get();
+            const isSaved = savedProperties.some(p => p.id === property.id);
+
+            if (isSaved) {
+                const res = await get().removeSavedProperty(property.id);
+                if (!res.success) {
+                    throw new Error(res.message || 'Failed to remove saved property');
+                }
+            }
+            else {
+                const res = await get().addSavedProperty(property);
+                if (!res.success) {
+                    throw new Error(res.message || 'Failed to save property');
+                }
+            }
+
+            return {
+                success: true,
+                isSaved: !isSaved,
+            };
+        } catch (error) {
+            console.error('Toggle save property error:', error);
+            const errorMessage = 'Failed to save property';
+            set({ error: errorMessage });
+
+            return {
+                success: false,
+                message: errorMessage,
+            };
+        }
+    },
+
+    /**
+     * Add a property to saved list
+     */
+    addSavedProperty: async (property) => {
+        try {
+            set({ error: null });
+            const { savedProperties } = get();
+
+            // Call backend API to save property
+            await savedPropertyRepo.createSavedPropertyAPI(property.id);
+
+            const newSavedProperties = [...savedProperties, new SavedPropertyModel(property)];
+            get().setSavedProperties(newSavedProperties);
+
+            set({ success: 'Property saved successfully' });
+
+            return {
+                success: true,
+            };
+        }
+        catch (error) {
+            console.error('Add saved property error:', error);
+            const errorMessage = 'Failed to save property';
+            set({ error: errorMessage });
+            return {
+                success: false,
+                message: errorMessage,
+            };
+        }
+    },
+
+    /**
      * Remove a property from saved list
      */
     removeSavedProperty: async (propertyId) => {
@@ -112,10 +137,10 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
             set({ error: null });
             const { savedProperties } = get();
 
-            const newSavedProperties = savedProperties.filter(p =>
-                p.id !== propertyId && p._id !== propertyId
-            );
+            // Call backend API to remove saved property
+            await savedPropertyRepo.removeSavedPropertyAPI(propertyId);
 
+            const newSavedProperties = savedProperties.filter(p => p.id !== propertyId);
             get().setSavedProperties(newSavedProperties);
 
             set({ success: 'Property removed from saved' });
@@ -138,8 +163,25 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
     /**
      * Clear all saved properties
      */
-    clearSavedProperties: () => {
-        get().setSavedProperties([]);
-        set({ success: 'All saved properties cleared' });
+    clearSavedProperties: async () => {
+        try {
+            await savedPropertyRepo.clearSavedPropertiesAPI();
+            get().setSavedProperties([]);
+
+            set({ success: 'All Saved Properties Cleared' });
+
+            return {
+                success: true,
+            };
+        } catch (error) {
+            console.error('clear saved property error:', error);
+            const errorMessage = 'Failed to clear properties';
+            set({ error: errorMessage });
+
+            return {
+                success: false,
+                message: errorMessage,
+            };
+        }
     },
 }));
