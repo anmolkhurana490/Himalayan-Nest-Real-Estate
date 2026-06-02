@@ -133,7 +133,7 @@ const DashboardOverviewView = () => {
                                             <Building className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h4 className="text-sm font-medium text-gray-900 truncate">{property.title}</h4>
+                                            <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{property.title}</h4>
                                             <p className="text-xs sm:text-sm text-gray-500 truncate">{property.location} • {property.category}</p>
                                         </div>
                                     </div>

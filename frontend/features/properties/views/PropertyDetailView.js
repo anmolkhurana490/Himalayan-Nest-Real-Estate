@@ -95,7 +95,7 @@ export default function PropertyDetailView() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex sm:flex-col items-center gap-4 sm:gap-2">
                         <PropertySaveButton propertyId={id} property={data} className="mb-2" />
                         <p className="text-3xl md:text-4xl font-bold text-green-600">
                             {data.formattedprice}
