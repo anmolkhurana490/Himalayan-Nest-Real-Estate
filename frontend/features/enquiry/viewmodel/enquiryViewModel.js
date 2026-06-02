@@ -67,7 +67,7 @@ export const useEnquiryViewModel = create((set, get) => ({
                 }
             });
 
-            const data = await enquiryRepo.getEnquiriesAPI(params,);
+            const data = await enquiryRepo.getEnquiriesAPI(params);
             const sent = (data.sent || data.data?.sent || []).map(e => new Enquiry(e));
             const received = (data.received || data.data?.received || []).map(e => new Enquiry(e));
 
@@ -97,7 +97,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             useAppStore.getState().setLoading(true);
             set({ error: null });
 
-            const data = await enquiryRepo.getEnquiriesAPI({ property_id: propertyId, type, includeSender, includeReceiver });
+            const data = await enquiryRepo.getEnquiriesAPI({ propertyId, type, includeSender, includeReceiver });
 
             if (type === 'sent') {
                 const sent = (data.sent || data.data?.sent || []).map(e => new Enquiry(e));
