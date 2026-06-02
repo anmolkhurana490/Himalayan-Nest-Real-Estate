@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import userRepository from '../../../repositories/userRepository.js';
 import { generateToken, verifyToken } from '../../../utils/jwtHandlers.js';
 import { OAuth2Client } from 'google-auth-library';
+import { ConflictError, NotFoundError, UnauthorizedError, BadRequestError } from '../../../utils/errorUtils.js';
 
 const SALT_ROUNDS = 10;
 
@@ -27,7 +28,7 @@ class AuthService {
         const existingUser = await userRepository.findByEmail(userData.email);
 
         if (existingUser) {
-            throw new Error(`User already exists with ${existingUser.provider} account. Please login instead.`);
+            throw new ConflictError(`User already exists with ${existingUser.provider} account. Please login instead.`);
         }
 
         // Hash password and create credentials account
@@ -58,7 +59,7 @@ class AuthService {
         // Check if user already exists (should not happen if token is valid)
         const existingUser = await userRepository.findByEmail(userData.email);
         if (existingUser) {
-            throw new Error(`User already exists with ${existingUser.provider} account. Please login instead.`);
+            throw new ConflictError(`User already exists with ${existingUser.provider} account. Please login instead.`);
         }
 
         const newUser = await userRepository.create({
@@ -82,13 +83,13 @@ class AuthService {
     async login(email, password) {
         const user = await userRepository.findByEmail(email);
         if (!user) {
-            throw new Error('User not found');
+            throw new UnauthorizedError('Invalid credentials');
         }
 
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            throw new UnauthorizedError('Invalid credentials');
         }
 
         // Generate JWT token
@@ -127,7 +128,7 @@ class AuthService {
     async getCurrentUser(userId) {
         const user = await userRepository.findById(userId, selectFields);
         if (!user) {
-            throw new Error('User not found');
+            throw new NotFoundError('User not found');
         }
 
         return { user };
@@ -144,7 +145,7 @@ class AuthService {
 
         const user = await userRepository.findById(userId);
         if (!user) {
-            throw new Error('User not found');
+            throw new NotFoundError('User not found');
         }
 
         // Update user details
@@ -175,7 +176,7 @@ class AuthService {
         if (!user) {
             const existingEmailUser = await userRepository.findByEmail(email);
             if (existingEmailUser) {
-                throw new Error(`Email is already associated with another account. Please register with a different email or login with existing account.`);
+                throw new ConflictError(`Email is already associated with another account. Please register with a different email or login with existing account.`);
             }
 
             // Short-lived token for signup
@@ -224,7 +225,7 @@ class AuthService {
             };
         }
         else {
-            throw new Error('Unsupported authentication provider');
+            throw new BadRequestError('Unsupported authentication provider');
         }
     }
 }

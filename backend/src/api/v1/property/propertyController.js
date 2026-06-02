@@ -9,7 +9,7 @@ class PropertyController {
      * Get all properties with optional filtering
      * @route GET /api/v1/properties
      */
-    async getAllProperties(req, res) {
+    async getAllProperties(req, res, next) {
         try {
             const result = await propertyService.getAllProperties(req.validatedQuery);
 
@@ -20,11 +20,7 @@ class PropertyController {
                 totalPages: result.totalPages
             });
         } catch (error) {
-            console.error('Error fetching properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -32,7 +28,7 @@ class PropertyController {
      * Get single property by ID
      * @route GET /api/v1/properties/:id
      */
-    async getPropertyById(req, res) {
+    async getPropertyById(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -44,11 +40,7 @@ class PropertyController {
                 property
             });
         } catch (error) {
-            console.error('Error fetching property:', error.message);
-            res.status(HTTP_STATUS.NOT_FOUND).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -56,7 +48,7 @@ class PropertyController {
      * Get current user's properties
      * @route GET /api/v1/properties/my-properties
      */
-    async getUserProperties(req, res) {
+    async getUserProperties(req, res, next) {
         try {
             const properties = await propertyService.getUserProperties(req.user.id);
 
@@ -68,11 +60,7 @@ class PropertyController {
                 }
             });
         } catch (error) {
-            console.error('Error fetching user properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -80,7 +68,7 @@ class PropertyController {
      * Create new property
      * @route POST /api/v1/properties
      */
-    async createProperty(req, res) {
+    async createProperty(req, res, next) {
         try {
             const property = await propertyService.createProperty(
                 req.body,
@@ -96,11 +84,7 @@ class PropertyController {
                 }
             });
         } catch (error) {
-            console.error('Error creating property:', error);
-            res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -108,7 +92,7 @@ class PropertyController {
      * Update property
      * @route PUT /api/v1/properties/:id
      */
-    async updateProperty(req, res) {
+    async updateProperty(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -127,18 +111,7 @@ class PropertyController {
                 }
             });
         } catch (error) {
-            console.error('Error updating property:', error);
-
-            const statusCode = error.message === 'Property not found'
-                ? HTTP_STATUS.NOT_FOUND
-                : error.message === 'You are not authorized to perform this action'
-                    ? HTTP_STATUS.FORBIDDEN
-                    : HTTP_STATUS.INTERNAL_SERVER_ERROR;
-
-            res.status(statusCode).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -146,7 +119,7 @@ class PropertyController {
      * Delete property
      * @route DELETE /api/v1/properties/:id
      */
-    async deleteProperty(req, res) {
+    async deleteProperty(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -157,18 +130,7 @@ class PropertyController {
                 message: 'Property deleted successfully'
             });
         } catch (error) {
-            console.error('Error deleting property:', error.message);
-
-            const statusCode = error.message === 'Property not found'
-                ? HTTP_STATUS.NOT_FOUND
-                : error.message === 'You are not authorized to perform this action'
-                    ? HTTP_STATUS.FORBIDDEN
-                    : HTTP_STATUS.INTERNAL_SERVER_ERROR;
-
-            res.status(statusCode).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 }

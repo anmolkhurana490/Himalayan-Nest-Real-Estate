@@ -11,7 +11,6 @@ const EnquiryForm = ({ propertyId, onSuccess }) => {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
         reset
@@ -33,15 +32,6 @@ const EnquiryForm = ({ propertyId, onSuccess }) => {
 
     return (
         <div>
-            {message.content && (
-                <div className={`mb-3 sm:mb-4 lg:mb-6 p-3 sm:p-4 rounded-md text-sm sm:text-base ${message.type === 'success'
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                    {message.content}
-                </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">

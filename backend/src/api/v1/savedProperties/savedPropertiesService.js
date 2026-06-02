@@ -1,5 +1,6 @@
 import savedPropertyRepository from "../../../repositories/savedPropertyRepository.js";
 import propertyRepository from "../../../repositories/propertyRepository.js";
+import { NotFoundError } from "../../../utils/errorUtils.js";
 
 class SavedPropertiesService {
   /**
@@ -22,7 +23,7 @@ class SavedPropertiesService {
     // Check if the property exists and is already in the user's saved properties
     const property = await propertyRepository.findById(propertyId);
     if (!property) {
-      throw new Error('Property not found');
+      throw new NotFoundError('Property not found');
     }
 
     const existingSavedProperty = await savedPropertyRepository.findByUserAndPropertyId(userId, propertyId);
@@ -43,7 +44,7 @@ class SavedPropertiesService {
     // Check if the property exists in the user's saved properties
     const property = await propertyRepository.findById(propertyId);
     if (!property) {
-      throw new Error('Saved property not found');
+      throw new NotFoundError('Saved property not found');
     }
 
     const existingSavedProperty = await savedPropertyRepository.findByUserAndPropertyId(userId, propertyId);

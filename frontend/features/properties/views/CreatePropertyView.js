@@ -27,7 +27,6 @@ const CreatePropertyView = () => {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
         updateFields
@@ -72,16 +71,6 @@ const CreatePropertyView = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                {message.content && message.type === 'error' && (
-                    <div className="mx-2 sm:mx-4 lg:mx-6 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
-                        {message.content}
-                    </div>
-                )}
-                {message.content && message.type === 'success' && (
-                    <div className="mx-2 sm:mx-4 lg:mx-6 mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm">
-                        {message.content}
-                    </div>
-                )}
                 <div className="px-2 py-4 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
                     {/* Image Upload */}
                     <div>

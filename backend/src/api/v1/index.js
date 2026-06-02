@@ -10,14 +10,14 @@ import savedPropertiesRoutes from './savedProperties/savedPropertiesRoutes.js';
 
 const router = express.Router();
 
-// Mount feature routes
+// Mount each feature route under /api/v1
 router.use('/auth', authRoutes);
 router.use('/properties', propertyRoutes);
 router.use('/enquiries', enquiryRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/saved-properties', savedPropertiesRoutes);
 
-// Health check endpoint
+// GET /health - Basic API health check
 router.get('/health', (req, res) => {
     res.status(200).json({
         success: true,

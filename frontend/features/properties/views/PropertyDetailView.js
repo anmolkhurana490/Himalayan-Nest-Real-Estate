@@ -32,6 +32,7 @@ export default function PropertyDetailView() {
             }
             else {
                 console.error(response.message);
+                toast.error(response.message);
             }
         }
         fetchData();

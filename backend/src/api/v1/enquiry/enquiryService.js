@@ -4,6 +4,7 @@
 import { ENQUIRY_STATUS } from '../../../constants/property.js';
 import propertyRepository from '../../../repositories/propertyRepository.js';
 import enquiryRepository from '../../../repositories/enquiryRepository.js';
+import { NotFoundError, ForbiddenError, ConflictError, UnprocessableEntityError, BadRequestError } from '../../../utils/errorUtils.js';
 
 class EnquiryService {
     /**
@@ -18,19 +19,19 @@ class EnquiryService {
         // Ensure the property exists
         const property = await propertyRepository.findById(propertyId);
         if (!property) {
-            throw new Error('Property not found');
+            throw new NotFoundError('Property not found');
         }
 
         const receiverId = property.authorId;
 
         if (receiverId === senderId) {
-            throw new Error('You cannot send an enquiry to your own property');
+            throw new ForbiddenError('You cannot send an enquiry to your own property');
         }
 
         // Prevent duplicate open enquiries for the same sender and property
         const existingOpen = await enquiryRepository.findOpenBySenderAndProperty(senderId, propertyId);
         if (existingOpen) {
-            throw new Error('An open enquiry already exists for this property');
+            throw new ConflictError('An open enquiry already exists for this property');
         }
 
         const enquiryPayload = {
@@ -101,7 +102,7 @@ class EnquiryService {
         const enquiry = await enquiryRepository.findById(id);
 
         if (!enquiry) {
-            throw new Error('Enquiry not found');
+            throw new NotFoundError('Enquiry not found');
         }
 
         return enquiry;
@@ -119,7 +120,7 @@ class EnquiryService {
         const enquiry = await enquiryRepository.update(id, updates);
 
         if (!enquiry) {
-            throw new Error('Enquiry not found');
+            throw new NotFoundError('Enquiry not found');
         }
 
         return enquiry;
@@ -132,7 +133,7 @@ class EnquiryService {
         const result = await enquiryRepository.delete(id);
 
         if (!result) {
-            throw new Error('Enquiry not found');
+            throw new NotFoundError('Enquiry not found');
         }
 
         return true;
@@ -145,11 +146,11 @@ class EnquiryService {
         const enquiry = await this.getEnquiryById(id);
 
         if (enquiry.senderId !== senderUser.id) {
-            throw new Error('You are not allowed to close this enquiry');
+            throw new ForbiddenError('You are not allowed to close this enquiry');
         }
 
         if (enquiry.status === ENQUIRY_STATUS.CLOSED) {
-            throw new Error('Enquiry is already closed');
+            throw new UnprocessableEntityError('Enquiry is already closed');
         }
 
         const updates = {
@@ -167,11 +168,11 @@ class EnquiryService {
         const enquiry = await this.getEnquiryById(id);
 
         if (enquiry.receiverId !== receiverUser.id) {
-            throw new Error('You are not allowed to respond to this enquiry');
+            throw new ForbiddenError('You are not allowed to respond to this enquiry');
         }
 
         if (enquiry.status === ENQUIRY_STATUS.CLOSED) {
-            throw new Error('Cannot respond to a closed enquiry');
+            throw new UnprocessableEntityError('Cannot respond to a closed enquiry');
         }
 
         // Create the response message
@@ -198,13 +199,13 @@ class EnquiryService {
 
         // Only receiver can update status
         if (enquiry.receiverId !== receiverUser.id) {
-            throw new Error('Only the receiver can update the enquiry status');
+            throw new ForbiddenError('Only the receiver can update the enquiry status');
         }
 
         // Validate allowed status transitions
         const allowedStatuses = [ENQUIRY_STATUS.RESPONDED, ENQUIRY_STATUS.REJECTED];
         if (!allowedStatuses.includes(status)) {
-            throw new Error(`Invalid status. Allowed values: ${allowedStatuses.join(', ')}`);
+            throw new BadRequestError(`Invalid status. Allowed values: ${allowedStatuses.join(', ')}`);
         }
 
         const updates = { status };

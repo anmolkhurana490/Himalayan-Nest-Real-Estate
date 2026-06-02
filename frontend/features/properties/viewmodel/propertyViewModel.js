@@ -13,18 +13,12 @@ export const usePropertyViewModel = create((set, get) => ({
     currentProperty: null,
     myProperties: [],
     isSubmitting: false,
-    error: null,
-    success: null,
 
     // Actions
     setProperties: (properties) => set({ properties }),
     setFeaturedProperties: (featuredProperties) => set({ featuredProperties }),
     setCurrentProperty: (currentProperty) => set({ currentProperty }),
     setMyProperties: (myProperties) => set({ myProperties }),
-    setSubmitting: (isSubmitting) => set({ isSubmitting }),
-    setError: (error) => set({ error }),
-    setSuccess: (success) => set({ success }),
-    clearMessages: () => set({ error: null, success: null }),
 
     /**
      * Get All Properties with Filters
@@ -32,7 +26,6 @@ export const usePropertyViewModel = create((set, get) => ({
     getProperties: async (filters = {}, options = {}) => {
         try {
             useAppStore.getState().setLoading(true);
-            set({ error: null });
 
             const params = {};
             Object.entries(filters).forEach(([key, value]) => {
@@ -54,9 +47,8 @@ export const usePropertyViewModel = create((set, get) => ({
                 message: data.message || 'Properties fetched successfully'
             };
         } catch (error) {
-            console.error('Get properties error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch properties';
-            set({ error: errorMessage });
+            // console.error('Get properties error:', error);
+            const errorMessage = error.message || 'Failed to fetch properties';
             return {
                 success: false,
                 message: errorMessage,
@@ -83,7 +75,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
         try {
             useAppStore.getState().setLoading(true);
-            set({ error: null });
 
             const data = await propertyRepo.getFeaturedPropertiesAPI(limit);
             const featuredProperties = (data.properties || data.data || []).map(p => new Property(p));
@@ -97,8 +88,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get featured properties error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch featured properties';
-            set({ error: errorMessage });
+            const errorMessage = error.message || 'Failed to fetch featured properties';
             return {
                 success: false,
                 message: errorMessage,
@@ -114,7 +104,7 @@ export const usePropertyViewModel = create((set, get) => ({
     getPropertyById: async (id) => {
         try {
             useAppStore.getState().setLoading(true);
-            set({ error: null, currentProperty: null });
+            set({ currentProperty: null });
 
             const data = await propertyRepo.getPropertyByIdAPI(id, { includeAuthor: true });
             const property = new Property(data.property || data.data?.property);
@@ -128,8 +118,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get property error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch property';
-            set({ error: errorMessage });
+            const errorMessage = error.message || 'Failed to fetch property';
             return {
                 success: false,
                 message: errorMessage,
@@ -145,7 +134,6 @@ export const usePropertyViewModel = create((set, get) => ({
     searchProperties: async (searchQuery) => {
         try {
             useAppStore.getState().setLoading(true);
-            set({ error: null });
 
             const data = await propertyRepo.searchPropertiesAPI(searchQuery);
             const properties = (data.properties || []).map(p => new Property(p));
@@ -159,8 +147,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Search properties error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to search properties';
-            set({ error: errorMessage });
+            const errorMessage = error.message || 'Failed to search properties';
             return {
                 success: false,
                 message: errorMessage,
@@ -187,7 +174,6 @@ export const usePropertyViewModel = create((set, get) => ({
 
         try {
             useAppStore.getState().setLoading(true);
-            set({ error: null });
 
             const data = await propertyRepo.getMyPropertiesAPI();
             const myProperties = (data.data?.properties || []).map(p => new Property(p));
@@ -201,16 +187,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get my properties error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch your properties';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to fetch your properties'
-                };
-            }
+            const errorMessage = error.message || 'Failed to fetch your properties';
 
             return {
                 success: false,
@@ -227,7 +204,7 @@ export const usePropertyViewModel = create((set, get) => ({
      */
     createProperty: async (propertyData, imageFiles) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const formData = new FormData();
@@ -254,7 +231,6 @@ export const usePropertyViewModel = create((set, get) => ({
             // Add new property to myProperties
             const { myProperties } = get();
             set({
-                success: 'Property created successfully!',
                 myProperties: [...myProperties, property]
             });
 
@@ -265,16 +241,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Create property error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to create property';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to create property'
-                };
-            }
+            const errorMessage = error.message || 'Failed to create property';
 
             return {
                 success: false,
@@ -292,7 +259,7 @@ export const usePropertyViewModel = create((set, get) => ({
      */
     updateProperty: async (propertyId, propertyData, selectedFiles, imagesToDelete) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const formData = new FormData();
@@ -321,7 +288,6 @@ export const usePropertyViewModel = create((set, get) => ({
             const updatedProperties = myProperties.map(p => (p.id === property.id) ? property : p);
             set({
                 currentProperty: property,
-                success: 'Property updated successfully!',
                 myProperties: updatedProperties
             });
 
@@ -332,16 +298,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Update property error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to update property';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to update property'
-                };
-            }
+            const errorMessage = error.message || 'Failed to update property';
 
             return {
                 success: false,
@@ -359,7 +316,7 @@ export const usePropertyViewModel = create((set, get) => ({
      */
     deleteProperty: async (propertyId) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const data = await propertyRepo.deletePropertyAPI(propertyId);
@@ -368,7 +325,6 @@ export const usePropertyViewModel = create((set, get) => ({
             const { myProperties } = get();
             const filteredProperties = myProperties.filter(p => p.id !== propertyId);
             set({
-                success: 'Property deleted successfully!',
                 myProperties: filteredProperties
             });
 
@@ -378,16 +334,7 @@ export const usePropertyViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Delete property error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to delete property';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to delete property'
-                };
-            }
+            const errorMessage = error.message || 'Failed to delete property';
 
             return {
                 success: false,

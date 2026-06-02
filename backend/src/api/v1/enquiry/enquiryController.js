@@ -9,7 +9,7 @@ class EnquiryController {
      * Create a new enquiry
      * @route POST /api/v1/enquiries
      */
-    async createEnquiry(req, res) {
+    async createEnquiry(req, res, next) {
         try {
             const { property_id, message } = req.body;
 
@@ -25,12 +25,7 @@ class EnquiryController {
                 data: enquiry
             });
         } catch (error) {
-            console.error('Error creating enquiry:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: 'Error creating enquiry',
-                error: error.message
-            });
+            next(error);
         }
     }
 
@@ -38,7 +33,7 @@ class EnquiryController {
      * Get all enquiries
      * @route GET /api/v1/enquiries
      */
-    async getEnquiries(req, res) {
+    async getEnquiries(req, res, next) {
         try {
             const enquiries = await enquiryService.getAllEnquiriesForUser(req.user, req.query);
 
@@ -48,12 +43,7 @@ class EnquiryController {
                 data: enquiries
             });
         } catch (error) {
-            console.error('Error fetching enquiries:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: 'Error fetching enquiries',
-                error: error.message
-            });
+            next(error);
         }
     }
 
@@ -61,7 +51,7 @@ class EnquiryController {
      * Get enquiry by ID
      * @route GET /api/v1/enquiries/:id
      */
-    async getEnquiryById(req, res) {
+    async getEnquiryById(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -72,11 +62,7 @@ class EnquiryController {
                 data: enquiry
             });
         } catch (error) {
-            console.error('Error fetching enquiry:', error);
-            res.status(HTTP_STATUS.NOT_FOUND).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -84,7 +70,7 @@ class EnquiryController {
      * Update enquiry
      * @route PUT /api/v1/enquiries/:id
      */
-    async updateEnquiry(req, res) {
+    async updateEnquiry(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -96,11 +82,7 @@ class EnquiryController {
                 data: enquiry
             });
         } catch (error) {
-            console.error('Error updating enquiry:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -108,7 +90,7 @@ class EnquiryController {
      * Delete enquiry
      * @route DELETE /api/v1/enquiries/:id
      */
-    async deleteEnquiry(req, res) {
+    async deleteEnquiry(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -119,11 +101,7 @@ class EnquiryController {
                 message: 'Enquiry deleted successfully'
             });
         } catch (error) {
-            console.error('Error deleting enquiry:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -131,7 +109,7 @@ class EnquiryController {
      * Close an enquiry (sender only)
      * @route POST /api/v1/enquiries/:id/close
      */
-    async closeEnquiry(req, res) {
+    async closeEnquiry(req, res, next) {
         const { id } = req.params;
 
         try {
@@ -143,11 +121,7 @@ class EnquiryController {
                 data: enquiry,
             });
         } catch (error) {
-            console.error('Error closing enquiry:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message,
-            });
+            next(error);
         }
     }
 
@@ -155,7 +129,7 @@ class EnquiryController {
      * Receiver responds to an enquiry with a message
      * @route POST /api/v1/enquiries/:id/respond
      */
-    async respondToEnquiry(req, res) {
+    async respondToEnquiry(req, res, next) {
         const { id } = req.params;
         const { message } = req.body;
 
@@ -168,11 +142,7 @@ class EnquiryController {
                 data: responseMessage,
             });
         } catch (error) {
-            console.error('Error responding to enquiry:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message,
-            });
+            next(error);
         }
     }
 
@@ -180,7 +150,7 @@ class EnquiryController {
      * Update enquiry status (receiver only)
      * @route PUT /api/v1/enquiries/:id/status
      */
-    async updateEnquiryStatus(req, res) {
+    async updateEnquiryStatus(req, res, next) {
         const { id } = req.params;
         const { status } = req.body;
 
@@ -193,11 +163,7 @@ class EnquiryController {
                 data: enquiry,
             });
         } catch (error) {
-            console.error('Error updating enquiry status:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message,
-            });
+            next(error);
         }
     }
 }

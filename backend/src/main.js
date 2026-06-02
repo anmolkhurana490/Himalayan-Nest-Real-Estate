@@ -3,6 +3,7 @@
 
 import express from 'express';
 import { setupAppMiddlewares } from './middlewares/AppMiddlewares.js';
+import { errorHandler } from './middlewares/ErrorMiddleware.js';
 import apiV1Routes from './api/v1/index.js';
 import dotenv from 'dotenv';
 
@@ -21,6 +22,9 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/v1', apiV1Routes); // API v1 routes
+
+// Global error handler middleware (must be last)
+app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;

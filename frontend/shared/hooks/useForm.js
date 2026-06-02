@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { ZodError } from 'zod';
+import { toast } from 'sonner';
 
 /**
  * Custom hook for form state management with validation
@@ -24,7 +25,6 @@ export const useForm = (initialValues = {}, validationSchema = null, onSubmit = 
     const [formData, setFormData] = useState(initialValues);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [message, setMessage] = useState({ type: '', content: '' });
 
     /**
      * Handle input change
@@ -87,32 +87,28 @@ export const useForm = (initialValues = {}, validationSchema = null, onSubmit = 
 
         // Validate if schema provided
         if (validationSchema && !validate()) {
-            setMessage({ type: 'error', content: 'Please fix the errors in the form' });
+            // setMessage({ type: 'error', content: 'Please fix the errors in the form' });
+            toast.error('Please fix the errors in the form');
             return;
         }
 
         if (!onSubmit) return;
 
-        try {
-            setIsSubmitting(true);
-            setMessage({ type: '', content: '' });
+        setIsSubmitting(true);
+        // setMessage({ type: '', content: '' });
 
-            const result = await onSubmit(formData);
+        const result = await onSubmit(formData);
 
-            if (result?.success) {
-                setMessage({ type: 'success', content: result.message || 'Success!' });
-                return result;
-            } else {
-                setMessage({ type: 'error', content: result?.message || 'Operation failed' });
-                return result;
-            }
-        } catch (error) {
-            const errorMsg = error.response?.data?.message || error.message || 'An error occurred';
-            setMessage({ type: 'error', content: errorMsg });
-            return { success: false, error: errorMsg };
-        } finally {
-            setIsSubmitting(false);
+        if (result?.success) {
+            // setMessage({ type: 'success', content: result.message || 'Success!' });
+            toast.success(result.message);
+        } else {
+            // setMessage({ type: 'error', content: result?.message || 'Operation failed' });
+            toast.error(result.message);
         }
+
+        setIsSubmitting(false);
+        return result;
     };
 
     /**
@@ -121,7 +117,7 @@ export const useForm = (initialValues = {}, validationSchema = null, onSubmit = 
     const reset = () => {
         setFormData(initialValues);
         setErrors({});
-        setMessage({ type: '', content: '' });
+        // setMessage({ type: '', content: '' });
         setIsSubmitting(false);
     };
 
@@ -130,14 +126,13 @@ export const useForm = (initialValues = {}, validationSchema = null, onSubmit = 
      */
     const clearMessages = () => {
         setErrors({});
-        setMessage({ type: '', content: '' });
+        // setMessage({ type: '', content: '' });
     };
 
     return {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
         updateFields,
@@ -146,7 +141,6 @@ export const useForm = (initialValues = {}, validationSchema = null, onSubmit = 
         clearMessages,
         setFormData,
         setErrors,
-        setMessage,
     };
 };
 

@@ -33,23 +33,17 @@ const PropertyDetailView = () => {
     }, [params?.id]);
 
     const loadProperty = async (id) => {
-        try {
-            setLoading(true);
-            const result = await getPropertyById(id);
+        setLoading(true);
+        const result = await getPropertyById(id);
 
-            if (result && result.success) {
-                setProperty(result.property);
-            } else {
-                toast.error('Property not found');
-                router.push(propertiesListRoute);
-            }
-        } catch (error) {
-            console.error('Error loading property:', error);
-            toast.error('Failed to load property');
+        if (result && result.success) {
+            setProperty(result.property);
+        } else {
+            toast.error(result.message || 'Property not found');
             router.push(propertiesListRoute);
-        } finally {
-            setLoading(false);
         }
+
+        setLoading(false);
     };
 
     const handlePropertyUpdate = (updatedProperty) => {

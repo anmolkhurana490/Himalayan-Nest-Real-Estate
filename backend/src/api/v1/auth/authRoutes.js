@@ -5,20 +5,28 @@ import express from 'express';
 import authController from './authController.js';
 import AuthMiddleware from '../../../middlewares/AuthMiddleware.js';
 import { validate } from '../../../middlewares/ValidationMiddleware.js';
-import { registerValidation, completeOAuthSignupValidation, loginValidation, updateProfileValidation, emailParamValidation, resolveValidation } from './authValidation.js';
+import {
+  registerValidation,
+  completeOAuthSignupValidation,
+  loginValidation,
+  updateProfileValidation,
+  emailParamValidation,
+  resolveValidation
+} from './authValidation.js';
 
 const router = express.Router();
 
 // Public authentication routes
-router.post('/register', validate(registerValidation), (req, res) => authController.register(req, res));
-router.post('/complete-oauth-signup', validate(completeOAuthSignupValidation), (req, res) => authController.completeOAuthSignup(req, res));
-router.post('/login', validate(loginValidation), (req, res) => authController.login(req, res));
-router.get('/check-email/:email', validate(emailParamValidation, 'params'), (req, res) => authController.findEmail(req, res));
-router.post('/oauth-resolve', validate(resolveValidation), (req, res) => authController.resolveAuth(req, res));
+router.post('/register', validate(registerValidation), authController.register);
+router.post('/complete-oauth-signup', validate(completeOAuthSignupValidation), authController.completeOAuthSignup);
+router.post('/login', validate(loginValidation), authController.login);
+router.get('/check-email/:email', validate(emailParamValidation, 'params'), authController.findEmail);
+router.post('/oauth-resolve', validate(resolveValidation), authController.resolveAuth);
 
-// Protected routes (authentication required)
-router.post('/logout', AuthMiddleware, (req, res) => authController.logout(req, res));
-router.get('/profile', AuthMiddleware, (req, res) => authController.getCurrentUser(req, res));
-router.patch('/profile', AuthMiddleware, validate(updateProfileValidation), (req, res) => authController.updateUserProfile(req, res));
+// Protected routes require a valid authenticated session
+router.use(AuthMiddleware);
+router.post('/logout', authController.logout);
+router.get('/profile', authController.getCurrentUser);
+router.patch('/profile', validate(updateProfileValidation), authController.updateUserProfile);
 
 export default router;

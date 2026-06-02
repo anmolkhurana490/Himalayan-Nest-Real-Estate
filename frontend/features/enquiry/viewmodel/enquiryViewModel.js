@@ -13,30 +13,25 @@ export const useEnquiryViewModel = create((set, get) => ({
     propertyEnquiries: [],
     currentEnquiry: null,
     isSubmitting: false,
-    error: null,
-    success: null,
 
     // Actions
     setPropertyEnquiries: (propertyEnquiries) => set({ propertyEnquiries }),
     setCurrentEnquiry: (currentEnquiry) => set({ currentEnquiry }),
     setSubmitting: (isSubmitting) => set({ isSubmitting }),
-    setError: (error) => set({ error }),
-    setSuccess: (success) => set({ success }),
-    clearMessages: () => set({ error: null, success: null }),
 
     /**
      * Submit Property Enquiry
      */
     submitEnquiry: async (enquiryData) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const data = await enquiryRepo.submitEnquiryAPI(enquiryData);
             const enquiry = new Enquiry(data.enquiry || data.data);
 
             const { propertyEnquiries } = get();
-            set({ propertyEnquiries: [enquiry, ...propertyEnquiries], success: 'Enquiry submitted successfully!' });
+            set({ propertyEnquiries: [enquiry, ...propertyEnquiries] });
 
             return {
                 success: true,
@@ -46,12 +41,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Submit enquiry error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to submit enquiry';
-            set({ error: errorMessage });
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to submit enquiry'
+                message: error.message || 'Failed to submit enquiry'
             };
         } finally {
             set({ isSubmitting: false });
@@ -88,21 +80,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get enquiries error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch enquiries';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to fetch enquiries'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch enquiries'
+                message: error.message || 'Failed to fetch enquiries'
             };
         } finally {
             useAppStore.getState().setLoading(false);
@@ -135,21 +115,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get property enquiries error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch property enquiries';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to fetch property enquiries'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch property enquiries'
+                message: error.message || 'Failed to fetch property enquiries'
             };
         } finally {
             useAppStore.getState().setLoading(false);
@@ -177,21 +145,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get enquiry error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch enquiry';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to fetch enquiry'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch enquiry'
+                message: error.message || 'Failed to fetch enquiry'
             };
         } finally {
             useAppStore.getState().setLoading(false);
@@ -203,7 +159,7 @@ export const useEnquiryViewModel = create((set, get) => ({
      */
     updateEnquiryStatus: async (enquiryId, status) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             await enquiryRepo.updateEnquiryStatusAPI(enquiryId, status);
@@ -223,7 +179,6 @@ export const useEnquiryViewModel = create((set, get) => ({
                 sentEnquiries: updatedSent,
                 receivedEnquiries: updatedReceived,
                 propertyEnquiries: updatedPropertyEnquiries,
-                success: 'Enquiry status updated successfully!'
             });
 
             return {
@@ -233,21 +188,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Update enquiry status error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to update enquiry status';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to update enquiry status'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to update enquiry status'
+                message: error.message || 'Failed to update enquiry status'
             };
         } finally {
             set({ isSubmitting: false });
@@ -260,7 +203,7 @@ export const useEnquiryViewModel = create((set, get) => ({
      */
     deleteEnquiry: async (enquiryId) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const data = await enquiryRepo.deleteEnquiryAPI(enquiryId);
@@ -273,7 +216,6 @@ export const useEnquiryViewModel = create((set, get) => ({
             set({
                 sentEnquiries: updatedSent,
                 propertyEnquiries: updatedReceived,
-                success: 'Enquiry deleted successfully!'
             });
 
             return {
@@ -283,21 +225,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Delete enquiry error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to delete enquiry';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to delete enquiry'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to delete enquiry'
+                message: error.message || 'Failed to delete enquiry'
             };
         } finally {
             set({ isSubmitting: false });
@@ -310,7 +240,7 @@ export const useEnquiryViewModel = create((set, get) => ({
      */
     closeEnquiry: async (enquiryId) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             await enquiryRepo.closeEnquiryAPI(enquiryId);
@@ -329,7 +259,6 @@ export const useEnquiryViewModel = create((set, get) => ({
                 currentEnquiry: enquiry,
                 sentEnquiries: updatedSent,
                 propertyEnquiries: updatedPropertyEnquiries,
-                success: 'Enquiry closed successfully!'
             });
 
             return {
@@ -339,21 +268,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Close enquiry error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to close enquiry';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to close enquiry'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to close enquiry'
+                message: error.message || 'Failed to close enquiry'
             };
         } finally {
             set({ isSubmitting: false });
@@ -366,7 +283,7 @@ export const useEnquiryViewModel = create((set, get) => ({
      */
     respondToEnquiry: async (enquiryId, message) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const data = await enquiryRepo.respondToEnquiryAPI(enquiryId, message);
@@ -385,7 +302,6 @@ export const useEnquiryViewModel = create((set, get) => ({
                 currentEnquiry: enquiry,
                 propertyEnquiries: updatedPropertyEnquiries,
                 receivedEnquiries: updatedReceived,
-                success: 'Response sent successfully!'
             });
 
             return {
@@ -396,21 +312,9 @@ export const useEnquiryViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Respond to enquiry error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to send response';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Authentication required. Please login.',
-                    message: 'Failed to send response'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to send response'
+                message: error.message || 'Failed to send response'
             };
         } finally {
             set({ isSubmitting: false });

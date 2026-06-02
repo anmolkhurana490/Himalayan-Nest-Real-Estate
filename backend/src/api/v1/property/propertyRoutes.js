@@ -11,42 +11,39 @@ import { multipleImageUploadSchema } from '../files/fileValidation.js';
 
 const router = express.Router();
 
-// Public routes (no authentication required)
-router.get('/', validate(searchPropertyValidation, 'query'), (req, res) => propertyController.getAllProperties(req, res));
+// Public property search and retrieval routes
+router.get('/', validate(searchPropertyValidation, 'query'), propertyController.getAllProperties);
 
-// Protected routes (authentication required) - MUST come before /:id to avoid conflicts
-router.get('/my-properties',
-    AuthMiddleware,
-    (req, res) => propertyController.getUserProperties(req, res)
-);
+// GET /my-properties (Protected) - Retrieve properties belonging to the authenticated user
+router.get('/my-properties', AuthMiddleware, propertyController.getUserProperties);
 
-// Single property - comes after specific routes
-router.get('/:id', validateCUID(), (req, res) => propertyController.getPropertyById(req, res));
+router.get('/:id', validateCUID(), propertyController.getPropertyById);
 
-// Protected routes for creating, updating, deleting properties
-router.post('/',
-    AuthMiddleware,
+// Protected property management routes
+router.use(AuthMiddleware);
+
+// POST / - Create a new property with image upload support
+router.post(
+    '/',
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
     validate(createPropertyValidation),
-    (req, res) => propertyController.createProperty(req, res)
+    propertyController.createProperty
 );
 
-router.put('/:id',
+// PUT /:id - Update an existing property by ID
+router.put(
+    '/:id',
     validateCUID(),
-    AuthMiddleware,
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
     validate(updatePropertyValidation),
-    (req, res) => propertyController.updateProperty(req, res)
+    propertyController.updateProperty
 );
 
-router.delete('/:id',
-    validateCUID(),
-    AuthMiddleware,
-    (req, res) => propertyController.deleteProperty(req, res)
-);
+// DELETE /:id - Delete a property owned by the authenticated user
+router.delete('/:id', validateCUID(), propertyController.deleteProperty);
 
 export default router;

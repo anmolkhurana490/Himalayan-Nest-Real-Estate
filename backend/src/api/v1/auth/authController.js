@@ -4,14 +4,13 @@
 import authService from './authService.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
 import userRepository from '../../../repositories/userRepository.js';
-// import accountRepository from '../../../repositories/accountRepository.js';
 
 class AuthController {
     /**
      * Register a new user with credentials
      * @route POST /api/v1/auth/register
      */
-    async register(req, res) {
+    async register(req, res, next) {
         const userData = req.body;
 
         try {
@@ -23,11 +22,7 @@ class AuthController {
                 user: result.user
             });
         } catch (error) {
-            console.error('Error registering user:', error);
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -35,7 +30,7 @@ class AuthController {
      * Complete user registration with OAuth
      * @route POST /api/v1/auth/complete-oauth
      */
-    async completeOAuthSignup(req, res) {
+    async completeOAuthSignup(req, res, next) {
         const { signupToken, ...data } = req.body;
 
         try {
@@ -47,11 +42,7 @@ class AuthController {
                 user: result.user
             });
         } catch (error) {
-            console.error('Error completing OAuth registration:', error);
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -59,7 +50,7 @@ class AuthController {
      * Login user
      * @route POST /api/v1/auth/login
      */
-    async login(req, res) {
+    async login(req, res, next) {
         const { email, password } = req.body;
 
         try {
@@ -80,11 +71,7 @@ class AuthController {
                 accessToken: result.token
             });
         } catch (error) {
-            console.error('Error logging in user:', error.message);
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -92,7 +79,7 @@ class AuthController {
      * Logout user
      * @route POST /api/v1/auth/logout
      */
-    async logout(req, res) {
+    async logout(req, res, next) {
         try {
             // Clear the authentication cookie
             // res.clearCookie('authToken');
@@ -102,11 +89,7 @@ class AuthController {
                 message: 'Logout successful'
             });
         } catch (error) {
-            console.error('Error logging out user:', error.message);
-            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -114,7 +97,7 @@ class AuthController {
      * Find user by email
      * @route GET /api/v1/auth/find-email
      */
-    async findEmail(req, res) {
+    async findEmail(req, res, next) {
         const { email } = req.params;
 
         try {
@@ -126,11 +109,7 @@ class AuthController {
                 message: exists ? 'Email is already registered' : 'Email is available'
             });
         } catch (error) {
-            console.error('Error checking email:', error.message);
-            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -138,7 +117,7 @@ class AuthController {
      * Get current user profile
      * @route GET /api/v1/auth/profile
      */
-    async getCurrentUser(req, res) {
+    async getCurrentUser(req, res, next) {
         try {
             const result = await authService.getCurrentUser(req.user.id);
 
@@ -148,11 +127,7 @@ class AuthController {
                 user: result.user
             });
         } catch (error) {
-            console.error('Error fetching current user:', error.message);
-            return res.status(HTTP_STATUS.NOT_FOUND).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -160,7 +135,7 @@ class AuthController {
      * Update user profile
      * @route PUT /api/v1/auth/profile
      */
-    async updateUserProfile(req, res) {
+    async updateUserProfile(req, res, next) {
         const { name, phone, bio } = req.body;
 
         try {
@@ -172,11 +147,7 @@ class AuthController {
                 user: result.user
             });
         } catch (error) {
-            console.error('Error updating user profile:', error.message);
-            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -184,7 +155,7 @@ class AuthController {
      * Resolve authentication with provider
      * @route POST /api/v1/auth/resolve
      */
-    async resolveAuth(req, res) {
+    async resolveAuth(req, res, next) {
         const userData = req.body;
 
         try {
@@ -215,11 +186,7 @@ class AuthController {
                 accessToken: result.token
             });
         } catch (error) {
-            console.error('Error resolving authentication:', error.message);
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 }

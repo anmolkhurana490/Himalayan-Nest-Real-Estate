@@ -2,6 +2,7 @@
 // Handles uploading and deleting files from Cloudinary
 
 import cloudinary from '../../../config/cloudinary.js';
+import { BadRequestError } from '../../../utils/errorUtils.js';
 
 /**
  * Upload a single file buffer to Cloudinary
@@ -149,7 +150,7 @@ export const deleteFromCloudinary = async (fileUrl, resourceType = 'image') => {
         const publicId = extractPublicIdFromUrl(fileUrl);
 
         if (!publicId) {
-            throw new Error('Could not extract public_id from URL');
+            throw new BadRequestError('Could not extract public_id from URL');
         }
 
         const result = await cloudinary.uploader.destroy(publicId, {

@@ -6,21 +6,15 @@
 import { create } from 'zustand';
 import * as savedPropertyRepo from "../repositories";
 import { SavedPropertyModel } from '../model/SavedPropertyModel';
-import { getSavedProperties } from '@/features/customer/repositories';
 
 export const useSavedPropertiesViewModel = create((set, get) => ({
     // State
     savedProperties: [],
     isLoading: false,
-    error: null,
-    success: null,
 
     // Actions
     setSavedProperties: (savedProperties) => set({ savedProperties }),
     setLoading: (isLoading) => set({ isLoading }),
-    setError: (error) => set({ error }),
-    setSuccess: (success) => set({ success }),
-    clearMessages: () => set({ error: null, success: null }),
 
     /**
      * Check if a property is saved/favorited
@@ -35,7 +29,7 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
      */
     getSavedProperties: async () => {
         try {
-            set({ isLoading: true, error: null });
+            set({ isLoading: true });
 
             // Fetch saved properties from backend API
             const data = await savedPropertyRepo.getSavedPropertiesAPI();
@@ -49,11 +43,9 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get saved properties error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch saved properties';
-            set({ error: errorMessage });
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to fetch saved properties'
             };
         } finally {
             set({ isLoading: false });
@@ -88,12 +80,9 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Toggle save property error:', error);
-            const errorMessage = 'Failed to save property';
-            set({ error: errorMessage });
-
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to toggle property save',
             };
         }
     },
@@ -120,11 +109,9 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
         }
         catch (error) {
             console.error('Add saved property error:', error);
-            const errorMessage = 'Failed to save property';
-            set({ error: errorMessage });
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to save property',
             };
         }
     },
@@ -150,12 +137,9 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Remove saved property error:', error);
-            const errorMessage = 'Failed to remove property';
-            set({ error: errorMessage });
-
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to remove property',
             };
         }
     },
@@ -175,12 +159,9 @@ export const useSavedPropertiesViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('clear saved property error:', error);
-            const errorMessage = 'Failed to clear properties';
-            set({ error: errorMessage });
-
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to clear properties',
             };
         }
     },

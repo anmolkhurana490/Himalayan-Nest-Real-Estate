@@ -9,7 +9,7 @@ class SubscriptionController {
      * Create a new subscription
      * @route POST /api/v1/subscriptions
      */
-    async subscribe(req, res) {
+    async subscribe(req, res, next) {
         const { planType, period } = req.body;
 
         try {
@@ -25,12 +25,7 @@ class SubscriptionController {
                 data: subscription
             });
         } catch (error) {
-            console.error('Error creating subscription:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: 'Error creating subscription',
-                error: error.message
-            });
+            next(error);
         }
     }
 
@@ -38,7 +33,7 @@ class SubscriptionController {
      * Get current user's subscription
      * @route GET /api/v1/subscriptions/my-subscription
      */
-    async getSubscription(req, res) {
+    async getSubscription(req, res, next) {
         try {
             const subscription = await subscriptionService.getSubscription(req.user.id);
 
@@ -48,12 +43,7 @@ class SubscriptionController {
                 subscription
             });
         } catch (error) {
-            console.error('Error fetching subscription:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: 'Error fetching subscription',
-                error: error.message
-            });
+            next(error);
         }
     }
 
@@ -61,7 +51,7 @@ class SubscriptionController {
      * Get all subscriptions (admin only)
      * @route GET /api/v1/subscriptions
      */
-    async getAllSubscriptions(req, res) {
+    async getAllSubscriptions(req, res, next) {
         try {
             const subscriptions = await subscriptionService.getAllSubscriptions(req.query);
 
@@ -70,11 +60,7 @@ class SubscriptionController {
                 data: subscriptions
             });
         } catch (error) {
-            console.error('Error fetching subscriptions:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -82,7 +68,7 @@ class SubscriptionController {
      * Update subscription
      * @route PUT /api/v1/subscriptions
      */
-    async updateSubscription(req, res) {
+    async updateSubscription(req, res, next) {
         try {
             const subscription = await subscriptionService.updateSubscription(
                 req.user.id,
@@ -95,11 +81,7 @@ class SubscriptionController {
                 data: subscription
             });
         } catch (error) {
-            console.error('Error updating subscription:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -107,7 +89,7 @@ class SubscriptionController {
      * Cancel subscription
      * @route DELETE /api/v1/subscriptions
      */
-    async cancelSubscription(req, res) {
+    async cancelSubscription(req, res, next) {
         try {
             await subscriptionService.cancelSubscription(req.user.id);
 
@@ -116,11 +98,7 @@ class SubscriptionController {
                 message: 'Subscription cancelled successfully'
             });
         } catch (error) {
-            console.error('Error cancelling subscription:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 
@@ -128,7 +106,7 @@ class SubscriptionController {
      * Check subscription status
      * @route GET /api/v1/subscriptions/status
      */
-    async checkSubscriptionStatus(req, res) {
+    async checkSubscriptionStatus(req, res, next) {
         try {
             const isActive = await subscriptionService.hasActiveSubscription(req.user.id);
 
@@ -137,11 +115,7 @@ class SubscriptionController {
                 isActive
             });
         } catch (error) {
-            console.error('Error checking subscription status:', error);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message
-            });
+            next(error);
         }
     }
 }

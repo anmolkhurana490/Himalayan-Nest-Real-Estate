@@ -13,7 +13,6 @@ const ContactForm = () => {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
         reset
@@ -37,15 +36,6 @@ const ContactForm = () => {
 
     return (
         <div>
-            {message.content && (
-                <div className={`mb-3 sm:mb-4 lg:mb-6 p-3 sm:p-4 rounded-md text-sm sm:text-base ${message.type === 'success'
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                    {message.content}
-                </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>

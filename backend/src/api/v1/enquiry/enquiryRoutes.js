@@ -5,22 +5,34 @@ import express from 'express';
 import enquiryController from './enquiryController.js';
 import AuthMiddleware from '../../../middlewares/AuthMiddleware.js';
 import { validate, validateCUID } from '../../../middlewares/ValidationMiddleware.js';
-import { createEnquiryValidation, updateEnquiryValidation, updateEnquiryStatusValidation, respondEnquiryValidation } from './enquiryValidation.js';
+import {
+  createEnquiryValidation,
+  updateEnquiryValidation,
+  updateEnquiryStatusValidation,
+  respondEnquiryValidation
+} from './enquiryValidation.js';
 
 const router = express.Router();
 
-// Protected routes (authentication required)
-router.get('/', AuthMiddleware, (req, res) => enquiryController.getEnquiries(req, res));
-router.get('/:id', AuthMiddleware, validateCUID(), (req, res) => enquiryController.getEnquiryById(req, res));
-router.post('/', AuthMiddleware, validate(createEnquiryValidation), (req, res) => enquiryController.createEnquiry(req, res));
+// All enquiry routes require authentication
+router.use(AuthMiddleware);
 
-// No update or delete routes for enquiries as of now - only status updates and responses
-// router.put('/:id', AuthMiddleware, validateUUID(), validate(updateEnquiryValidation), (req, res) => enquiryController.updateEnquiry(req, res));
-// router.delete('/:id', AuthMiddleware, validateUUID(), (req, res) => enquiryController.deleteEnquiry(req, res));
+// GET / - List enquiries for the authenticated user
+router.get('/', enquiryController.getEnquiries);
 
-// Additional actions on an enquiry
-router.post('/:id/close', AuthMiddleware, validateCUID(), (req, res) => enquiryController.closeEnquiry(req, res));
-router.post('/:id/respond', AuthMiddleware, validateCUID(), validate(respondEnquiryValidation), (req, res) => enquiryController.respondToEnquiry(req, res));
-router.put('/:id/status', AuthMiddleware, validateCUID(), validate(updateEnquiryStatusValidation), (req, res) => enquiryController.updateEnquiryStatus(req, res));
+// GET /:id - Retrieve an enquiry by ID
+router.get('/:id', validateCUID(), enquiryController.getEnquiryById);
+
+// POST / - Create a new enquiry
+router.post('/', validate(createEnquiryValidation), enquiryController.createEnquiry);
+
+// Additional enquiry actions
+router.post('/:id/close', validateCUID(), enquiryController.closeEnquiry);
+router.post('/:id/respond', validateCUID(), validate(respondEnquiryValidation), enquiryController.respondToEnquiry);
+router.put('/:id/status', validateCUID(), validate(updateEnquiryStatusValidation), enquiryController.updateEnquiryStatus);
+
+// No generic update/delete endpoints for enquiries at this time
+// router.put('/:id', validateUUID(), validate(updateEnquiryValidation), enquiryController.updateEnquiry);
+// router.delete('/:id', validateUUID(), enquiryController.deleteEnquiry);
 
 export default router;

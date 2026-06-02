@@ -23,10 +23,8 @@ export default function LoginView() {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
-        setMessage
     } = useForm(
         { email: '', password: '' },
         loginSchema,
@@ -47,7 +45,7 @@ export default function LoginView() {
             console.error("OAuth error:", errorParam);
             toast.error(errorParam);
         }
-    }, [searchParams, setMessage]);
+    }, [searchParams]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex sm:items-center justify-center py-6 sm:py-12 px-2 sm:px-4 lg:px-8">
@@ -70,12 +68,6 @@ export default function LoginView() {
                 </div>
 
                 <div className="bg-white py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6 shadow rounded-lg">
-                    {message.content && message.type === 'error' && (
-                        <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-xs sm:text-sm">
-                            {message.content}
-                        </div>
-                    )}
-
                     <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700">

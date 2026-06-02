@@ -2,6 +2,7 @@
 // Handles subscription management business logic
 
 import subscriptionRepository from '../../../repositories/subscriptionRepository.js';
+import { NotFoundError } from '../../../utils/errorUtils.js';
 
 class SubscriptionService {
     /**
@@ -53,7 +54,7 @@ class SubscriptionService {
         const subscription = await subscriptionRepository.updateByDealerId(dealerId, updates);
 
         if (!subscription) {
-            throw new Error('Subscription not found');
+            throw new NotFoundError('Subscription not found');
         }
 
         return subscription;
@@ -68,7 +69,7 @@ class SubscriptionService {
         const subscription = await subscriptionRepository.findByDealerId(dealerId);
 
         if (!subscription) {
-            throw new Error('Subscription not found');
+            throw new NotFoundError('Subscription not found');
         }
 
         await subscriptionRepository.updateByDealerId(dealerId, { isActive: false });

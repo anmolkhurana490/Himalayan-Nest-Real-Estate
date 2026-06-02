@@ -1,8 +1,9 @@
 // Validation Middleware using Zod
 // Validates request data against Zod schemas
 
-import { z } from 'zod';
+import { file, z } from 'zod';
 import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { BadRequestError, InternalServerError } from '../utils/errorUtils.js';
 
 /**
  * Validate request data against a Zod schema
@@ -36,25 +37,18 @@ export const validate = (schema, source = 'body') => {
                     return `${path}: ${err.message}`;
                 });
 
-                return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                    success: false,
-                    message: 'Validation failed',
-                    errors
-                });
+                const message = `Validation failed: ${errors.join(', ')}`;
+                return next(new BadRequestError(message));
             }
 
             // Handle other errors
-            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: 'Validation error',
-                error: error.message
-            });
+            return next(new InternalServerError('Validation error: ' + error.message));
         }
     };
 };
 
 /**
- * Validate UUID format using Zod
+ * Validate CUID format using Zod
  * @param {String} field - Field name to validate (default: 'id')
  * @param {String} source - 'params', 'body', 'query'
  * @returns {Function} Express middleware function

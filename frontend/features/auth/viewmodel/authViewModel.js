@@ -11,30 +11,23 @@ import { useAuthStore } from '@/shared/stores/authStore';
 export const useAuthViewModel = create((set, get) => ({
     // State
     isSubmitting: false,
-    error: null,
-    success: null,
     currentUser: null,
 
     // Actions
     setSubmitting: (isSubmitting) => set({ isSubmitting }),
-    setError: (error) => set({ error }),
-    setSuccess: (success) => set({ success }),
-    clearMessages: () => set({ error: null, success: null }),
 
     /**
      * User Registration Handler
      */
     registerUser: async (userData, oauthSignup, signupToken) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             // Signup token is present if this registration is part of an OAuth signup flow
             const data = oauthSignup ?
                 await authRepo.completeOAuthSignupAPI(userData, signupToken)
                 : await authRepo.registerUserAPI(userData);
-
-            set({ success: data.message || 'Registration successful!' });
 
             return {
                 success: true,
@@ -44,12 +37,9 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Registration error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
-            set({ error: errorMessage });
             return {
                 success: false,
-                error: errorMessage,
-                message: error.response?.data?.message || error.message || 'Registration failed. Please try again.'
+                message: error.message || 'Registration failed. Please try again.'
             };
         } finally {
             set({ isSubmitting: false });
@@ -62,19 +52,13 @@ export const useAuthViewModel = create((set, get) => ({
      */
     loginUser: async (credentials) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             const data = await signIn('credentials', {
                 redirect: false,
                 ...credentials
             });
-
-            if (!data.ok || !data.user) {
-                throw new Error(data.error || 'Login failed');
-            }
-
-            set({ success: data.message || 'Login successful!' });
 
             return {
                 success: true,
@@ -84,12 +68,9 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Login error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Login failed';
-            set({ error: errorMessage });
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Login failed. Please check your credentials.'
+                message: error.message || 'Login failed. Please check your credentials.'
             };
         } finally {
             set({ isSubmitting: false });
@@ -115,11 +96,8 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error(`${provider} OAuth Sign-In error:`, error);
-            const errorMessage = error.message || `${provider} OAuth Sign-In failed`;
-            set({ error: errorMessage });
             return {
                 success: false,
-                error: errorMessage,
                 message: `${provider} OAuth Sign-In failed. Please try again.`
             };
         } finally {
@@ -148,8 +126,8 @@ export const useAuthViewModel = create((set, get) => ({
             useAuthStore.getState().clearUser();
 
             return {
-                success: true,
-                message: 'Logged out successfully'
+                success: false,
+                message: error.message || 'Logout Failed'
             };
         } finally {
             set({ isSubmitting: false });
@@ -178,21 +156,9 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get current user error:', error.data);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch user profile';
-
-            if (error.response?.status === 401) {
-                useAuthStore.getState().clearUser();
-                return {
-                    success: false,
-                    error: 'Session expired. Please login again.',
-                    message: 'Failed to fetch user profile'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch user profile'
+                message: error.message || 'Failed to fetch user profile'
             };
         } finally {
             useAppStore.getState().setLoading(false);
@@ -204,7 +170,7 @@ export const useAuthViewModel = create((set, get) => ({
      */
     updateUserProfile: async (profileData) => {
         try {
-            set({ isSubmitting: true, error: null, success: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
             const data = await authRepo.updateUserProfileAPI(profileData);
 
@@ -221,21 +187,9 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Update profile error:', error);
-            const errorMessage = error.response?.data?.message || error.data?.message || 'Failed to update profile';
-            set({ error: errorMessage });
-
-            if (error.response?.status === 401) {
-                return {
-                    success: false,
-                    error: 'Session expired. Please login again.',
-                    message: 'Failed to update profile'
-                };
-            }
-
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to update profile'
+                message: error.message || 'Failed to update profile'
             };
         } finally {
             set({ isSubmitting: false });

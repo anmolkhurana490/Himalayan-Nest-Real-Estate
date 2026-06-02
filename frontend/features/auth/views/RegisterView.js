@@ -22,6 +22,7 @@ export default function RegisterView() {
     const { registerUser, loginUser, oauthSignIn } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
+    const [message, setMessage] = useState({});
 
     // Define initial form values
     const initialValues = {
@@ -36,52 +37,48 @@ export default function RegisterView() {
 
     // Define submit handler
     const handleFormSubmit = async (data) => {
-        try {
-            setStatus('registering');
+        setStatus('registering');
 
-            // Register the user (with signupToken if it's an OAuth signup flow)
-            const registrationData = {
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                password: data.password,
-                userType: data.userType,
-            };
+        // Register the user (with signupToken if it's an OAuth signup flow)
+        const registrationData = {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            password: data.password,
+            userType: data.userType,
+        };
 
-            const signupToken = oauthSignup ? searchParams.get('signupToken') : null;
+        const signupToken = oauthSignup ? searchParams.get('signupToken') : null;
 
-            const result = await registerUser(registrationData, oauthSignup, signupToken);
+        const result = await registerUser(registrationData, oauthSignup, signupToken);
 
-            if (!result.success) {
-                setStatus('idle');
-                return result;
-            }
-
-            // Registration successful, now log the user in
-            setStatus('signing-in');
-
-            if (oauthSignup) {
-                await oauthSignIn(oauthSignup, ROUTES.REGISTER);
-            }
-            else {
-                await loginUser({
-                    email: registrationData.email,
-                    password: registrationData.password,
-                });
-            }
-
-            // For regular signup, show success and redirect to login
-            setStatus('success');
-            setTimeout(() => {
-                router.push(ROUTES.PROPERTIES.ROOT);
-            }, 1000);
-
-            return { success: true, message: 'Account created successfully! Redirecting to login...' };
-        } catch (error) {
-            console.error('Registration error:', error);
+        if (!result.success) {
             setStatus('idle');
-            return { success: false, message: error.message || 'An unexpected error occurred. Please try again.' };
+            return result;
         }
+
+        // Registration successful, now log the user in
+        setStatus('signing-in');
+
+        if (oauthSignup) {
+            const res = await oauthSignIn(oauthSignup, ROUTES.REGISTER);
+            if (!res.success) return res;
+        }
+        else {
+            const res = await loginUser({
+                email: registrationData.email,
+                password: registrationData.password,
+            });
+            if (!res.success) return res;
+        }
+
+        // For regular signup, show success and redirect to login
+        setStatus('success');
+        setTimeout(() => {
+            router.push(ROUTES.PROPERTIES.ROOT);
+        }, 1000);
+
+        return { success: true, message: 'Registration and Login Successful' };
     };
 
     const handleOAuthSignIn = async (provider) => {
@@ -97,11 +94,9 @@ export default function RegisterView() {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange: baseHandleChange,
         handleSubmit,
         setFormData,
-        setMessage
     } = useForm(initialValues, registerSchema, handleFormSubmit);
 
     // Set initial error from URL params
@@ -110,7 +105,7 @@ export default function RegisterView() {
         if (urlError) {
             setMessage({ type: 'error', content: urlError });
         }
-    }, [searchParams, setMessage]);
+    }, [searchParams]);
 
     // Populate form from OAuth params
     useEffect(() => {
@@ -387,11 +382,9 @@ export default function RegisterView() {
                         <div>
                             <button
                                 type="submit"
-                                disabled={status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms}
-                                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white ${status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
-                                    }`}
+                                disabled={status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms || isSubmitting}
+                                className={'group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                                }
                             >
                                 {status === 'registering' && (
                                     <span className="flex items-center">

@@ -9,30 +9,14 @@ import { createSubscriptionValidation, updateSubscriptionValidation } from './su
 
 const router = express.Router();
 
-// Protected routes (authentication + dealer role required)
-router.post('/', AuthMiddleware, validateDealer, validate(createSubscriptionValidation), (req, res) =>
-    subscriptionController.subscribe(req, res)
-);
+// Dealer-only subscription routes
+router.post('/', validateDealer, validate(createSubscriptionValidation), subscriptionController.subscribe);
+router.get('/my-subscription', validateDealer, subscriptionController.getSubscription);
+router.get('/status', validateDealer, subscriptionController.checkSubscriptionStatus);
+router.put('/', validateDealer, validate(updateSubscriptionValidation), subscriptionController.updateSubscription);
+router.delete('/', validateDealer, subscriptionController.cancelSubscription);
 
-router.get('/my-subscription', AuthMiddleware, validateDealer, (req, res) =>
-    subscriptionController.getSubscription(req, res)
-);
-
-router.get('/status', AuthMiddleware, validateDealer, (req, res) =>
-    subscriptionController.checkSubscriptionStatus(req, res)
-);
-
-router.put('/', AuthMiddleware, validateDealer, validate(updateSubscriptionValidation), (req, res) =>
-    subscriptionController.updateSubscription(req, res)
-);
-
-router.delete('/', AuthMiddleware, validateDealer, (req, res) =>
-    subscriptionController.cancelSubscription(req, res)
-);
-
-// Admin routes
-router.get('/', AuthMiddleware, (req, res) =>
-    subscriptionController.getAllSubscriptions(req, res)
-);
+// Admin routes can be added here if needed
+// router.get('/', subscriptionController.getAllSubscriptions);
 
 export default router;

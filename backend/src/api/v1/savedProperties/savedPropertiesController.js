@@ -8,7 +8,7 @@ class SavedPropertiesController {
      * @query {number} page - Page number for pagination
      * @query {number} limit - Number of items per page
      */
-    async getSavedProperties(req, res) {
+    async getSavedProperties(req, res, next) {
         try {
             const properties = await savedPropertiesService.getSavedProperties(req.user.id);
 
@@ -18,11 +18,7 @@ class SavedPropertiesController {
                 savedProperties: properties,
             });
         } catch (error) {
-            console.error('Error fetching saved properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -30,7 +26,7 @@ class SavedPropertiesController {
      * Add property to saved properties
      * @route POST /api/v1/saved-properties/:propertyId
      */
-    async addSavedProperty(req, res) {
+    async addSavedProperty(req, res, next) {
         const { propertyId } = req.params;
 
         try {
@@ -41,11 +37,7 @@ class SavedPropertiesController {
                 message: 'Property added to saved properties successfully',
             });
         } catch (error) {
-            console.error('Error adding property to saved properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -53,7 +45,7 @@ class SavedPropertiesController {
      * Remove property from saved properties
      * @route DELETE /api/v1/saved-properties/:propertyId
      */
-    async removeSavedProperty(req, res) {
+    async removeSavedProperty(req, res, next) {
         const { propertyId } = req.params;
 
         try {
@@ -64,11 +56,7 @@ class SavedPropertiesController {
                 message: 'Property removed from saved properties successfully',
             });
         } catch (error) {
-            console.error('Error removing property from saved properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 
@@ -76,7 +64,7 @@ class SavedPropertiesController {
      * Clear all saved properties
      * @route DELETE /api/v1/saved-properties
      */
-    async clearSavedProperties(req, res) {
+    async clearSavedProperties(req, res, next) {
         try {
             await savedPropertiesService.clearSavedProperties(req.user.id);
 
@@ -85,11 +73,7 @@ class SavedPropertiesController {
                 message: 'All saved properties cleared successfully',
             });
         } catch (error) {
-            console.error('Error clearing saved properties:', error.message);
-            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error.message || 'Internal server error'
-            });
+            next(error);
         }
     }
 }

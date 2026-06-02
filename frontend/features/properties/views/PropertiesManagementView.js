@@ -53,6 +53,7 @@ const PropertiesManagementView = () => {
 
     const handleStatusToggle = async (propertyId, currentStatus) => {
         const result = await updateProperty(propertyId, { isActive: !currentStatus });
+
         if (result && result.success) {
             toast.success(`Property ${currentStatus ? 'Deactivated' : 'Activated'} successfully`);
             setFilteredProperties(prev =>
@@ -68,6 +69,7 @@ const PropertiesManagementView = () => {
     const handleDelete = async (propertyId) => {
         if (window.confirm('Are you sure you want to delete this property?')) {
             const result = await deleteProperty(propertyId);
+            
             if (result && result.success) {
                 setFilteredProperties(prev => prev.filter(property => property.id !== propertyId));
                 toast.success(result.message || 'Property deleted successfully');

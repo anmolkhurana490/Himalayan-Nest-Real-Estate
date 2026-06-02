@@ -11,14 +11,11 @@ export const useDashboardViewModel = create((set, get) => ({
     stats: null,
     activities: [],
     analytics: null,
-    error: null,
 
     // Actions
     setStats: (stats) => set({ stats }),
     setActivities: (activities) => set({ activities }),
     setAnalytics: (analytics) => set({ analytics }),
-    setError: (error) => set({ error }),
-    clearError: () => set({ error: null }),
 
     /**
      * Get dashboard stats
@@ -41,8 +38,6 @@ export const useDashboardViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get dashboard stats error:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch dashboard stats';
-            set({ error: errorMessage });
             return {
                 success: false,
                 error: errorMessage,
@@ -74,8 +69,6 @@ export const useDashboardViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get activities error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch activities';
-            set({ error: errorMessage });
             return {
                 success: false,
                 message: errorMessage,
@@ -106,8 +99,6 @@ export const useDashboardViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get analytics error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch analytics';
-            set({ error: errorMessage });
             return {
                 success: false,
                 message: errorMessage,

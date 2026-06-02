@@ -5,19 +5,19 @@ import { validate, validateCUID } from '../../../middlewares/ValidationMiddlewar
 
 const router = Router();
 
-// Apply authentication middleware to all routes
+// All saved property routes require authentication
 router.use(AuthMiddleware);
 
-// Get all saved properties for the user
+// GET / - Retrieve all saved properties for the authenticated user
 router.get('/', savedPropertyController.getSavedProperties);
 
-// Save a property for the user
+// POST /:propertyId - Save a property for the authenticated user
 router.post('/:propertyId', validateCUID('propertyId'), savedPropertyController.addSavedProperty);
 
-// Unsave a property for the user
+// DELETE /:propertyId - Remove a saved property for the authenticated user
 router.delete('/:propertyId', validateCUID('propertyId'), savedPropertyController.removeSavedProperty);
 
-// Clear all saved properties for the user
+// DELETE / - Clear all saved properties for the authenticated user
 router.delete('/', savedPropertyController.clearSavedProperties);
 
 export default router;

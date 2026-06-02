@@ -3,6 +3,7 @@
 
 import multer from 'multer';
 import { IMAGES_CONFIG, VIDEO_CONFIG, DOCUMENT_CONFIG } from '../constants/files.js';
+import { BadRequestError } from '../utils/errorUtils.js';
 
 // Use memory storage - files stored in buffer temporarily for validation
 const storage = multer.memoryStorage();
@@ -12,7 +13,7 @@ const imageFileFilter = (req, file, cb) => {
     if (IMAGES_CONFIG.allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error(`Invalid image type. Allowed types: ${IMAGES_CONFIG.allowedTypes.join(', ')}`), false);
+        cb(new BadRequestError(`Invalid image type. Allowed types: ${IMAGES_CONFIG.allowedTypes.join(', ')}`), false);
     }
 };
 
@@ -21,7 +22,7 @@ const videoFileFilter = (req, file, cb) => {
     if (VIDEO_CONFIG.allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error(`Invalid video type. Allowed types: ${VIDEO_CONFIG.allowedTypes.join(', ')}`), false);
+        cb(new BadRequestError(`Invalid video type. Allowed types: ${VIDEO_CONFIG.allowedTypes.join(', ')}`), false);
     }
 };
 
@@ -30,7 +31,7 @@ const documentFileFilter = (req, file, cb) => {
     if (DOCUMENT_CONFIG.allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error(`Invalid document type. Allowed types: ${DOCUMENT_CONFIG.allowedTypes.join(', ')}`), false);
+        cb(new BadRequestError(`Invalid document type. Allowed types: ${DOCUMENT_CONFIG.allowedTypes.join(', ')}`), false);
     }
 };
 
@@ -76,38 +77,27 @@ export const uploadPropertyVideo = videoUpload.single('video');
 // Middleware for document upload
 export const uploadPropertyDocument = documentUpload.single('document');
 
-// Error handling middleware for multer
+// Error handling middleware for multer - passes errors to error handler
 export const handleMulterError = (error, req, res, next) => {
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({
-                success: false,
-                message: `File size too large. Maximum size is ${IMAGES_CONFIG.maxSize / (1024 * 1024)}MB per file.`
-            });
+            return next(new BadRequestError(`File size too large. Maximum size is ${IMAGES_CONFIG.maxSize / (1024 * 1024)}MB per file.`));
         }
         if (error.code === 'LIMIT_FILE_COUNT') {
-            return res.status(400).json({
-                success: false,
-                message: `Too many files. Maximum ${IMAGES_CONFIG.maxCount} files allowed.`
-            });
+            return next(new BadRequestError(`Too many files. Maximum ${IMAGES_CONFIG.maxCount} files allowed.`));
         }
         if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-            return res.status(400).json({
-                success: false,
-                message: 'Unexpected field name for file upload.'
-            });
+            return next(new BadRequestError('Unexpected field name for file upload.'));
         }
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        return next(new BadRequestError(error.message));
     }
 
-    if (error.message.includes('Invalid')) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+    if (error instanceof BadRequestError) {
+        return next(error);
+    }
+
+    if (error.message && error.message.includes('Invalid')) {
+        return next(new BadRequestError(error.message));
     }
 
     next();

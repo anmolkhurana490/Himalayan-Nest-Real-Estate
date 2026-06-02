@@ -10,6 +10,7 @@ import { searchPropertySchema } from '../validation';
 import { validateWithSchema } from '@/utils/validator';
 import Pagination from '../components/Pagination';
 import APP_CONFIG from '@/config/app.config';
+import { toast } from 'sonner';
 
 const PropertiesLoading = () => (
     <div className="min-h-screen bg-gray-50">
@@ -29,16 +30,13 @@ const PropertiesLoading = () => (
 );
 
 const PropertiesContent = () => {
-    const { getProperties, properties: vmProperties } = usePropertyViewModel();
+    const { getProperties } = usePropertyViewModel();
     const [properties, setProperties] = useState([]);
-    const [error, setError] = useState('');
     const searchParams = useSearchParams();
 
     const [paginationValues, setPaginationValues] = useState({});
 
     const loadProperties = async (searchFilters = {}) => {
-        setError('');
-
         const filters = {};
         Object.entries(searchFilters).forEach(([key, value]) => {
             if (value && value.toString().trim()) {
@@ -49,7 +47,7 @@ const PropertiesContent = () => {
         const errors = validateWithSchema(searchPropertySchema, filters);
         if (errors && errors.length > 0) {
             const errorMessage = errors.map((e) => e.message).join('\\n');
-            setError(errorMessage);
+            toast.error(errorMessage);
             return;
         }
 
@@ -71,7 +69,7 @@ const PropertiesContent = () => {
             });
         } else {
             const errorMessage = result?.message || 'Failed to load properties';
-            setError(errorMessage);
+            toast.error(errorMessage);
             setProperties([]);
         }
     };
@@ -91,13 +89,7 @@ const PropertiesContent = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-
-                {properties.length === 0 && !error && (
+                {properties.length === 0 && (
                     <div className="text-center py-12">
                         <p className="text-gray-600 text-lg">No properties found matching your criteria.</p>
                     </div>

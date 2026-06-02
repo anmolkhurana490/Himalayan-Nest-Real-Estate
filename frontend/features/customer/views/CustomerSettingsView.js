@@ -36,9 +36,7 @@ export default function CustomerSettingsView() {
 
     const {
         formData,
-        errors,
         isSubmitting,
-        message,
         handleChange: baseHandleChange,
         handleSubmit,
         setFormData
@@ -91,16 +89,6 @@ export default function CustomerSettingsView() {
                         </div>
                     </div>
                 </div>
-
-                {/* Message Display */}
-                {message.content && (
-                    <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === 'success'
-                        ? 'bg-green-100 border border-green-400 text-green-700'
-                        : 'bg-red-100 border border-red-400 text-red-700'
-                        }`}>
-                        {message.content}
-                    </div>
-                )}
 
                 {/* Tabs */}
                 <div className="bg-white rounded-lg shadow-sm mb-4 overflow-x-auto">

@@ -6,6 +6,7 @@ import { PROPERTY_CATEGORIES, PROPERTY_SUBTYPES } from '@/config/constants/prope
 import { IMAGES_CONFIG } from '@/config/constants/files';
 import { Plus, X, Tag, Upload } from 'lucide-react';
 import { useForm, useImageUpload } from '@/shared/hooks';
+import { toast } from 'sonner';
 
 const EditProperty = ({ property, onClose, onUpdate }) => {
     const { updateProperty } = usePropertyViewModel();
@@ -47,7 +48,6 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange,
         handleSubmit,
         updateFields,
@@ -110,15 +110,6 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
                             <X className="w-6 h-6" />
                         </button>
                     </div>
-
-                    {message.content && (
-                        <div className={`mb-6 p-4 rounded-lg ${message.type === 'success'
-                            ? 'bg-green-50 text-green-700 border border-green-200'
-                            : 'bg-red-50 text-red-700 border border-red-200'
-                            }`}>
-                            {message.content}
-                        </div>
-                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Basic Information */}

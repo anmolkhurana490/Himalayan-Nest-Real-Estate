@@ -3,6 +3,7 @@
 
 import userRepository from '../repositories/userRepository.js';
 import { verifyToken } from '../utils/jwtHandlers.js';
+import { UnauthorizedError, ForbiddenError } from '../utils/errorUtils.js';
 
 // Main authentication middleware - validates JWT token from cookies
 const AuthMiddleware = async (req, res, next) => {
@@ -10,7 +11,7 @@ const AuthMiddleware = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'Access denied, no token provided' });
+        return next(new UnauthorizedError('Access denied, no token provided'));
     }
 
     try {
@@ -21,7 +22,7 @@ const AuthMiddleware = async (req, res, next) => {
         // in practical, we might want to cache user info into Redis
         const user = await userRepository.findById(decoded.id);
         if (!user || user.role !== decoded.role) {
-            return res.status(404).json({ message: 'User not found' });
+            return next(new UnauthorizedError('Invalid Token'));
         }
 
         // Attach user info to request object for use in route handlers
@@ -29,7 +30,7 @@ const AuthMiddleware = async (req, res, next) => {
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         // Token is invalid, expired, or malformed
-        return res.status(401).json({ message: error.message || 'Invalid token' });
+        return next(new UnauthorizedError(error.message || 'Invalid token'));
     }
 }
 
@@ -38,7 +39,7 @@ export const validateDealer = (req, res, next) => {
     if (req.user && req.user.role === 'dealer') {
         return next(); // User is a dealer, allow access
     }
-    return res.status(403).json({ error: 'Access denied. Dealer Role required.' });
+    return next(new ForbiddenError('Access denied. Dealer Role required.'));
 }
 
 export default AuthMiddleware;

@@ -17,8 +17,6 @@ export const useCustomerViewModel = create((set, get) => ({
     comparisonList: getFromStorage(COMPARISON_KEY) || [],
     customerEnquiries: [],
     isLoading: false,
-    error: null,
-    success: null,
 
     // Actions
     setPreferences: (preferences) => set({ preferences }),
@@ -28,9 +26,6 @@ export const useCustomerViewModel = create((set, get) => ({
     },
     setCustomerEnquiries: (customerEnquiries) => set({ customerEnquiries }),
     setLoading: (isLoading) => set({ isLoading }),
-    setError: (error) => set({ error }),
-    setSuccess: (success) => set({ success }),
-    clearMessages: () => set({ error: null, success: null }),
 
     /**
      * Get user preferences
@@ -48,7 +43,7 @@ export const useCustomerViewModel = create((set, get) => ({
         }
 
         try {
-            set({ isLoading: true, error: null });
+            set({ isLoading: true });
 
             // For now, return default preferences until backend is ready
             // const data = await customerRepo.getUserPreferences();
@@ -64,11 +59,9 @@ export const useCustomerViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get preferences error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch preferences';
-            set({ error: errorMessage });
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to fetch preferences',
             };
         } finally {
             set({ isLoading: false });
@@ -80,7 +73,7 @@ export const useCustomerViewModel = create((set, get) => ({
      */
     updatePreferences: async (preferencesData) => {
         try {
-            set({ isLoading: true, error: null });
+            set({ isLoading: true });
 
             // For now, update local state until backend is ready
             // const data = await customerRepo.updateUserPreferences(preferencesData);
@@ -90,7 +83,6 @@ export const useCustomerViewModel = create((set, get) => ({
 
             set({
                 preferences,
-                success: 'Preferences updated successfully'
             });
 
             return {
@@ -99,11 +91,9 @@ export const useCustomerViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Update preferences error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to update preferences';
-            set({ error: errorMessage });
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to update preferences',
             };
         } finally {
             set({ isLoading: false });
@@ -167,7 +157,7 @@ export const useCustomerViewModel = create((set, get) => ({
         }
 
         try {
-            set({ isLoading: true, error: null });
+            set({ isLoading: true });
 
             // For now, return empty array until backend is ready
             // const data = await customerRepo.getCustomerEnquiries();
@@ -183,11 +173,9 @@ export const useCustomerViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.error('Get enquiries error:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch enquiries';
-            set({ error: errorMessage });
             return {
                 success: false,
-                message: errorMessage,
+                message: error.message || 'Failed to fetch enquiries',
             };
         } finally {
             set({ isLoading: false });
@@ -216,8 +204,6 @@ export const useCustomerViewModel = create((set, get) => ({
             preferences: null,
             comparisonList: [],
             customerEnquiries: [],
-            error: null,
-            success: null,
         });
         removeFromStorage(COMPARISON_KEY);
     },

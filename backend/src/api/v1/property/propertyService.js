@@ -4,6 +4,7 @@
 import propertyRepository from '../../../repositories/propertyRepository.js';
 import { deleteCloudinaryImages, uploadPropertyImages } from '../files/fileService.js';
 import { validateCreateFilesCount, validateUpdateImagesCount } from '../files/fileValidation.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '../../../utils/errorUtils.js';
 
 class PropertyService {
     /**
@@ -50,7 +51,7 @@ class PropertyService {
         const property = await propertyRepository.findById(id, options, true);
 
         if (!property) {
-            throw new Error('Property not found');
+            throw new NotFoundError('Property not found');
         }
 
         return property;
@@ -87,7 +88,7 @@ class PropertyService {
         // Validate file count
         const validation = validateCreateFilesCount(files);
         if (!validation.valid) {
-            throw new Error(validation.error);
+            throw new BadRequestError(validation.error);
         }
 
         // Upload images to Cloudinary (only after validation passes)
@@ -132,12 +133,12 @@ class PropertyService {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
-            throw new Error('Property not found');
+            throw new NotFoundError('Property not found');
         }
 
         // Check ownership
         if (property.authorId !== authorId) {
-            throw new Error('You are not authorized to perform this action');
+            throw new ForbiddenError('You are not authorized to perform this action');
         }
 
         const { imagesToDelete, ...propertyData } = updateData;
@@ -166,7 +167,7 @@ class PropertyService {
             deleteImageList.length
         );
         if (!validation.valid) {
-            throw new Error(validation.error);
+            throw new BadRequestError(validation.error);
         }
 
         let newImageUrls = [];
@@ -209,12 +210,12 @@ class PropertyService {
         const property = await propertyRepository.findById(id);
 
         if (!property) {
-            throw new Error('Property not found');
+            throw new NotFoundError('Property not found');
         }
 
         // Check ownership
         if (property.authorId !== authorId) {
-            throw new Error('You are not authorized to perform this action');
+            throw new ForbiddenError('You are not authorized to perform this action');
         }
 
         // Delete images from Cloudinary

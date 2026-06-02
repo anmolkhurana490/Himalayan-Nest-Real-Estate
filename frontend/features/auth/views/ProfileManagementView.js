@@ -45,7 +45,6 @@ const ProfileManagementView = () => {
         formData,
         errors,
         isSubmitting,
-        message,
         handleChange: baseHandleChange,
         handleSubmit,
         setFormData
@@ -89,15 +88,6 @@ const ProfileManagementView = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
                 <p className="text-gray-600 mt-1">Manage your account information and preferences</p>
             </div>
-
-            {message.content && (
-                <div className={`mb-4 p-3 rounded-md text-sm ${message.type === 'success'
-                    ? 'bg-green-100 border border-green-400 text-green-700'
-                    : 'bg-red-100 border border-red-400 text-red-700'
-                    }`}>
-                    {message.content}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
