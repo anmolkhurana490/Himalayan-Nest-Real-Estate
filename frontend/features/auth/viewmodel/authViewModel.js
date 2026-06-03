@@ -85,7 +85,7 @@ export const useAuthViewModel = create((set, get) => ({
      */
     oauthSignIn: async (provider, redirectTo) => {
         try {
-            set({ isSubmitting: true, error: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
 
             await signIn(provider, { redirectTo });
@@ -111,8 +111,10 @@ export const useAuthViewModel = create((set, get) => ({
      */
     logoutUser: async () => {
         try {
-            set({ isSubmitting: true, error: null });
+            set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
+
+            await authRepo.logoutUserAPI();
 
             await signOut();
             useAuthStore.getState().clearUser();

@@ -83,6 +83,7 @@ class AuthController {
         try {
             // Clear the authentication cookie
             // res.clearCookie('authToken');
+            await authService.logout(req.user, req.sessionId);
 
             return res.status(HTTP_STATUS.OK).json({
                 success: true,

@@ -6,10 +6,10 @@ import userRepository from '../../../repositories/userRepository.js';
 import { generateToken, verifyToken } from '../../../utils/jwtHandlers.js';
 import { OAuth2Client } from 'google-auth-library';
 import { ConflictError, NotFoundError, UnauthorizedError, BadRequestError } from '../../../utils/errorUtils.js';
-
-const SALT_ROUNDS = 10;
-
-const selectFields = { id: true, name: true, email: true, phone: true, role: true, bio: true };
+import cacheService from '../../../services/cacheService.js';
+import { ACCESS_TOKEN_EXPIRES_IN, SIGNUP_TOKEN_EXPIRES_IN, AUTH_REDIS_EXPIRY_SECONDS, SALT_ROUNDS, selectFields } from '../../../constants/auth.js';
+import { generateAuthSessionKey } from '../../../builders/cacheKeyBuilder.js';
+import crypto from 'crypto';
 
 class AuthService {
     constructor() {
@@ -92,13 +92,6 @@ class AuthService {
             throw new UnauthorizedError('Invalid credentials');
         }
 
-        // Generate JWT token
-        const token = generateToken({
-            id: user.id,
-            email: user.email,
-            role: user.role
-        }, `7d`);
-
         // Prepare user response
         const userResponse = {
             id: user.id,
@@ -107,7 +100,19 @@ class AuthService {
             role: user.role,
         };
 
+        const token = await this.generateAuthSession(user);
+
         return { user: userResponse, token };
+    }
+
+    /**
+     * Clear User Session cache
+     * @param {Object} user - Authenticated User
+     * @param {String} sessionId - current session Id
+     */
+    async logout(user, sessionId) {
+        const sessionKey = generateAuthSessionKey(user.id, sessionId);
+        await cacheService.del(sessionKey);
     }
 
     /**
@@ -180,7 +185,7 @@ class AuthService {
             }
 
             // Short-lived token for signup
-            const signupToken = generateToken({ email, name, provider, providerAccountId }, '15m');
+            const signupToken = generateToken({ email, name, provider, providerAccountId }, SIGNUP_TOKEN_EXPIRES_IN);
 
             return {
                 signup: true,
@@ -192,12 +197,7 @@ class AuthService {
             }
         }
 
-        // Generate JWT token
-        const token = generateToken({
-            id: user.id,
-            email: user.email,
-            role: user.role
-        }, `7d`);
+        const token = await this.generateAuthSession(user);
 
         return { user, token };
     }
@@ -227,6 +227,30 @@ class AuthService {
         else {
             throw new BadRequestError('Unsupported authentication provider');
         }
+    }
+
+    /**
+     * Create a new auth session for a user, store it in Redis, and return a JWT.
+     * @param {Object} user - Authenticated user object
+     * @returns {Promise<string>} JWT token linked to the cached session
+     */
+    async generateAuthSession(user) {
+        // Separate session for each login
+        const sessionId = crypto.randomUUID();
+        const sessionKey = generateAuthSessionKey(user.id, sessionId);
+
+        const payload = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+        }
+
+        // Cache User Session
+        await cacheService.set(sessionKey, payload, AUTH_REDIS_EXPIRY_SECONDS);
+
+        // Generate JWT token
+        const token = generateToken({ ...payload, sessionId }, ACCESS_TOKEN_EXPIRES_IN);
+        return token;
     }
 }
 

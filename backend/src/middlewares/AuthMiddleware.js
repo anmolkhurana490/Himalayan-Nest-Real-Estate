@@ -1,9 +1,10 @@
 // Authentication Middleware for Protected Routes
 // Validates JWT tokens and user permissions for secure API access
 
-import userRepository from '../repositories/userRepository.js';
 import { verifyToken } from '../utils/jwtHandlers.js';
 import { UnauthorizedError, ForbiddenError } from '../utils/errorUtils.js';
+import cacheService from '../services/cacheService.js';
+import { generateAuthSessionKey } from '../builders/cacheKeyBuilder.js';
 
 // Main authentication middleware - validates JWT token from cookies
 const AuthMiddleware = async (req, res, next) => {
@@ -18,15 +19,18 @@ const AuthMiddleware = async (req, res, next) => {
         // Verify and decode the JWT token
         const decoded = verifyToken(token);
 
-        // Fetch user from database to ensure they still exist and have correct role
-        // in practical, we might want to cache user info into Redis
-        const user = await userRepository.findById(decoded.id);
+        // Fetch cached user from redis
+        const sessionKey = generateAuthSessionKey(decoded.id, decoded.sessionId);
+        const user = await cacheService.get(sessionKey);
+
         if (!user || user.role !== decoded.role) {
             return next(new UnauthorizedError('Invalid Token'));
         }
 
-        // Attach user info to request object for use in route handlers
+        // Attach user info and session Id to request object for use in route handlers
         req.user = user;
+        req.sessionId = decoded.sessionId;
+
         next(); // Proceed to the next middleware or route handler
     } catch (error) {
         // Token is invalid, expired, or malformed

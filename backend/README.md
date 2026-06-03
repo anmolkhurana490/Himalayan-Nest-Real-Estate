@@ -57,10 +57,11 @@ Node.js + Express + PostgreSQL backend with feature-based MVC architecture.
 
 - Express.js - Web framework
 - PostgreSQL - Database
-- Sequelize - ORM
-- JWT - Authentication
+- Prisma - ORM
+- JWT + OAuth - Authentication
 - Cloudinary - Image storage
 - Zod - Validation
+- Redis - Caching
 
 ## Architecture
 

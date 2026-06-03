@@ -36,3 +36,5 @@ export const MESSAGE = {
     minLength: 5,
     maxLength: 1000,
 }
+
+export const PROPERTY_REDIS_EXPIRY_SECONDS = 60 * 60; // 1 hour in seconds

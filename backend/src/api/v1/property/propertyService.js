@@ -5,6 +5,9 @@ import propertyRepository from '../../../repositories/propertyRepository.js';
 import { deleteCloudinaryImages, uploadPropertyImages } from '../files/fileService.js';
 import { validateCreateFilesCount, validateUpdateImagesCount } from '../files/fileValidation.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../../../utils/errorUtils.js';
+import cacheService from '../../../services/cacheService.js';
+import { PROPERTY_REDIS_EXPIRY_SECONDS } from '../../../constants/property.js';
+import { generatePropertyKey } from '../../../builders/cacheKeyBuilder.js';
 
 class PropertyService {
     /**
@@ -45,10 +48,18 @@ class PropertyService {
      * @returns {Promise<Object>} - Property details
      */
     async getPropertyById(id, query = {}) {
+        // check for cached property
+        const propertyKey = generatePropertyKey(id);
+        const cachedProperty = await cacheService.get(propertyKey);
+        if (cachedProperty) return cachedProperty;
+
         const options = {
             includeAuthor: !!query.includeAuthor,
         };
         const property = await propertyRepository.findById(id, options, true);
+
+        // Cache Property to Redis
+        await cacheService.set(propertyKey, property, PROPERTY_REDIS_EXPIRY_SECONDS);
 
         if (!property) {
             throw new NotFoundError('Property not found');
@@ -222,6 +233,10 @@ class PropertyService {
         if (property.images && property.images.length > 0) {
             try {
                 await deleteCloudinaryImages(property.images);
+
+                // Delete cached Property from Redis
+                const propertyKey = generatePropertyKey(id);
+                await cacheService.del(propertyKey);
             } catch (cloudinaryError) {
                 console.error('Error deleting images from Cloudinary:', cloudinaryError);
             }
