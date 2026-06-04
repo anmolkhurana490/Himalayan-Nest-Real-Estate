@@ -143,6 +143,8 @@ export const searchPropertyValidation = z.object({
     category: z.enum(CATEGORY_VALUES)
         .optional(),
 
+    property_subtype: z.string().optional(),
+
     purpose: z.enum([...PURPOSE_VALUES, 'buy'])
         .optional(),
 
@@ -168,4 +170,16 @@ export const searchPropertyValidation = z.object({
         .int('Offset must be an integer')
         .min(0, 'Offset cannot be negative')
         .optional().default(1),
-}).partial();
+}).partial().superRefine((data, ctx) => {
+    // Validate property_subtype if provided and not empty
+    if (data.property_subtype && data.property_subtype.trim() !== '') {
+        const validSubtypes = PROPERTY_SUBTYPES[data.category.toUpperCase()];
+
+        if (!validSubtypes || !validSubtypes.includes(data.property_subtype)) {
+            ctx.addIssue({
+                path: ['property_subtype'],
+                message: `Invalid property subtype for ${data.category}. Valid subtypes are: ${validSubtypes ? validSubtypes.join(', ') : 'none'}`
+            });
+        }
+    }
+});

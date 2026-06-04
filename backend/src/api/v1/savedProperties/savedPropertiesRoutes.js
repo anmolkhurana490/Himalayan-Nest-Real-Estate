@@ -2,6 +2,8 @@ import { Router } from 'express';
 import savedPropertyController from './savedPropertiesController.js';
 import AuthMiddleware from '../../../middlewares/AuthMiddleware.js';
 import { validate, validateCUID } from '../../../middlewares/ValidationMiddleware.js';
+import rateLimiter from '../../../middlewares/RateLimitingMiddleware.js';
+import { buildKeyByUserId } from '../../../builders/rateLimitKeyBuilder.js';
 
 const router = Router();
 
@@ -12,12 +14,22 @@ router.use(AuthMiddleware);
 router.get('/', savedPropertyController.getSavedProperties);
 
 // POST /:propertyId - Save a property for the authenticated user
-router.post('/:propertyId', validateCUID('propertyId'), savedPropertyController.addSavedProperty);
+router.post(
+  '/:propertyId',
+  validateCUID('propertyId'),
+  rateLimiter(30, 60, 5 * 60, 'savedProp', buildKeyByUserId),
+  savedPropertyController.addSavedProperty
+);
 
 // DELETE /:propertyId - Remove a saved property for the authenticated user
-router.delete('/:propertyId', validateCUID('propertyId'), savedPropertyController.removeSavedProperty);
+router.delete(
+  '/:propertyId',
+  validateCUID('propertyId'),
+  rateLimiter(30, 60, 5 * 60, 'savedProp', buildKeyByUserId),
+  savedPropertyController.removeSavedProperty
+);
 
 // DELETE / - Clear all saved properties for the authenticated user
-router.delete('/', savedPropertyController.clearSavedProperties);
+router.delete('/', rateLimiter(30, 60, 5 * 60, 'savedProp', buildKeyByUserId), savedPropertyController.clearSavedProperties);
 
 export default router;

@@ -60,6 +60,14 @@ export const useAuthViewModel = create((set, get) => ({
                 ...credentials
             });
 
+            if (data.error) {
+                const parsedCode = (() => {
+                    try { return JSON.parse(decodeURIComponent(data.code)); }
+                    catch { return {}; }
+                })();
+                throw new Error(parsedCode.message || 'Login failed. Please check your credentials.');
+            }
+
             return {
                 success: true,
                 data: data,

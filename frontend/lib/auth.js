@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { loginUserAPI, oauthResolveAPI } from "@/features/auth/repositories.js"
@@ -25,9 +25,12 @@ export const authOptions = {
                         accessToken: response.accessToken,
                     };
                 } catch (error) {
+                    // console.log(error);
                     // Throw error to display in login form
-                    // throw new Error(error.data?.message || error.message || 'Authentication failed');
-                    return null;
+                    const errorObject = { code: "credentials", message: error.message };
+                    const errorInstance = new CredentialsSignin(error.message || 'Authentication failed');
+                    errorInstance.code = encodeURIComponent(JSON.stringify(errorObject));
+                    throw errorInstance;
                 }
             }
         }),
@@ -69,6 +72,19 @@ export const authOptions = {
                 }
             }
             return true;
+        }
+    },
+
+    logger: {
+        error(error) {
+            if (error.code) {
+                try {
+                    const parsedCode = JSON.parse(decodeURIComponent(error.code));
+                    if (parsedCode.code === "credentials") return;
+                } catch { }
+            }
+
+            console.error('[auth][error]', error.cause);
         }
     },
 

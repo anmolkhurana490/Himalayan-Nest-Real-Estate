@@ -8,6 +8,8 @@ import { uploadPropertyImages, handleMulterError } from '../../../middlewares/Fi
 import { validate, validateCUID } from '../../../middlewares/ValidationMiddleware.js';
 import { createPropertyValidation, updatePropertyValidation, searchPropertyValidation } from './propertyValidation.js';
 import { multipleImageUploadSchema } from '../files/fileValidation.js';
+import rateLimiter from '../../../middlewares/RateLimitingMiddleware.js';
+import { buildKeyByUserId } from '../../../builders/rateLimitKeyBuilder.js';
 
 const router = express.Router();
 
@@ -25,6 +27,7 @@ router.use(AuthMiddleware);
 // POST / - Create a new property with image upload support
 router.post(
     '/',
+    rateLimiter(10, 10 * 60, 30 * 60, 'property', buildKeyByUserId),
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
@@ -36,6 +39,7 @@ router.post(
 router.put(
     '/:id',
     validateCUID(),
+    rateLimiter(20, 10 * 60, 15 * 60, 'property', buildKeyByUserId),
     uploadPropertyImages,
     handleMulterError,
     validate(multipleImageUploadSchema, 'files'),
@@ -44,6 +48,11 @@ router.put(
 );
 
 // DELETE /:id - Delete a property owned by the authenticated user
-router.delete('/:id', validateCUID(), propertyController.deleteProperty);
+router.delete(
+    '/:id',
+    validateCUID(),
+    rateLimiter(10, 10 * 60, 30 * 60, 'property', buildKeyByUserId),
+    propertyController.deleteProperty
+);
 
 export default router;

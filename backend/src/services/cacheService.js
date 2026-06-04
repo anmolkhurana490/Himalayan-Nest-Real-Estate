@@ -4,13 +4,18 @@ class CacheService {
     /**
      * Retrieves a cached value by key from Redis.
      * @param {string} key - The cache key to retrieve
-     * @param {boolean} parseJSON - whether to return parsed JSON object
      * @return - The cached value, or null if not found or on error
      */
     async get(key) {
         try {
             const value = await redisClient.get(key);
-            return value;
+
+            // Try parsing as JSON; fall back to raw string if it's not valid JSON
+            const parsedValue = (() => {
+                try { return JSON.parse(value); }
+                catch { return value; }
+            })();
+            return parsedValue;
         } catch (error) {
             console.error(`Error getting cache for key ${key}:`, error);
             return null;
@@ -25,10 +30,13 @@ class CacheService {
      */
     async set(key, value, ttl = 3600) {
         try {
+            // Check if value is already a string to prevent double-serialization
+            const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
+
             await redisClient.set(
                 key,
-                JSON.stringify(value),
-                { ex: ttl }
+                serializedValue,
+                'EX', ttl
             );
         }
         catch (error) {
@@ -63,29 +71,6 @@ class CacheService {
         }
         catch (error) {
             console.error(`Error clearing cache with pattern ${pattern}:`, error);
-        }
-    }
-
-    /**
-     * Atomically increments a Redis counter and sets its TTL when first created (used in Rate Limiter).
-     * @param {string} key - Redis cache key to increment
-     * @param {number} window - Expiration time in seconds
-     * @returns {Promise<number>} Current counter value, or 0 on error
-     */
-    async increment(key, window) {
-        // Atomic INCR + EXPIRE via Lua (race condition safe)
-        const SCRIPT = `
-            local count = redis.call('INCR', KEYS[1])
-            if count == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end
-            return count
-        `;
-        try {
-            const count = await redisClient.eval(SCRIPT, [key], [window]);
-            return count;
-        }
-        catch (error) {
-            console.error(`Error incrementing cache for key ${key}:`, error);
-            return 0;
         }
     }
 }

@@ -9,6 +9,7 @@ export class Property {
         this.title = data.title || '';
         this.description = data.description || '';
         this.category = data.category || '';
+        this.property_subtype = data.property_subtype || '';
         this.purpose = data.purpose || 'Sale';
         this.location = data.location || '';
 
