@@ -11,7 +11,7 @@ const SubscriptionMiddleware = async (req, res, next) => {
         req.subscription = subscription;
         next();
     } catch (error) {
-        logger.warn('Subscription middleware error:', error);
+        logger.warn(`Subscription middleware error: ${error}`);
         next(new InternalServerError('Subscription check failed'));
     }
 }

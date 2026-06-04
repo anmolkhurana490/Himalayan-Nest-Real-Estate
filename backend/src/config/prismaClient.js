@@ -3,6 +3,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from '@prisma/adapter-pg';
+import logger from "./logger.js";
 
 import dotenv from 'dotenv';
 dotenv.config({ quiet: true });
@@ -19,24 +20,26 @@ const pool = new pg.Pool({
 });
 
 const adapter = new PrismaPg(pool);
-const prismaClient = new PrismaClient({ adapter });
+const baseClient = new PrismaClient({ adapter });
 
-// for measuring DB query timings
-prismaClient.$use(async (params, next) => {
-  const start = Date.now();
+// extended client with the performance logging logic
+const prismaClient = baseClient.$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ model, operation, args, query }) {
+        const start = Date.now();
 
-  const result = await next(params);
+        // Await the database query using the new query callback
+        const result = await query(args);
 
-  const duration = Date.now() - start;
+        const duration = Date.now() - start;
 
-  logger.info({
-    type: "db",
-    model: params.model,
-    action: params.action,
-    duration
-  });
+        logger.info({ type: "db", model, operation, duration });
 
-  return result;
+        return result;
+      }
+    }
+  }
 });
 
 export default prismaClient;

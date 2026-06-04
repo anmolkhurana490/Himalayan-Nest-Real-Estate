@@ -13,7 +13,7 @@ class CacheService {
 
             const value = await redisClient.get(key);
 
-            logger.info({ type: "cache", hit: !!data, duration: Date.now() - start });
+            logger.info({ type: "cache", hit: !!value, duration: Date.now() - start });
 
             // Try parsing as JSON; fall back to raw string if it's not valid JSON
             const parsedValue = (() => {
@@ -22,7 +22,7 @@ class CacheService {
             })();
             return parsedValue;
         } catch (error) {
-            logger.warn(`Error getting cache for key ${key}:`, error);
+            logger.warn(`Error getting cache for key ${key}: ${error}`);
             return null;
         }
     }
@@ -45,7 +45,7 @@ class CacheService {
             );
         }
         catch (error) {
-            logger.warn(`Error setting cache for key ${key}:`, error);
+            logger.warn(`Error setting cache for key ${key}: ${error}`);
         }
     }
 
@@ -58,7 +58,7 @@ class CacheService {
             await redisClient.del(key);
         }
         catch (error) {
-            logger.warn(`Error deleting cache for key ${key}:`, error);
+            logger.warn(`Error deleting cache for key ${key}: ${error}`);
         }
     }
 
@@ -75,7 +75,7 @@ class CacheService {
             }
         }
         catch (error) {
-            logger.warn(`Error clearing cache with pattern ${pattern}:`, error);
+            logger.warn(`Error clearing cache with pattern ${pattern}: ${error}`);
         }
     }
 }

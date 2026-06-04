@@ -1,7 +1,7 @@
 // Middleware for measuring API response time and logging route performance.
 // Captures the request start time, waits until the response finishes, and logs a structured event with route, status, and duration.
 
-import logger from "../config/logger";
+import logger from "../config/logger.js";
 
 const RequestTimingMiddleware = (req, res, next) => {
     const start = Date.now();
