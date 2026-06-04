@@ -23,6 +23,7 @@ const PropertiesManagementView = () => {
     // Detect if we're in account or dashboard context
     const isAccountContext = pathname?.startsWith('/account');
     const propertyDetailRoute = isAccountContext ? ROUTES.ACCOUNT.PROPERTY_DETAIL : ROUTES.DASHBOARD.PROPERTY_DETAIL;
+    const addPropertyRoute = isAccountContext ? ROUTES.ACCOUNT.ADD_PROPERTY : ROUTES.DASHBOARD.ADD_PROPERTY;
 
     useEffect(() => {
         getMyProperties();
@@ -69,7 +70,7 @@ const PropertiesManagementView = () => {
     const handleDelete = async (propertyId) => {
         if (window.confirm('Are you sure you want to delete this property?')) {
             const result = await deleteProperty(propertyId);
-            
+
             if (result && result.success) {
                 setFilteredProperties(prev => prev.filter(property => property.id !== propertyId));
                 toast.success(result.message || 'Property deleted successfully');
@@ -85,7 +86,7 @@ const PropertiesManagementView = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">My Properties</h2>
                 <button
-                    onClick={() => router.push(ROUTES.DASHBOARD.CREATE_PROPERTY)}
+                    onClick={() => router.push(addPropertyRoute)}
                     className="mt-4 sm:mt-0 inline-flex items-center px-2 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                     <Plus className="w-5 h-5 mr-2" />

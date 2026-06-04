@@ -40,8 +40,7 @@ export const useDashboardViewModel = create((set, get) => ({
             console.error('Get dashboard stats error:', error);
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch dashboard stats'
+                message: error.message || 'Failed to fetch dashboard stats'
             };
         } finally {
             useAppStore.getState().setLoading(false);

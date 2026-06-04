@@ -191,8 +191,7 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to fetch your properties'
+                message: errorMessage
             };
         } finally {
             useAppStore.getState().setLoading(false);
@@ -245,8 +244,7 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to create property'
+                message: errorMessage,
             };
         } finally {
             set({ isSubmitting: false });
@@ -302,8 +300,7 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to update property'
+                message: errorMessage,
             };
         } finally {
             set({ isSubmitting: false });
@@ -338,8 +335,7 @@ export const usePropertyViewModel = create((set, get) => ({
 
             return {
                 success: false,
-                error: errorMessage,
-                message: 'Failed to delete property'
+                message: errorMessage,
             };
         } finally {
             set({ isSubmitting: false });

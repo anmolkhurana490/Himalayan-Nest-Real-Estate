@@ -2,8 +2,6 @@ import { AppError } from '../utils/errorUtils.js';
 import multer from 'multer';
 
 export const errorHandler = (err, req, res, next) => {
-    console.error(`[${req.method}] ${req.path} →`, err.message);
-
     // Custom Error (in api routes)
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({ message: err.message });
@@ -15,5 +13,7 @@ export const errorHandler = (err, req, res, next) => {
     }
 
     // Unexpected Error
+    console.error(`[${req.method}] ${req.path} →`, err.message);
+    
     return res.status(500).json({ message: 'Internal server error' });
 }
