@@ -1,4 +1,5 @@
 import { AppError } from '../utils/errorUtils.js';
+import logger from '../config/logger.js';
 import multer from 'multer';
 
 export const errorHandler = (err, req, res, next) => {
@@ -13,7 +14,7 @@ export const errorHandler = (err, req, res, next) => {
     }
 
     // Unexpected Error
-    console.error(`[${req.method}] ${req.path} →`, err.message);
-    
+    logger.error(`[${req.method}] ${req.path} →`, err.message);
+
     return res.status(500).json({ message: 'Internal server error' });
 }

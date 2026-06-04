@@ -8,6 +8,7 @@ import { BadRequestError, NotFoundError, ForbiddenError } from '../../../utils/e
 import cacheService from '../../../services/cacheService.js';
 import { PROPERTY_REDIS_EXPIRY_SECONDS } from '../../../constants/property.js';
 import { generatePropertyKey } from '../../../builders/cacheKeyBuilder.js';
+import logger from '../../../config/logger.js';
 
 class PropertyService {
     /**
@@ -125,7 +126,7 @@ class PropertyService {
             // If database creation fails, clean up uploaded images
             if (imageUrls.length > 0) {
                 await deleteCloudinaryImages(imageUrls).catch(err =>
-                    console.error('Failed to cleanup images after error:', err)
+                    logger.error('Failed to cleanup images after error:', err)
                 );
             }
             throw error;
@@ -204,7 +205,7 @@ class PropertyService {
             // If update fails and we uploaded new images, clean them up
             if (newImageUrls.length > 0) {
                 await deleteCloudinaryImages(newImageUrls).catch(err =>
-                    console.error('Failed to cleanup newly uploaded images after error:', err)
+                    logger.error('Failed to cleanup newly uploaded images after error:', err)
                 );
             }
             throw error;
@@ -238,7 +239,7 @@ class PropertyService {
                 const propertyKey = generatePropertyKey(id);
                 await cacheService.del(propertyKey);
             } catch (cloudinaryError) {
-                console.error('Error deleting images from Cloudinary:', cloudinaryError);
+                logger.error('Error deleting images from Cloudinary:', cloudinaryError);
             }
         }
 

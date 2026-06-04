@@ -15,11 +15,11 @@ export const setupAppMiddlewares = (app) => {
         origin: [process.env.FRONTEND_URL].filter(Boolean),
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With', 'Access-Control-Allow-Origin'],
-        credentials: true
+        // credentials: true
     }));
 
     // Cookie parser
-    app.use(cookieParser());
+    // app.use(cookieParser());
 
     // Body parsers
     app.use(bodyParser.json());

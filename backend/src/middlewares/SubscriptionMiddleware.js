@@ -1,5 +1,6 @@
 import { getSubscription } from '../controllers/SubscriptionController.js';
 import { ForbiddenError, InternalServerError } from '../utils/errorUtils.js';
+import logger from '../config/logger.js';
 
 const SubscriptionMiddleware = async (req, res, next) => {
     try {
@@ -10,7 +11,7 @@ const SubscriptionMiddleware = async (req, res, next) => {
         req.subscription = subscription;
         next();
     } catch (error) {
-        console.error('Subscription middleware error:', error);
+        logger.warn('Subscription middleware error:', error);
         next(new InternalServerError('Subscription check failed'));
     }
 }

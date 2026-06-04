@@ -21,6 +21,22 @@ const pool = new pg.Pool({
 const adapter = new PrismaPg(pool);
 const prismaClient = new PrismaClient({ adapter });
 
-console.log("Prisma PostgreSQL connected successfully");
+// for measuring DB query timings
+prismaClient.$use(async (params, next) => {
+  const start = Date.now();
+
+  const result = await next(params);
+
+  const duration = Date.now() - start;
+
+  logger.info({
+    type: "db",
+    model: params.model,
+    action: params.action,
+    duration
+  });
+
+  return result;
+});
 
 export default prismaClient;

@@ -1,6 +1,7 @@
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import redisClient from '../config/redisClient.js';
 import { TooManyRequestsError } from '../utils/errorUtils.js';
+import logger from '../config/logger.js';
 
 /**
  * @param {Number} points - how much quota user has
@@ -25,7 +26,7 @@ const rateLimiter = (points, duration, blockDuration, keyPrefix, keyGenerator) =
       next();
     }
     catch (error) {
-      console.log(error);
+      logger.warn(error);
       const message = `Too Many Requests! Please Try after ${blockDuration / 60} min`;
       next(new TooManyRequestsError(message));
     }
