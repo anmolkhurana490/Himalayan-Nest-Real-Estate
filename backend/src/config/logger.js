@@ -1,5 +1,8 @@
 import pino from 'pino';
 
+import dotenv from 'dotenv';
+dotenv.config({ quiet: true });
+
 const getLogLevel = () => {
     const node_env = process.env.NODE_ENV;
     if (node_env == 'production') return 'error'; // always show
