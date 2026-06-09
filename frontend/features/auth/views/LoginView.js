@@ -16,8 +16,10 @@ export default function LoginView() {
     const { loginUser, oauthSignIn, isSubmitting: vmSubmitting } = useAuthViewModel();
 
     const router = useRouter();
+
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get('redirect');
+    const redirectEncodedURI = redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : "";
 
     const {
         formData,
@@ -61,7 +63,10 @@ export default function LoginView() {
                     </h2>
                     <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
                         Don&apos;t have an account?{' '}
-                        <Link href={ROUTES.REGISTER} className="font-medium text-green-600 hover:text-green-500">
+                        <Link
+                            href={ROUTES.REGISTER + redirectEncodedURI}
+                            className="font-medium text-green-600 hover:text-green-500"
+                        >
                             Create account here
                         </Link>
                     </p>
@@ -163,7 +168,10 @@ export default function LoginView() {
                             New to Himalayan Nest?{' '}
                         </p>
 
-                        <Link href={ROUTES.REGISTER} className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <Link
+                            href={ROUTES.REGISTER + redirectEncodedURI}
+                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
                             Create your account
                         </Link>
                     </div>
@@ -185,16 +193,6 @@ export default function LoginView() {
                             Guest User
                         </Link>
                     </div>
-                </div>
-
-                <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">
-                        For dealers and property owners,{' '}
-                        <Link href={ROUTES.REGISTER} className="font-medium text-green-600 hover:text-green-500">
-                            register as a dealer
-                        </Link>{' '}
-                        to list your properties.
-                    </p>
                 </div>
             </div>
         </div >

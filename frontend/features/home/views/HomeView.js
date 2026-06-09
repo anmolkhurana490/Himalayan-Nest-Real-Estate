@@ -593,7 +593,7 @@ const CallToAction = () => {
                     </Link>
                     <span className="text-green-200 hidden md:block">or</span>
                     <Link
-                        href={ROUTES.CONTACT}
+                        href={ROUTES.ACCOUNT.DASHBOARD}
                         className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-green-600 transition-all duration-300"
                     >
                         List Your Property

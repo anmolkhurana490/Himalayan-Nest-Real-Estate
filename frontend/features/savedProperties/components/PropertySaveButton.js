@@ -25,7 +25,8 @@ export default function PropertySaveButton({ propertyId, property, className = '
 
         // Redirect to login if not authenticated
         if (!user) {
-            router.push(ROUTES.LOGIN);
+            const redirectEncodedURI = `?redirect=${encodeURIComponent(ROUTES.PROPERTIES.DETAIL(propertyId))}`;
+            router.push(ROUTES.LOGIN + redirectEncodedURI);
             return;
         }
 

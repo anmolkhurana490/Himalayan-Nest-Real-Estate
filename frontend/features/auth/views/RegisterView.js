@@ -18,6 +18,9 @@ export default function RegisterView() {
     const oauthSignup = searchParams.get('oauth'); // specifies provider name for OAuth signups (e.g., 'google')
     const [oauthFieldsRequired, setOauthFieldsRequired] = useState({});
 
+    const redirectUrl = searchParams.get('redirect');
+    const redirectEncodedURI = redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : "";
+
     const router = useRouter();
     const { registerUser, loginUser, oauthSignIn } = useAuthViewModel();
     const [passwordErrors, setPasswordErrors] = useState([]);
@@ -61,7 +64,7 @@ export default function RegisterView() {
         setStatus('signing-in');
 
         if (oauthSignup) {
-            const res = await oauthSignIn(oauthSignup, ROUTES.REGISTER);
+            const res = await oauthSignIn(oauthSignup, ROUTES.REGISTER + redirectEncodedURI);
             if (!res.success) return res;
         }
         else {
@@ -75,7 +78,8 @@ export default function RegisterView() {
         // For regular signup, show success and redirect to login
         setStatus('success');
         setTimeout(() => {
-            router.push(ROUTES.PROPERTIES.ROOT);
+            if (redirectUrl) router.push(redirectUrl);
+            else router.push(ROUTES.PROPERTIES.ROOT);
         }, 1000);
 
         return { success: true, message: 'Registration and Login Successful' };
@@ -84,7 +88,7 @@ export default function RegisterView() {
     const handleOAuthSignIn = async (provider) => {
         setStatus('signing-in');
 
-        await oauthSignIn(provider, ROUTES.REGISTER);
+        await oauthSignIn(provider, ROUTES.REGISTER + redirectEncodedURI);
         setTimeout(() => {
             router.push(ROUTES.PROPERTIES.ROOT);
         }, 1000);
@@ -190,7 +194,10 @@ export default function RegisterView() {
                     </h2>
                     <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
                         Already have an account?{' '}
-                        <Link href={ROUTES.LOGIN} className="font-medium text-green-600 hover:text-green-500">
+                        <Link
+                            href={ROUTES.LOGIN + redirectEncodedURI}
+                            className="font-medium text-green-600 hover:text-green-500"
+                        >
                             Sign in here
                         </Link>
                     </p>
@@ -431,7 +438,10 @@ export default function RegisterView() {
                             Already have an Account?{' '}
                         </p>
 
-                        <Link href={ROUTES.LOGIN} className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <Link
+                            href={ROUTES.LOGIN + redirectEncodedURI}
+                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
                             Login to your account
                         </Link>
                     </div>
