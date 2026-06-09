@@ -3,12 +3,6 @@
  * Layout wrapper for customer account pages with route protection
  */
 
-export const metadata = {
-    title: 'My Account - Himalayan Nest',
-    description: 'Manage your account, saved properties, and listings on Himalayan Nest.',
-    robots: { index: false, follow: false },
-};
-
 'use client';
 
 import { useEffect } from 'react';

@@ -6,8 +6,9 @@
 import QueriesManagementView from '@/features/enquiry/views/QueriesManagementView';
 
 export const metadata = {
-    title: 'My Enquiries - Himalayan Nest Real Estate',
+    title: 'My Account - Himalayan Nest Real Estate',
     description: 'View and manage your property enquiries',
+    robots: { index: false, follow: false },
 };
 
 export default function EnquiriesPage() {

@@ -6,8 +6,9 @@
 import CreatePropertyView from '@/features/properties/views/CreatePropertyView';
 
 export const metadata = {
-    title: 'Add Property - Himalayan Nest Real Estate',
-    description: 'List your property for sale or rent',
+    title: 'My Account - Himalayan Nest Real Estate',
+    description: 'Add your property for sale or rent',
+    robots: { index: false, follow: false },
 };
 
 export default function AddPropertyPage() {
