@@ -1,6 +1,12 @@
 // Dashboard Layout Component - Protected layout for dealer dashboard
 // Provides sidebar navigation, header, and authentication protection for dealer-only pages
 
+export const metadata = {
+    title: 'Dashboard - Himalayan Nest',
+    description: 'Manage your property listings, queries, and dealer profile on Himalayan Nest.',
+    robots: { index: false, follow: false },
+};
+
 "use client";
 import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";

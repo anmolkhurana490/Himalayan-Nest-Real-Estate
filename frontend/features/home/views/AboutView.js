@@ -15,7 +15,7 @@ const AboutView = () => {
                     <div className="text-center">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">About Himalayan Nest</h1>
                         <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                            Your trusted partner in finding the perfect property in the beautiful state of Uttarakhand and surrounding regions.
+                            Your trusted partner in finding the perfect property across the beautiful Himalayan region, including Uttarakhand and nearby states.
                         </p>
                     </div>
                 </div>
@@ -32,8 +32,7 @@ const AboutView = () => {
                             we provide a platform that connects buyers, sellers, and renters effectively.
                         </p>
                         <p className="text-sm sm:text-base text-gray-600">
-                            We specialize in properties across Uttarakhand including Roorkee, Haridwar, Dehradun,
-                            Rishikesh, and other beautiful cities in the region.
+                            We specialize in properties across Uttarakhand and the surrounding Himalayan region, helping buyers, renters, and sellers find the right mountain-side home.
                         </p>
                     </div>
                     <div className="bg-green-50 p-6 sm:p-8 rounded-lg">

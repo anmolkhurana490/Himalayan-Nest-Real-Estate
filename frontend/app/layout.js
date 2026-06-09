@@ -21,13 +21,27 @@ const geistMono = Geist_Mono({
 
 // SEO metadata for the application
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
   title: "Himalayan Nest - Your Trusted Real Estate Partner",
-  description: "Find your perfect property in Uttarakhand. Buy, rent, or list properties in Roorkee, Haridwar, Dehradun, Rishikesh and nearby areas.",
-  keywords: "real estate, property, Uttarakhand, Roorkee, Haridwar, Dehradun, Rishikesh, buy property, rent property, property listing",
+  description: "Discover Himalayan-inspired real estate across Uttarakhand and nearby states. Buy, rent, or list homes, plots, and retreats near the mountains.",
+  keywords: "real estate, property, Uttarakhand, Himalayan homes, mountain properties, North India, buy property, rent property, property listings, property dealers",
   icons: {
     icon: "/logos/himalayan-white.png",
     apple: "/logos/himalayan-white.png",
     shortcut: "/logos/himalayan-white.png",
+  },
+  openGraph: {
+    title: "Himalayan Nest",
+    description: "Discover Himalayan-inspired real estate across Uttarakhand and nearby states. Buy, rent, or list homes, plots, and retreats near the mountains.",
+    url: process.env.NEXT_PUBLIC_SITE_URL,
+    siteName: "Himalayan Nest",
+    images: [{ url: "/logos/himalayan-white.png", width: 1200, height: 630 }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Himalayan Nest",
+    description: "Your Trusted Real Estate Partner",
+    images: ["/logos/himalayan-white.png"],
   },
 };
 

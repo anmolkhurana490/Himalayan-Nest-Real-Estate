@@ -75,6 +75,8 @@ export default function PropertyDetailView() {
 
     return (
         <div className="max-w-7xl mx-auto px-2 py-4 sm:px-4 bg-gray-50 min-h-screen">
+            <PropertySchemaMarkup data={data} />
+
             <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4 mb-4">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                     <div>
@@ -214,3 +216,51 @@ export default function PropertyDetailView() {
         </div>
     );
 }
+
+const PropertySchemaMarkup = ({ data }) => {
+    const baseUrl = process.env.NEXT_APP_SITE_URL;
+
+    return (
+        <script type="application/ld+json">
+            {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": data.property_subtype || "Property",
+                "name": data.title,
+                "description": data.description,
+                "url": `${baseUrl}/properties/${data.id}`,
+                "image": data.images?.filter(Boolean) || [],
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressRegion": data.location || "",
+                    "addressCountry": "IN"
+                },
+                "category": data.category || "Real Estate",
+                // "numberOfRooms": data.bedrooms || undefined,
+                "floorSize": data.area
+                    ? {
+                        "@type": "QuantitativeValue",
+                        "value": data.area.value || data.area,
+                        "unitText": "SQFT"
+                    }
+                    : undefined,
+                "offers": {
+                    "@type": "Offer",
+                    "url": `${baseUrl}/properties/${data.id}`,
+                    "priceCurrency": "INR",
+                    "price": data.price,
+                    "availability": data.isActive
+                        ? "https://schema.org/InStock"
+                        : "https://schema.org/SoldOut",
+                    "itemCondition": "https://schema.org/NewCondition",
+                    "category": data.purpose === "rent" ? "Rent" : "Sale"
+                },
+                "seller": {
+                    "@type": "RealEstateAgent",
+                    "name": data.author?.name || "Himalayan Nest",
+                    "telephone": data.author?.phone || undefined,
+                    "email": data.author?.email || undefined
+                }
+            })}
+        </script>
+    );
+};

@@ -78,7 +78,7 @@ const HeroSection = () => {
                         </span>
                     </h1>
                     <p className="text-sm sm:text-lg md:text-xl text-green-100 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-                        Discover beautiful properties in Roorkee, Haridwar, Dehradun, and across the stunning landscapes of Uttarakhand
+                        Discover beautiful properties across Uttarakhand and nearby Himalayan regions with mountain-view homes, retreats, and investment-ready listings.
                     </p>
                 </div>
 
@@ -275,7 +275,7 @@ const FeaturedProperties = () => {
                 <div className="text-center mb-8 sm:mb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Featured Properties</h2>
                     <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-                        Handpicked properties offering the best value and prime locations across Uttarakhand
+                        Handpicked Himalayan properties offering the best value across Uttarakhand and nearby mountain-side destinations.
                     </p>
                 </div>
 
@@ -478,9 +478,9 @@ const PopularCities = () => {
         <section className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-12 sm:mb-16">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Popular Cities</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Popular Locations</h2>
                     <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-                        Explore properties in the most sought-after cities of Uttarakhand
+                        Explore properties in the most sought-after locations across Uttarakhand and the Himalayan foothills.
                     </p>
                 </div>
 
