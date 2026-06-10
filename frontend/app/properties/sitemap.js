@@ -1,9 +1,9 @@
-import usePropertyServerViewModel from "@/features/properties/viewmodel/propertyServerViewModel";
+import propertyServerViewModel from "@/features/properties/viewmodel/propertyServerViewModel";
 
 export default async function sitemap() {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 
-    const { getProperties } = usePropertyServerViewModel();
+    const { getProperties } = propertyServerViewModel();
 
     // fetch all properties or implement pagination (upto 1000 listings)
     const pageCount = 10, pageLimit = 100;
