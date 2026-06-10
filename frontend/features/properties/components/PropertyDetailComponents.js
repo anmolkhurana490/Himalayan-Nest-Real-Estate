@@ -6,6 +6,7 @@ import EnquiryForm from '@/features/enquiry/components/EnquiryForm';
 import { Send } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 export const PropertyDescriptionBox = ({ description }) => {
     const [showFullDec, setShowFullDec] = useState(false);
@@ -26,9 +27,11 @@ export const PropertyDescriptionBox = ({ description }) => {
     )
 }
 
-export const PropertyEnquirySection = () => {
+export const PropertyEnquirySection = ({ propertyId }) => {
     const router = useRouter();
     const pathname = usePathname();
+
+    const { user } = useAuthStore();
 
     const [showEnquiryForm, setShowEnquiryForm] = useState(false);
 
@@ -69,7 +72,7 @@ export const PropertyEnquirySection = () => {
                 </button>
             ) : (
                 <EnquiryForm
-                    propertyId={id}
+                    propertyId={propertyId}
                     onSuccess={() => {
                         setShowEnquiryForm(false);
                         toast.success('Enquiry sent successfully!');
@@ -80,7 +83,7 @@ export const PropertyEnquirySection = () => {
     )
 }
 
-export const PropertyAuthorContactCard = () => {
+export const PropertyAuthorContactCard = ({ data }) => {
     const handlePhoneClick = () => {
         if (data.author?.phone) {
             toast.info("Call feature coming soon!");

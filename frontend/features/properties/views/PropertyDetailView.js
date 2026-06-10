@@ -97,9 +97,9 @@ export default async function PropertyDetailView({ params }) {
                     </div>
 
                     {/* Send Enquiry Section */}
-                    <PropertyEnquirySection />
+                    <PropertyEnquirySection propertyId={id} />
 
-                    <PropertyAuthorContactCard />
+                    <PropertyAuthorContactCard data={data} />
                 </div>
             </div>
 
