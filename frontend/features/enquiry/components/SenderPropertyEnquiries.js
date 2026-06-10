@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useEnquiryViewModel } from '@/features/enquiry/viewmodel/enquiryViewModel';
+import { useAuthStore } from '@/shared/stores/authStore'
 import { MessageCircleMore, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { formatDate } from '@/utils/helpers';
 import { ENQUIRY_STATUS } from '@/config/constants/user';
@@ -14,6 +15,9 @@ import { toast } from 'sonner';
 const SenderPropertyEnquiries = ({ propertyId }) => {
     const { getPropertyEnquiries, propertyEnquiries } = useEnquiryViewModel();
     const [loading, setLoading] = useState(false);
+
+    const { user } = useAuthStore();
+    if (!user) return null; // no enquiries if not authenticated
 
     useEffect(() => {
         if (propertyId) {

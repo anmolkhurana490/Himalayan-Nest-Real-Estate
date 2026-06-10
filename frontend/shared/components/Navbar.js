@@ -2,12 +2,11 @@
 // Provides responsive navigation, user authentication UI, and mobile menu
 
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuthViewModel } from '@/features/auth/viewmodel/authViewModel'
 import { useAuthStore } from '@/shared/stores/authStore'
-import { useAppStore } from '@/shared/stores/appStore'
 import Image from 'next/image'
 import ROUTES from '@/config/constants/routes'
 import ModeToggle from './ModeToggle'

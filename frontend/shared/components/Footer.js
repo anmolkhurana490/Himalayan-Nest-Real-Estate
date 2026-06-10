@@ -1,7 +1,8 @@
 // Footer Component - Site footer with copyright and legal links
 // Displays at the bottom of all pages with company information and policy links
 
-import React from 'react'
+import Link from "next/link";
+import ROUTES from "@/config/constants/routes";
 
 const Footer = () => {
     return (
@@ -11,8 +12,11 @@ const Footer = () => {
                     <span className="text-gray-100">© 2023 Himalayan Nest. All rights reserved.</span>
 
                     <div className="flex flex-wrap space-x-4">
-                        <a href="/privacy" target="_blank" className="text-gray-100 hover:text-green-300">Privacy Policy</a>
-                        <a href="/terms" target="_blank" className="text-gray-100 hover:text-green-300">Terms of Service</a>
+                        <Link href={ROUTES.ABOUT} target="_blank" className="text-gray-100 hover:text-green-300">About Us</Link>
+                        <Link href={ROUTES.CONTACT} target="_blank" className="text-gray-100 hover:text-green-300">Contact Us</Link>
+
+                        <Link href="/privacy" target="_blank" className="text-gray-100 hover:text-green-300">Privacy Policy</Link>
+                        <Link href="/terms" target="_blank" className="text-gray-100 hover:text-green-300">Terms of Service</Link>
                     </div>
                 </div>
             </div>

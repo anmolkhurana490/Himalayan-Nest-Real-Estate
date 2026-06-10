@@ -13,7 +13,7 @@ export default function PropertyCard({ property }) {
                 <Image
                     src={property.image || '/logos/default-property.jpg'}
                     alt={property.title}
-                    onError={(e) => e.target.src = '/logos/default-property.jpg'}
+                    // onError={(e) => e.target.src = '/logos/default-property.jpg'}
                     fill sizes='(100vw) 100vw, (min-width: 400px) 50vw, (min-width: 724px) 33vw'
                     className="object-cover"
                 />

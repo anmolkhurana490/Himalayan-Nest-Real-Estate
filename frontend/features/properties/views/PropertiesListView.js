@@ -1,40 +1,17 @@
 // Properties List View - Browse and search properties
-"use client";
-import React, { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import SearchFilterBar from '@/features/properties/components/SearchFilterBar'
-import { useAppStore } from '@/shared/stores/appStore'
-import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel'
+import usePropertyServerViewModel from '../viewmodel/propertyServerViewModel';
 import PropertyCard from '@/features/properties/components/PropertyCard';
 import { searchPropertySchema } from '../validation';
 import { validateWithSchema } from '@/utils/validator';
 import Pagination from '../components/Pagination';
 import APP_CONFIG from '@/config/app.config';
-import { toast } from 'sonner';
 
-const PropertiesLoading = () => (
-    <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Properties</h1>
-                <div className="h-16 bg-gray-200 rounded animate-pulse"></div>
-            </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-            <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                <p className="mt-2 text-gray-600">Loading properties...</p>
-            </div>
-        </div>
-    </div>
-);
+const PropertiesListView = async ({ searchParams }) => {
+    const { getProperties } = usePropertyServerViewModel();
 
-const PropertiesContent = () => {
-    const { getProperties } = usePropertyViewModel();
-    const [properties, setProperties] = useState([]);
-    const searchParams = useSearchParams();
-
-    const [paginationValues, setPaginationValues] = useState({});
+    // const searchParams = useSearchParams();
+    const filters = await searchParams;
 
     const loadProperties = async (searchFilters = {}) => {
         const filters = {};
@@ -47,44 +24,37 @@ const PropertiesContent = () => {
         const errors = validateWithSchema(searchPropertySchema, filters);
         if (errors && errors.length > 0) {
             const errorMessage = errors.map((e) => e.message).join('\\n');
-            toast.error(errorMessage);
-            return;
+            // toast.error(errorMessage);
+            return {};
         }
 
         const options = {
-            limit: parseInt(searchParams.get('limit')) || APP_CONFIG.DEFAULT_PAGE_SIZE,
-            page: parseInt(searchParams.get('page')) || 1
+            limit: parseInt(filters.limit) || APP_CONFIG.DEFAULT_PAGE_SIZE,
+            page: parseInt(filters.page) || 1
         }
 
         let result = await getProperties(searchFilters || filters, options);
 
         if (result && result.success) {
             let propertiesData = result.properties || result.data || [];
-            setProperties(propertiesData);
+            const pageValues = { limit: options.limit, currPage: options.page, totalPages: result.totalPages };
 
-            setPaginationValues({
-                limit: options.limit,
-                currPage: options.page,
-                totalPages: result.totalPages
-            });
+            return { properties: propertiesData, paginationValues: pageValues };
         } else {
             const errorMessage = result?.message || 'Failed to load properties';
-            toast.error(errorMessage);
-            setProperties([]);
+            // toast.error(errorMessage);
+            return {};
         }
     };
 
-    useEffect(() => {
-        const filters = Object.fromEntries(searchParams.entries());
-        loadProperties(filters);
-    }, [searchParams]);
+    const { properties, paginationValues } = await loadProperties(filters || {});
 
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Properties</h1>
-                    <SearchFilterBar onSearch={loadProperties} searchParams={searchParams} />
+                    <SearchFilterBar searchParams={filters || {}} />
                 </div>
             </div>
 
@@ -97,7 +67,7 @@ const PropertiesContent = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                     {properties.map((property) => (
-                        <PropertyCard key={property.id || property._id} property={property} />
+                        <PropertyCard key={property.id} property={property} />
                     ))}
                 </div>
             </div>
@@ -107,10 +77,4 @@ const PropertiesContent = () => {
     );
 };
 
-export default function PropertiesListView() {
-    return (
-        <Suspense fallback={<PropertiesLoading />}>
-            <PropertiesContent />
-        </Suspense>
-    );
-}
+export default PropertiesListView;

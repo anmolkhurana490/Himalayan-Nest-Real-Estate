@@ -7,8 +7,11 @@ import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/shared/stores/appStore';
 import ROUTES from '@/config/constants/routes';
 import { LEGACY_PROPERTY_TYPES } from '@/config/constants/property';
+import { validateWithSchema } from '@/utils/validator';
+import { searchPropertySchema } from '../validation';
+import { toast } from 'sonner';
 
-const SearchFilterBar = ({ onSearch, searchParams }) => {
+const SearchFilterBar = ({ searchParams }) => {
     const router = useRouter();
 
     const [filters, setFilters] = useState({
@@ -23,12 +26,12 @@ const SearchFilterBar = ({ onSearch, searchParams }) => {
 
     useEffect(() => {
         const initialFilters = {
-            location: searchParams.get('location') || '',
-            category: searchParams.get('category') || '',
-            minPrice: searchParams.get('budget') || '',
-            maxPrice: searchParams.get('budget') || '',
-            keywords: searchParams.get('keywords') || '',
-            purpose: searchParams.get('purpose') || 'buy'
+            location: searchParams.location || '',
+            category: searchParams.category || '',
+            minPrice: searchParams.budget || '',
+            maxPrice: searchParams.budget || '',
+            keywords: searchParams.keywords || '',
+            purpose: searchParams.purpose || 'buy'
         };
         setFilters(initialFilters);
     }, [searchParams]);
@@ -44,20 +47,26 @@ const SearchFilterBar = ({ onSearch, searchParams }) => {
         setLoading(true);
 
         try {
-            const params = new URLSearchParams();
-
+            const searchFilters = {};
             Object.entries(filters).forEach(([key, value]) => {
                 if (value && value.toString().trim()) {
-                    params.set(key, value);
+                    searchFilters[key] = value;
                 }
             });
 
-            if (onSearch) {
-                await onSearch(filters);
-            } else {
-                const queryString = params.toString();
-                router.push(`/properties${queryString ? `?${queryString}` : ''}`);
+            const errors = validateWithSchema(searchPropertySchema, searchFilters);
+            if (errors && errors.length > 0) {
+                const errorMessage = errors.map((e) => e.message).join('\\n');
+                toast.error(errorMessage);
+                return;
             }
+
+            const params = new URLSearchParams();
+
+            Object.entries(searchFilters).forEach(([key, value]) => params.set(key, value));
+
+            const queryString = params.toString();
+            router.push(`/properties${queryString ? `?${queryString}` : ''}`);
         } catch (error) {
             console.error('Search error:', error);
         } finally {
