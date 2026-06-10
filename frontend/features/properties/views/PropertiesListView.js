@@ -47,7 +47,7 @@ const PropertiesListView = async ({ searchParams }) => {
         }
     };
 
-    const { properties, paginationValues } = await loadProperties(filters || {});
+    const { properties = [], paginationValues = {} } = await loadProperties(filters || {});
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -66,7 +66,7 @@ const PropertiesListView = async ({ searchParams }) => {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-                    {properties.map((property) => (
+                    {properties?.map((property) => (
                         <PropertyCard key={property.id} property={property} />
                     ))}
                 </div>
