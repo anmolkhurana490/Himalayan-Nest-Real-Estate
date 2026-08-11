@@ -7,6 +7,7 @@ import propertyRoutes from './property/propertyRoutes.js';
 import enquiryRoutes from './enquiry/enquiryRoutes.js';
 import subscriptionRoutes from './subscription/subscriptionRoutes.js';
 import savedPropertiesRoutes from './savedProperties/savedPropertiesRoutes.js';
+import healthRepository from '../../repositories/healthRepository.js';
 
 const router = express.Router();
 
@@ -18,12 +19,19 @@ router.use('/subscriptions', subscriptionRoutes);
 router.use('/saved-properties', savedPropertiesRoutes);
 
 // GET /health - Basic API health check
-router.get('/health', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'API v1 is running',
-        timestamp: new Date().toISOString()
-    });
+router.get('/health', async (req, res, next) => {
+    try {
+        await healthRepository.pingDatabase();
+
+        res.status(200).json({
+            success: true,
+            message: 'API v1 is running',
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        next(error);
+    }
 });
 
 export default router;
