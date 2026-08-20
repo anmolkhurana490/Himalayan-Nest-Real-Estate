@@ -33,7 +33,7 @@ const HeroSection = () => {
                 <HeroSearchCard />
 
                 {/* Quick Stats */}
-                <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
+                {/* <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
                     {[
                         { value: '500+', label: 'Properties Listed' },
                         { value: '100+', label: 'Happy Customers' },
@@ -45,7 +45,7 @@ const HeroSection = () => {
                             <div className="text-xs sm:text-sm text-green-500">{stat.label}</div>
                         </div>
                     ))}
-                </div>
+                </div> */}
             </div>
         </section>
     );
