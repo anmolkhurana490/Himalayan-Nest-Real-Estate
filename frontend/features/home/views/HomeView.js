@@ -141,7 +141,11 @@ const FeaturedProperties = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-6 sm:mb-12">
                     {properties.map((property) => (
-                        <div key={property.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                        <Link
+                            key={property.id}
+                            href={ROUTES.PROPERTIES.ROOT}
+                            className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                        >
                             {/* Image Container */}
                             <div className="relative">
                                 <Image
@@ -215,7 +219,7 @@ const FeaturedProperties = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
