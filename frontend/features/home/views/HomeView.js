@@ -19,13 +19,13 @@ const HeroSection = () => {
             <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 py-10 sm:py-20">
                 <div className="text-center mb-6 sm:mb-12">
                     <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-                        Find Your Dream Property
+                        Find your Dream Property
                         <span className="block text-green-200 text-lg sm:text-2xl md:text-3xl lg:text-4xl mt-1 sm:mt-2">
-                            in the Heart of Uttarakhand
+                            Across India, Made for You
                         </span>
                     </h1>
                     <p className="text-sm sm:text-lg md:text-xl text-green-100 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-                        Discover beautiful properties across Uttarakhand and nearby Himalayan regions with mountain-view homes, retreats, and investment-ready listings.
+                        Discover beautiful properties across India and buy, rent, or sell homes, flats, plots, commercial spaces, and more.
                     </p>
                 </div>
 
@@ -133,9 +133,9 @@ const FeaturedProperties = () => {
         <section className="py-12 sm:py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-8 sm:mb-16">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Featured Properties</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Properties Worth Exploring</h2>
                     <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-                        Handpicked Himalayan properties offering the best value across Uttarakhand and nearby mountain-side destinations.
+                        Explore handpicked listings with great locations, features, and value
                     </p>
                 </div>
 
@@ -338,9 +338,9 @@ const PopularCities = () => {
         <section className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-12 sm:mb-16">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Popular Locations</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Explore Popular Locations</h2>
                     <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-                        Explore properties in the most sought-after locations across Uttarakhand and the Himalayan foothills.
+                        Discover properties in cities and neighborhoods people are looking to live, invest, and grow in.
                     </p>
                 </div>
 
@@ -373,7 +373,7 @@ const PopularCities = () => {
 
 // Why Choose Us Section - Company benefits and features
 const WhyChooseUs = () => {
-    // Key features and benefits of using Himalayan Nest
+    // Key features and benefits of using HimaNest
     const features = [
         {
             icon: "🔍",
@@ -383,7 +383,7 @@ const WhyChooseUs = () => {
         {
             icon: "🎯",
             title: "Local Expertise",
-            description: "Deep knowledge of Uttarakhand property market and regulations"
+            description: "Deep knowledge of real estate market and regulations"
         },
         {
             icon: "🤝",
@@ -411,7 +411,7 @@ const WhyChooseUs = () => {
         <section className="py-12 sm:py-20 bg-white">
             <div className="max-w-7xl mx-auto px-2 sm:px-4">
                 <div className="text-center mb-12 sm:mb-16">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Why Choose Himalayan Nest?</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Why Choose HimaNest?</h2>
                     <p className="text-sm sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 sm:px-0">
                         We make property buying, selling, and renting simple, transparent, and hassle-free
                     </p>
@@ -440,7 +440,7 @@ const CallToAction = () => {
             <div className="max-w-4xl mx-auto px-2 sm:px-4 text-center">
                 <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Find Your Dream Property?</h2>
                 <p className="text-base sm:text-xl text-green-100 mb-6 sm:mb-12 leading-relaxed">
-                    Join thousands of satisfied customers who found their perfect home with Himalayan Nest.
+                    Join thousands of satisfied customers who found their perfect home with HimaNest.
                     Whether you&apos;re buying, selling, or renting, we&apos;re here to help you every step of the way.
                 </p>
 

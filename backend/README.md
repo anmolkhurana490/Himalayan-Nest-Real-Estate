@@ -1,4 +1,4 @@
-# Himalayan Nest - Backend API
+# HimaNest - Backend API
 
 Node.js + Express + PostgreSQL backend with feature-based MVC architecture.
 

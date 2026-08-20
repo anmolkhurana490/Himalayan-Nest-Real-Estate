@@ -1,6 +1,6 @@
-# Himalayan Nest
+# HimaNest
 
-**Himalayan Nest** is a premium real estate platform built to empower property buyers, sellers, and agents with modern search, secure account management, and intelligent property discovery.
+**HimaNest** is a premium real estate platform built to empower property buyers, sellers, and agents with modern search, secure account management, and intelligent property discovery.
 
 This project blends a polished Next.js storefront with a scalable Node.js + Express backend, optimized for performance, reliability, and real-world deployment.
 
@@ -8,7 +8,7 @@ This project blends a polished Next.js storefront with a scalable Node.js + Expr
 
 ## 🚀 Product Vision
 
-Himalayan Nest is designed not as a basic CRUD demo, but as a full-featured real estate experience:
+HimaNest is designed not as a basic CRUD demo, but as a full-featured real estate experience:
 
 - Seamless property browsing for buyers
 - Streamlined listing management for dealers

@@ -1,4 +1,4 @@
-// Himalayan Nest Real Estate - Backend Server
+// HimaNest Real Estate - Backend Server
 // Main entry point for the Express.js application
 
 import express from 'express';
@@ -22,7 +22,7 @@ app.use(RequestTimingMiddleware);
 
 // Root Route (Debugging Purpose)
 app.get('/', (req, res) => {
-    res.status(200).json({ status: 'OK', message: 'Himalayan Nest Real Estate Backend is running!' });
+    res.status(200).json({ status: 'OK', message: 'HimaNest Real Estate Backend is running!' });
 });
 
 // API Routes

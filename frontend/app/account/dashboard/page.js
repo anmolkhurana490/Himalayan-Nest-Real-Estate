@@ -5,7 +5,7 @@
 import CustomerDashboardView from '@/features/customer/views/CustomerDashboardView';
 
 export const metadata = {
-    title: 'My Account - Himalayan Nest Real Estate',
+    title: 'My Account - HimaNest',
     description: 'Manage your saved properties, listings, and account settings',
     robots: { index: false, follow: false },
 };

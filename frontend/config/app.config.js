@@ -2,8 +2,7 @@
 // Global application settings and constants
 
 export const APP_CONFIG = {
-    APP_NAME: 'Himalayan Nest Real Estate',
-    APP_SHORT_NAME: 'Himalayan Nest',
+    APP_NAME: 'HimaNest',
     APP_DESCRIPTION: 'Find your perfect property in the Himalayas',
 
     // Pagination

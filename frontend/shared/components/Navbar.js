@@ -66,8 +66,8 @@ const Navbar = () => {
             <div className="mx-auto px-2 sm:px-4 lg:px-6">
                 <div className="flex justify-between items-center h-14 sm:h-16 gap-2 sm:gap-4">
                     <Link href={ROUTES.HOME} className="flex items-center gap-1 text-2xl font-bold text-green-700">
-                        <Image src={'/logos/himalayan-logo.png'} alt="Himalayan Nest Logo" width={40} height={40} className="mr-2 w-auto" />
-                        <span className='max-sm:hidden'>Himalayan Nest</span>
+                        <Image src={'/logos/himalayan-logo.png'} alt="HimaNest Logo" width={40} height={40} className="mr-2 w-auto" />
+                        <span className='max-sm:hidden'>HimaNest</span>
                     </Link>
 
                     <div className="flex items-center space-x-6">

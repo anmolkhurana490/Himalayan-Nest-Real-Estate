@@ -1,7 +1,7 @@
 export { default } from '@/features/properties/views/PropertiesManagementView';
 
 export const metadata = {
-  title: 'My Dashboard - Himalayan Nest',
-  description: 'Manage your property listings on Himalayan Nest.',
+  title: 'My Dashboard - HimaNest',
+  description: 'Manage your property listings on HimaNest.',
   robots: { index: false, follow: false },
 };

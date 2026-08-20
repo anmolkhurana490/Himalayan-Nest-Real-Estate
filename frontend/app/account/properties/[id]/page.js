@@ -6,7 +6,7 @@
 import MyPropertyDetailView from '@/features/properties/views/MyPropertyDetailView';
 
 export const metadata = {
-    title: 'My Account - Himalayan Nest Real Estate',
+    title: 'My Account - HimaNest',
     description: 'Manage your property listings',
     robots: { index: false, follow: false },
 };

@@ -22,25 +22,25 @@ const geistMono = Geist_Mono({
 // SEO metadata for the application
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
-  title: "Himalayan Nest - Your Trusted Real Estate Partner",
-  description: "Discover Himalayan-inspired real estate across Uttarakhand and nearby states. Buy, rent, or list homes, plots, and retreats near the mountains.",
-  keywords: "real estate, property, Uttarakhand, Himalayan homes, mountain properties, North India, buy property, rent property, property listings, property dealers",
+  title: "HimaNest - Find Properties. Find Your Place.",
+  description: "Discover properties across India. Buy, rent, or sell homes, flats, plots, commercial spaces, and more on HimaNest.",
+  keywords: "real estate, property, property listings, buy property, rent property, sell property, homes for sale, flats for rent, plots for sale, commercial property, property dealers, Indian real estate",
   icons: {
     icon: "/logos/himalayan-white.png",
     apple: "/logos/himalayan-white.png",
     shortcut: "/logos/himalayan-white.png",
   },
   openGraph: {
-    title: "Himalayan Nest",
-    description: "Discover Himalayan-inspired real estate across Uttarakhand and nearby states. Buy, rent, or list homes, plots, and retreats near the mountains.",
+    title: "HimaNest - Find Properties. Find Your Place.",
+    description: "Discover, compare, and connect with properties across India. Buy, rent, or sell homes, flats, plots, and commercial spaces.",
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: "Himalayan Nest",
+    siteName: "HimaNest",
     images: [{ url: "/logos/himalayan-white.png", width: 1200, height: 630 }]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Himalayan Nest",
-    description: "Your Trusted Real Estate Partner",
+    title: "HimaNest - Find Properties. Find Your Place.",
+    description: "Discover, compare, and connect with properties across India.",
     images: ["/logos/himalayan-white.png"],
   },
 };

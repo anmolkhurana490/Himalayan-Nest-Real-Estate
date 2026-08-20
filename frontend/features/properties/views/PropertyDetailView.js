@@ -148,7 +148,7 @@ const PropertySchemaMarkup = ({ data }) => {
                 },
                 "seller": {
                     "@type": "RealEstateAgent",
-                    "name": data.author?.name || "Himalayan Nest",
+                    "name": data.author?.name || "HimaNest",
                     "telephone": data.author?.phone || undefined,
                     "email": data.author?.email || undefined
                 }

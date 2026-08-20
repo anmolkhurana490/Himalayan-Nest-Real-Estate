@@ -55,7 +55,7 @@ export default function LoginView() {
                 <div>
                     <div className="text-center">
                         <Link href={ROUTES.HOME} className="text-2xl sm:text-3xl font-bold text-green-700">
-                            Himalayan Nest
+                            HimaNest
                         </Link>
                     </div>
                     <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
@@ -165,7 +165,7 @@ export default function LoginView() {
 
                     <div className="mt-4 sm:mt-6">
                         <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">
-                            New to Himalayan Nest?{' '}
+                            New to HimaNest?{' '}
                         </p>
 
                         <Link

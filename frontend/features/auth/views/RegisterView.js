@@ -186,7 +186,7 @@ export default function RegisterView() {
                 <div>
                     <div className="text-center">
                         <Link href="/" className="text-2xl sm:text-3xl font-bold text-green-700">
-                            Himalayan Nest
+                            HimaNest
                         </Link>
                     </div>
                     <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">

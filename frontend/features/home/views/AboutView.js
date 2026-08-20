@@ -13,9 +13,9 @@ const AboutView = () => {
             <div className="bg-white">
                 <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8 sm:py-12 lg:py-16">
                     <div className="text-center">
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">About Himalayan Nest</h1>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">About HimaNest</h1>
                         <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                            Your trusted partner in finding the perfect property across the beautiful Himalayan region, including Uttarakhand and nearby states.
+                            Making it easier to find the right property, connect with the right people, and make confident decisions.
                         </p>
                     </div>
                 </div>
@@ -27,12 +27,13 @@ const AboutView = () => {
                     <div>
                         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Our Mission</h2>
                         <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-                            At Himalayan Nest, we are committed to making property searching and transactions seamless,
-                            transparent, and reliable. Whether you&apos;re looking to buy, rent, or list your property,
-                            we provide a platform that connects buyers, sellers, and renters effectively.
+                            At HimaNest, our mission is to make property discovery simpler, more transparent, and accessible.
+                        </p>
+                        <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+                            Whether you're looking to buy, rent, or sell, HimaNest brings property listings, powerful search, saved properties, enquiries, and direct connections into one platform.
                         </p>
                         <p className="text-sm sm:text-base text-gray-600">
-                            We specialize in properties across Uttarakhand and the surrounding Himalayan region, helping buyers, renters, and sellers find the right mountain-side home.
+                            We aim to help buyers and renters discover the right opportunities while giving property owners and dealers the tools they need to reach genuine customers and manage their listings effectively.
                         </p>
                     </div>
                     <div className="bg-green-50 p-6 sm:p-8 rounded-lg">
@@ -44,7 +45,7 @@ const AboutView = () => {
                             </li>
                             <li className="flex items-center">
                                 <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2 sm:mr-3" strokeWidth={2.5} />
-                                <span className="text-sm sm:text-base">Local expertise in Uttarakhand region</span>
+                                <span className="text-sm sm:text-base">Expertise in Indian region</span>
                             </li>
                             <li className="flex items-center">
                                 <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2 sm:mr-3" strokeWidth={2.5} />
@@ -96,7 +97,7 @@ const AboutView = () => {
                 <div className="max-w-4xl mx-auto text-center px-2 sm:px-4">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">Ready to Find Your Dream Property?</h2>
                     <p className="text-green-100 mb-6 sm:mb-8 text-base sm:text-lg">
-                        Join thousands of satisfied customers who found their perfect home with Himalayan Nest.
+                        Join thousands of satisfied customers who found their perfect home with HimaNest.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                         <Link href={ROUTES.PROPERTIES.ROOT} className="bg-white text-green-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
