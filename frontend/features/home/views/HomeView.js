@@ -242,35 +242,40 @@ const PropertyCategories = () => {
             name: "Apartments & Flats",
             icon: "🏢",
             description: "Modern apartments with all amenities",
-            count: "150+ Properties",
+            // count: "150+ Properties",
+            category: 'residential',
             color: "bg-blue-500"
         },
         {
             name: "Independent Houses",
             icon: "🏠",
             description: "Spacious houses with gardens",
-            count: "80+ Properties",
+            // count: "80+ Properties",
+            category: 'residential',
             color: "bg-green-500"
         },
         {
             name: "Residential Plots",
             icon: "🏞️",
             description: "Prime plots for your dream home",
-            count: "120+ Properties",
+            // count: "120+ Properties",
+            category: 'land',
             color: "bg-purple-500"
         },
         {
             name: "PG & Hostels",
             icon: "🏨",
             description: "Comfortable accommodation for students",
-            count: "60+ Properties",
+            // count: "60+ Properties",
+            category: 'residential',
             color: "bg-orange-500"
         },
         {
             name: "Commercial Spaces",
             icon: "🏪",
             description: "Offices, shops, and business spaces",
-            count: "90+ Properties",
+            // count: "90+ Properties",
+            category: 'commercial',
             color: "bg-red-500"
         }
     ];
@@ -287,16 +292,20 @@ const PropertyCategories = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
                     {categories.map((category, index) => (
-                        <div key={index} className="group cursor-pointer">
+                        <Link
+                            key={index}
+                            href={`${ROUTES.PROPERTIES.ROOT}?category=${category.category}`}
+                            className="group cursor-pointer"
+                        >
                             <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-transparent hover:border-green-200">
                                 <div className={`w-12 h-12 sm:w-16 sm:h-16 ${category.color} rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 text-white text-xl sm:text-2xl group-hover:scale-110 transition-transform duration-300`}>
                                     {category.icon}
                                 </div>
                                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
                                 <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3">{category.description}</p>
-                                <span className="text-green-600 font-medium text-xs sm:text-sm">{category.count}</span>
+                                {category.count && <span className="text-green-600 font-medium text-xs sm:text-sm">{category.count}</span>}
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>
@@ -310,25 +319,25 @@ const PopularCities = () => {
     const cities = [
         {
             name: "Roorkee",
-            properties: "180+",
+            // count: "180+",
             image: "/images/roorkee.jpg",
             description: "Home to IIT Roorkee, perfect for students and professionals"
         },
         {
             name: "Haridwar",
-            properties: "120+",
+            // count: "120+",
             image: "/images/haridwar.jpg",
             description: "Holy city with spiritual significance and growing infrastructure"
         },
         {
             name: "Dehradun",
-            properties: "200+",
+            // count: "200+",
             image: "/images/dehradun.jpg",
             description: "Capital city with excellent connectivity and modern amenities"
         },
         {
             name: "Rishikesh",
-            properties: "90+",
+            // count: "90+",
             image: "/images/rishikesh.jpg",
             description: "Yoga capital with serene environment and river views"
         }
@@ -346,7 +355,11 @@ const PopularCities = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     {cities.map((city, index) => (
-                        <div key={index} className="group cursor-pointer">
+                        <Link
+                            key={index}
+                            href={`${ROUTES.PROPERTIES.ROOT}?location=${city.name.replaceAll(' ', '+')}`}
+                            className="group cursor-pointer"
+                        >
                             <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                                 <Image
                                     src={city.image}
@@ -359,11 +372,11 @@ const PopularCities = () => {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
                                     <h3 className="text-lg sm:text-xl font-bold mb-1">{city.name}</h3>
-                                    <p className="text-green-200 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{city.properties} Properties</p>
+                                    {city.count && <p className="text-green-200 font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{city.count} Properties</p>}
                                     <p className="text-xs sm:text-sm text-gray-200">{city.description}</p>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>
