@@ -20,8 +20,8 @@ export const PROPERTY_PURPOSES = {
     SALE: 'sale',
 };
 
-// Property Association Attributes for Sequelize Models
-export const PROPERTY_ASSOCIATIONS_ATTRIBUTES = ['id', 'title', 'category', 'purpose', 'price', 'location'];
+// Property Association Attributes for Prisma Models
+export const SELECT_PROPERTY_ASSOCIATIONS = { 'id': true, 'title': true, 'category': true, 'purpose': true, 'price': true, 'location': true };
 
 // Enquiry Status Constants
 export const ENQUIRY_STATUS = {

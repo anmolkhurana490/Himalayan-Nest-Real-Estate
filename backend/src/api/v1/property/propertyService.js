@@ -2,6 +2,7 @@
 // Handles property management business logic
 
 import propertyRepository from '../../../repositories/propertyRepository.js';
+import userRepository from '../../../repositories/userRepository.js';
 import { deleteCloudinaryImages, uploadPropertyImages } from '../files/fileService.js';
 import { validateCreateFilesCount, validateUpdateImagesCount } from '../files/fileValidation.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../../../utils/errorUtils.js';
@@ -9,6 +10,7 @@ import cacheService from '../../../services/cacheService.js';
 import { PROPERTY_REDIS_EXPIRY_SECONDS } from '../../../constants/property.js';
 import { generatePropertyKey } from '../../../builders/cacheKeyBuilder.js';
 import logger from '../../../config/logger.js';
+import { SELECT_USER_ASSOCIATIONS } from '../../../constants/user.js';
 
 class PropertyService {
     /**
@@ -200,6 +202,14 @@ class PropertyService {
             updates.images = currentImages;
 
             const updatedProperty = await propertyRepository.update(id, updates);
+
+            // Fetch Author Data to Update Cache
+            const authorData = await userRepository.findById(authorId, SELECT_USER_ASSOCIATIONS);
+
+            // Cache Property to Redis
+            const propertyKey = generatePropertyKey(id);
+            await cacheService.set(propertyKey, { ...updatedProperty, author: authorData }, PROPERTY_REDIS_EXPIRY_SECONDS);
+
             return updatedProperty;
         } catch (error) {
             // If update fails and we uploaded new images, clean them up

@@ -119,7 +119,7 @@ const ReceiverPropertyEnquiries = ({ propertyId }) => {
 
                                 {/* Enquiry Message */}
                                 <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                                    <p className="text-sm text-gray-700">
+                                    <p className="text-sm text-gray-700 whitespace-pre-line">
                                         {enquiry.message.message || 'No message'}
                                     </p>
                                 </div>
@@ -129,7 +129,7 @@ const ReceiverPropertyEnquiries = ({ propertyId }) => {
                                     <div className="mb-3 space-y-2 pl-4 border-l-2 border-gray-200">
                                         <div className="text-sm">
                                             <span className="font-medium text-gray-700">You:</span>
-                                            <span className="text-gray-600 ml-2">{enquiry.response.message}</span>
+                                            <span className="text-gray-600 ml-2 whitespace-pre-line">{enquiry.response.message}</span>
                                             <span className="text-xs text-gray-400 ml-2">
                                                 {formatDate(enquiry.createdAt, 'relative')}
                                             </span>

@@ -79,7 +79,7 @@ const SenderPropertyEnquiries = ({ propertyId }) => {
 
                         {/* Enquiry Message */}
                         <div className="bg-gray-50 rounded-lg p-2 mb-2">
-                            <p className="text-sm text-gray-700">
+                            <p className="text-sm text-gray-700 whitespace-pre-line">
                                 You: {enquiry.message?.message || 'No message'}
                             </p>
                         </div>
@@ -88,7 +88,7 @@ const SenderPropertyEnquiries = ({ propertyId }) => {
                         {enquiry.response && (
                             <div className="space-y-2 pl-3 border-l-2 border-green-200 mb-2">
                                 <p className="text-xs text-gray-600 font-medium mb-1">Response:</p>
-                                <p className="text-sm text-gray-700">{enquiry.response.message}</p>
+                                <p className="text-sm text-gray-700 whitespace-pre-line">{enquiry.response.message}</p>
                                 <span className="text-xs text-gray-400">
                                     {formatDate(enquiry.response.createdAt, 'short')}
                                 </span>

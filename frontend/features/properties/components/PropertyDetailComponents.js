@@ -14,7 +14,7 @@ export const PropertyDescriptionBox = ({ description }) => {
     return (
         <div className="bg-white rounded-lg shadow-sm px-2 py-4 sm:px-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Description</h2>
-            <p className={`text-gray-600 leading-relaxed ${showFullDec ? '' : 'line-clamp-5'}`}>
+            <p className={`text-gray-600 whitespace-pre-line leading-relaxed ${showFullDec ? '' : 'line-clamp-5'}`}>
                 {description}
             </p>
             <button

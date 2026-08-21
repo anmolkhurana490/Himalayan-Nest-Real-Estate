@@ -124,7 +124,7 @@ const PropertyDetailView = () => {
 
                     <div className="prose max-w-none mb-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                        <p className="text-gray-700">{property.description}</p>
+                        <p className="text-gray-700 whitespace-pre-line">{property.description}</p>
                     </div>
 
                     {/* Stats */}

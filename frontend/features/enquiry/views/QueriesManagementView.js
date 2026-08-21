@@ -294,7 +294,7 @@ const QueriesManagementView = () => {
                                         <div className="text-xs font-medium text-gray-500 mb-1">
                                             {activeTab === 'sent' ? 'Your Message' : 'Customer Message'}
                                         </div>
-                                        <p className="text-sm text-gray-900">
+                                        <p className="text-sm text-gray-900 whitespace-pre-line">
                                             {enquiry.message?.message || 'No message'}
                                         </p>
                                         <div className="text-xs text-gray-400 mt-1">
@@ -308,7 +308,7 @@ const QueriesManagementView = () => {
                                             <div className="text-xs font-medium text-blue-700 mb-1">
                                                 {activeTab === 'sent' ? 'Response from Owner' : 'Your Response'}
                                             </div>
-                                            <p className="text-sm text-gray-900">
+                                            <p className="text-sm text-gray-900 whitespace-pre-line">
                                                 {enquiry.response.message}
                                             </p>
                                             <div className="text-xs text-gray-500 mt-1">

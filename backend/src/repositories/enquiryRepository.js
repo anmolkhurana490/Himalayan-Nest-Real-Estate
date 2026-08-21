@@ -1,9 +1,7 @@
 // Enquiry Repository - Prisma Implementation
 import prisma from '../config/prismaClient.js';
-import { PROPERTY_ASSOCIATIONS_ATTRIBUTES } from '../constants/property.js';
-import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
-
-const toSelect = (arr) => arr ? arr.reduce((s, k) => { s[k] = true; return s }, {}) : undefined;
+import { SELECT_PROPERTY_ASSOCIATIONS } from '../constants/property.js';
+import { SELECT_USER_ASSOCIATIONS } from '../constants/user.js';
 
 class EnquiryRepository {
     /**
@@ -31,9 +29,9 @@ class EnquiryRepository {
      */
     async findAll(filters = {}, options = {}) {
         const include = {};
-        if (options.includeProperty) include.property = { select: toSelect(PROPERTY_ASSOCIATIONS_ATTRIBUTES) };
-        if (options.includeSender) include.sender = { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) };
-        if (options.includeReceiver) include.receiver = { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) };
+        if (options.includeProperty) include.property = { select: SELECT_PROPERTY_ASSOCIATIONS };
+        if (options.includeSender) include.sender = { select: SELECT_USER_ASSOCIATIONS };
+        if (options.includeReceiver) include.receiver = { select: SELECT_USER_ASSOCIATIONS };
 
         return await prisma.enquiry.findMany({
             where: filters,

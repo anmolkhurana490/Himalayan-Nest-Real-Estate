@@ -1,9 +1,6 @@
 // Property Repository - Prisma Implementation
 import prisma from '../config/prismaClient.js';
-import { USER_ASSOCIATIONS_ATTRIBUTES } from '../constants/user.js';
-import { PROPERTY_ASSOCIATIONS_ATTRIBUTES } from '../constants/property.js';
-
-const toSelect = (arr) => arr ? arr.reduce((s, k) => { s[k] = true; return s }, {}) : undefined;
+import { SELECT_USER_ASSOCIATIONS } from '../constants/user.js';
 
 class PropertyRepository {
     /**
@@ -24,7 +21,7 @@ class PropertyRepository {
      */
     async findById(id, options = {}, viewProperty = false) {
         const include = options.includeAuthor ? {
-            author: { select: toSelect(USER_ASSOCIATIONS_ATTRIBUTES) }
+            author: { select: SELECT_USER_ASSOCIATIONS }
         } : undefined;
 
         const property = await prisma.property.findUnique({ where: { id } });

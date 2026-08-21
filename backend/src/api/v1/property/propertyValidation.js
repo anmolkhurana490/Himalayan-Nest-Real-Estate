@@ -17,6 +17,7 @@ export const createPropertyValidation = z.object({
 
     description: z.string()
         .max(2000, 'Description must be at most 2000 characters')
+        .transform((val) => val.replace('/\r\n|\r/g', '\n'))
         .optional()
         .default(''),
 
@@ -69,6 +70,7 @@ export const updatePropertyValidation = z.object({
 
     description: z.string()
         .max(2000, 'Description must be at most 2000 characters')
+        .transform((val) => val.replace('/\r\n|\r/g', '\n'))
         .optional(),
 
     category: z.enum(CATEGORY_VALUES, {

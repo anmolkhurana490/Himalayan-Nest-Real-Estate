@@ -13,8 +13,8 @@ export const AUTH_PROVIDERS = {
     FACEBOOK: 'facebook',
 };
 
-// Association Attributes for Sequelize Models
-export const USER_ASSOCIATIONS_ATTRIBUTES = ['id', 'name', 'email', 'role', 'phone'];
+// Association Attributes for Prisma Models
+export const SELECT_USER_ASSOCIATIONS = { 'id': true, 'name': true, 'email': true, 'role': true, 'phone': true };
 
 // Subscription Plan Constants
 export const SUBSCRIPTION_PLANS = {
