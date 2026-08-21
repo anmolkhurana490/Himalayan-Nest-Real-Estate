@@ -35,10 +35,12 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
             imagesToDelete
         );
 
-        if (result?.success && onUpdate && result.data?.property) {
-            onUpdate(result.data.property);
+        console.log(result)
+
+        if (result?.success && onUpdate && result.property) {
+            onUpdate(result.property);
         }
-        if (result?.success && onClose) {
+        else if (result?.success && onClose) {
             setTimeout(() => onClose(), 1000);
         }
         return result;

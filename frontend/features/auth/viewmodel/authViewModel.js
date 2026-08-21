@@ -133,6 +133,8 @@ export const useAuthViewModel = create((set, get) => ({
             };
         } catch (error) {
             console.warn('Logout request failed', error.message);
+            
+            await signOut();
             useAuthStore.getState().clearUser();
 
             return {
