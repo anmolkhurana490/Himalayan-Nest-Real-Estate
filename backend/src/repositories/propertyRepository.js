@@ -62,6 +62,9 @@ class PropertyRepository {
         return await prisma.property.findMany({
             where: { authorId },
             orderBy: { createdAt: 'desc' },
+            include: {
+                _count: { select: { enquiries: true } }
+            }
         });
     }
 

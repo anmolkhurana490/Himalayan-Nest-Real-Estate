@@ -5,13 +5,14 @@ import { MessageCircleMore, CheckCircle, XCircle, Reply } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '@/utils/helpers';
 import { ENQUIRY_STATUS } from '@/config/constants/user';
+import { usePropertyViewModel } from '@/features/properties/viewmodel/propertyViewModel';
 
 /**
  * ReceiverPropertyEnquiries Component
  * Displays enquiries received by property owner for a specific property
  * Used in MyPropertyDetailView (Owner's property page)
  */
-const ReceiverPropertyEnquiries = ({ propertyId }) => {
+const ReceiverPropertyEnquiries = ({ propertyId, onEnquiriesCountUpdate }) => {
     const { getPropertyEnquiries, respondToEnquiry, updateEnquiryStatus, propertyEnquiries } = useEnquiryViewModel();
     const [loading, setLoading] = useState(false);
     const [respondingTo, setRespondingTo] = useState(null);
@@ -26,7 +27,8 @@ const ReceiverPropertyEnquiries = ({ propertyId }) => {
     const loadEnquiries = async () => {
         try {
             setLoading(true);
-            await getPropertyEnquiries(propertyId, 'received', { includeSender: true });
+            const res = await getPropertyEnquiries(propertyId, 'received', { includeSender: true });
+            onEnquiriesCountUpdate(res.data.received.length);
         } catch (error) {
             console.error('Error loading enquiries:', error);
         } finally {

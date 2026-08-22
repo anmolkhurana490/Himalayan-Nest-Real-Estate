@@ -157,7 +157,10 @@ const PropertyDetailView = () => {
             </div>
 
             {/* Property Enquiries Section */}
-            <ReceiverPropertyEnquiries propertyId={params?.id} />
+            <ReceiverPropertyEnquiries
+                propertyId={params?.id}
+                onEnquiriesCountUpdate={(count) => setProperty({ ...property, queries: count })}
+            />
 
             {/* Edit Modal */}
             {showEditModal && (

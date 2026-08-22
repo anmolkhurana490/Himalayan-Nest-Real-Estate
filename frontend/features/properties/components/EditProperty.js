@@ -35,8 +35,6 @@ const EditProperty = ({ property, onClose, onUpdate }) => {
             imagesToDelete
         );
 
-        console.log(result)
-
         if (result?.success && onUpdate && result.property) {
             onUpdate(result.property);
         }

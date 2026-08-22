@@ -23,7 +23,7 @@ export class Property {
 
         this.author = data.author || null;
         this.views = data.viewCount || 0;
-        this.queries = data.enquiryCount || 0;
+        this.queries = data._count?.enquiries || 0;
 
         this.createdAt = data.createdAt || null;
         this.updatedAt = data.updatedAt || null;

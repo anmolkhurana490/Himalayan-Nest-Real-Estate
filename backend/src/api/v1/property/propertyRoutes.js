@@ -24,6 +24,8 @@ router.get('/:id', validateCUID(), propertyController.getPropertyById);
 // Protected property management routes
 router.use(AuthMiddleware);
 
+router.get('/:id', validateCUID(), propertyController.getPropertyById);
+
 // POST / - Create a new property with image upload support
 router.post(
     '/',

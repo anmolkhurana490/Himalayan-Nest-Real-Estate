@@ -110,7 +110,7 @@ export const useEnquiryViewModel = create((set, get) => ({
 
             return {
                 success: true,
-                data: data,
+                data: data.data,
                 message: data.message || 'Property enquiries fetched successfully'
             };
         } catch (error) {
@@ -161,7 +161,6 @@ export const useEnquiryViewModel = create((set, get) => ({
         try {
             set({ isSubmitting: true });
             useAppStore.getState().setLoading(true);
-            console.log(status);
 
             await enquiryRepo.updateEnquiryStatusAPI(enquiryId, status);
 
@@ -169,7 +168,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { sentEnquiries, receivedEnquiries, propertyEnquiries } = get();
 
             const enquiry = receivedEnquiries.find(e => e.id === enquiryId) || propertyEnquiries.find(e => e.id === enquiryId);
-            enquiry.status = status;
+            if (!enquiry) enquiry.status = status;
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
             const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
@@ -250,8 +249,10 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { sentEnquiries, propertyEnquiries } = get();
 
             const enquiry = sentEnquiries.find(e => e.id === enquiryId);
-            enquiry.status = 'closed';
-            enquiry.closedAt = new Date();
+            if (!enquiry) {
+                enquiry.status = 'closed';
+                enquiry.closedAt = new Date();
+            }
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
             const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
@@ -294,7 +295,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { propertyEnquiries, receivedEnquiries } = get();
 
             const enquiry = propertyEnquiries.find(e => e.id === enquiryId) || receivedEnquiries.find(e => e.id === enquiryId);
-            enquiry.response = response;
+            if (!enquiry) enquiry.response = response;
 
             const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
             const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);

@@ -55,7 +55,7 @@ class EnquiryController {
         const { id } = req.params;
 
         try {
-            const enquiry = await enquiryService.getEnquiryById(id, req.user);
+            const enquiry = await enquiryService.getEnquiryById(id, req.user.id);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
@@ -94,7 +94,7 @@ class EnquiryController {
         const { id } = req.params;
 
         try {
-            await enquiryService.deleteEnquiry(id, req.user);
+            await enquiryService.deleteEnquiry(id, req.user.id);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
