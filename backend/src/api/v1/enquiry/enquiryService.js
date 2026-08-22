@@ -98,8 +98,8 @@ class EnquiryService {
     /**
      * Get enquiry by ID
      */
-    async getEnquiryById(id) {
-        const enquiry = await enquiryRepository.findById(id);
+    async getEnquiryById(id, userId) {
+        const enquiry = await enquiryRepository.findById(id, userId);
 
         if (!enquiry) {
             throw new NotFoundError('Enquiry not found');
@@ -129,8 +129,8 @@ class EnquiryService {
     /**
      * Delete enquiry
      */
-    async deleteEnquiry(id) {
-        const result = await enquiryRepository.delete(id);
+    async deleteEnquiry(id, userId) {
+        const result = await enquiryRepository.delete(id, userId);
 
         if (!result) {
             throw new NotFoundError('Enquiry not found');

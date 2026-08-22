@@ -52,7 +52,7 @@ router.get('/profile', authController.getCurrentUser);
 router.patch(
   '/profile',
   validate(updateProfileValidation),
-  rateLimiter(10, 5 * 60, 10 * 60, buildKeyByUserId),
+  rateLimiter(10, 5 * 60, 10 * 60, 'profile', buildKeyByUserId),
   authController.updateUserProfile
 );
 

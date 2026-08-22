@@ -21,7 +21,7 @@ const generateBodyData = () => {
     return {
         // name: `Anmol ${uniqueId}`,
         email: `anmol${uniqueId}@gmail.com`,
-        passowrd: 'anmol@1234',
+        password: 'anmol@1234',
         // userType: 'customer'
     };
 
