@@ -168,7 +168,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { sentEnquiries, receivedEnquiries, propertyEnquiries } = get();
 
             const enquiry = receivedEnquiries.find(e => e.id === enquiryId) || propertyEnquiries.find(e => e.id === enquiryId);
-            if (!enquiry) enquiry.status = status;
+            if (enquiry) enquiry.status = status;
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
             const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
@@ -249,7 +249,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { sentEnquiries, propertyEnquiries } = get();
 
             const enquiry = sentEnquiries.find(e => e.id === enquiryId);
-            if (!enquiry) {
+            if (enquiry) {
                 enquiry.status = 'closed';
                 enquiry.closedAt = new Date();
             }
@@ -295,7 +295,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             const { propertyEnquiries, receivedEnquiries } = get();
 
             const enquiry = propertyEnquiries.find(e => e.id === enquiryId) || receivedEnquiries.find(e => e.id === enquiryId);
-            if (!enquiry) enquiry.response = response;
+            if (enquiry) enquiry.response = response;
 
             const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
             const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
