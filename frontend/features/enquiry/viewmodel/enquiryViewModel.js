@@ -171,8 +171,8 @@ export const useEnquiryViewModel = create((set, get) => ({
             if (enquiry) enquiry.status = status;
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
-            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
-            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
+            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
 
             set({
                 currentEnquiry: enquiry,
@@ -255,7 +255,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             }
 
             const updatedSent = sentEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
-            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+            const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
 
             set({
                 currentEnquiry: enquiry,
@@ -298,7 +298,7 @@ export const useEnquiryViewModel = create((set, get) => ({
             if (enquiry) enquiry.response = response;
 
             const updatedPropertyEnquiries = propertyEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
-            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiry.id ? enquiry : e);
+            const updatedReceived = receivedEnquiries?.map(e => e.id === enquiryId ? enquiry : e);
 
             set({
                 currentEnquiry: enquiry,

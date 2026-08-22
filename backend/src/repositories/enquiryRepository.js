@@ -16,11 +16,10 @@ class EnquiryRepository {
     /**
      * Find enquiry by ID
      * @param {String} id - Enquiry ID
-     * @param {String} senderId - Sender ID
      * @returns {Promise<Enquiry|null>}
      */
-    async findById(id, senderId) {
-        return await prisma.enquiry.findUnique({ where: { id, senderId } });
+    async findById(id) {
+        return await prisma.enquiry.findUnique({ where: { id } });
     }
 
     /**

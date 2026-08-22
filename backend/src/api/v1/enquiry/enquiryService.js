@@ -99,9 +99,9 @@ class EnquiryService {
      * Get enquiry by ID
      */
     async getEnquiryById(id, userId) {
-        const enquiry = await enquiryRepository.findById(id, userId);
+        const enquiry = await enquiryRepository.findById(id);
 
-        if (!enquiry || enquiry.senderId != userId || enquiry.receiverId != userId) {
+        if (!enquiry || (enquiry.senderId !== userId && enquiry.receiverId !== userId)) {
             throw new NotFoundError('Enquiry not found');
         }
 
