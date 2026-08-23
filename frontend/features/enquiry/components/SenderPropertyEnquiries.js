@@ -17,13 +17,14 @@ const SenderPropertyEnquiries = ({ propertyId }) => {
     const [loading, setLoading] = useState(false);
 
     const { user } = useAuthStore();
-    if (!user) return null; // no enquiries if not authenticated
 
     useEffect(() => {
         if (propertyId) {
             loadEnquiries();
         }
     }, [propertyId]);
+
+    if (!user) return null; // no enquiries if not authenticated
 
     const loadEnquiries = async () => {
         try {
