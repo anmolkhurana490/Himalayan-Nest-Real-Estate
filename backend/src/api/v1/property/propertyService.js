@@ -46,13 +46,13 @@ class PropertyService {
 
     // Record Property View Count into Cache
     async recordView(propertyId, visitorId) {
-        const seenKey = generateSeenPropertyVisitorKey(propertyId, visitorId);
-        const isNewView = await cacheService.set_if_unseen(seenKey, PROPERTY_VIEW_REDIS_EXPIRY_SECONDS);
+        // const seenKey = generateSeenPropertyVisitorKey(propertyId, visitorId);
+        // const isNewView = await cacheService.set_if_unseen(seenKey, PROPERTY_VIEW_REDIS_EXPIRY_SECONDS);
+        // if (isNewView != "OK") return;
 
-        if (isNewView == "OK") {
-            const viewsKey = generatePropertyViewsKey(propertyId);
-            await cacheService.incr(viewsKey);
-        }
+        // Count each view record as distinct for now
+        const viewsKey = generatePropertyViewsKey(propertyId);
+        await cacheService.incr(viewsKey);
     }
 
     /**
