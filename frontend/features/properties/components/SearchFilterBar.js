@@ -28,8 +28,9 @@ const SearchFilterBar = ({ searchParams }) => {
         const initialFilters = {
             location: searchParams.location || '',
             category: searchParams.category || '',
-            minPrice: searchParams.budget || '',
-            maxPrice: searchParams.budget || '',
+            // 50-100% of budget
+            minPrice: searchParams.minPrice || searchParams.budget / 2 || '',
+            maxPrice: searchParams.maxPrice || searchParams.budget || '',
             keywords: searchParams.keywords || '',
             purpose: searchParams.purpose || 'buy'
         };

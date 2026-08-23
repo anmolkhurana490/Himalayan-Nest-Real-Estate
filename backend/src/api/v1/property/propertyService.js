@@ -7,8 +7,8 @@ import { deleteCloudinaryImages, uploadPropertyImages } from '../files/fileServi
 import { validateCreateFilesCount, validateUpdateImagesCount } from '../files/fileValidation.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../../../utils/errorUtils.js';
 import cacheService from '../../../services/cacheService.js';
-import { PROPERTY_REDIS_EXPIRY_SECONDS } from '../../../constants/property.js';
-import { generatePropertyKey } from '../../../builders/cacheKeyBuilder.js';
+import { PROPERTY_REDIS_EXPIRY_SECONDS, PROPERTY_VIEW_REDIS_EXPIRY_SECONDS } from '../../../constants/property.js';
+import { generatePropertyKey, generatePropertyViewsKey, generateSeenPropertyVisitorKey } from '../../../builders/cacheKeyBuilder.js';
 import logger from '../../../config/logger.js';
 import { SELECT_USER_ASSOCIATIONS } from '../../../constants/user.js';
 
@@ -44,29 +44,44 @@ class PropertyService {
         return { properties, totalPages };
     }
 
+    // Record Property View Count into Cache
+    async recordView(propertyId, visitorId) {
+        const seenKey = generateSeenPropertyVisitorKey(propertyId, visitorId);
+        const isNewView = await cacheService.set_if_unseen(seenKey, PROPERTY_VIEW_REDIS_EXPIRY_SECONDS);
+
+        if (isNewView == "OK") {
+            const viewsKey = generatePropertyViewsKey(propertyId);
+            await cacheService.incr(viewsKey);
+        }
+    }
+
     /**
      * Get single property by ID
      * @param {String} id - Property ID
+     * @param {String} visitorId - Visitor Id (IP Address or User Id) (Request Origin)
      * @param {Object} query - Optional query parameters to include related data
      * @returns {Promise<Object>} - Property details
      */
-    async getPropertyById(id, query = {}) {
+    async getPropertyById(id, visitorId, query = {}) {
         // check for cached property
         const propertyKey = generatePropertyKey(id);
         const cachedProperty = await cacheService.get(propertyKey);
-        if (cachedProperty) return cachedProperty;
 
-        const options = {
-            includeAuthor: !!query.includeAuthor,
-        };
-        const property = await propertyRepository.findById(id, options, true);
+        if (cachedProperty) {
+            await this.recordView(id, visitorId);
+            return cachedProperty;
+        }
+
+        const viewsKey = generatePropertyViewsKey(id);
+        const pendingViews = await cacheService.getDel(viewsKey);
+        const pendingCount = parseInt(pendingViews) || 0;
+
+        const options = { includeAuthor: !!query.includeAuthor };
+        const property = await propertyRepository.findById(id, options, pendingCount + 1);
+        if (!property) throw new NotFoundError('Property not found');
 
         // Cache Property to Redis
         await cacheService.set(propertyKey, property, PROPERTY_REDIS_EXPIRY_SECONDS);
-
-        if (!property) {
-            throw new NotFoundError('Property not found');
-        }
 
         return property;
     }

@@ -4,8 +4,9 @@
 import React, { useState } from 'react'
 import { useRouter } from "next/navigation";
 import ROUTES from '@/config/constants/routes';
-import { LEGACY_PROPERTY_TYPES } from "@/config/constants/property";
+import { LEGACY_PROPERTY_TYPES, PRICE_RANGES } from "@/config/constants/property";
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 const HeroSearchCard = () => {
 	const [activeTab, setActiveTab] = useState("buy"); // Toggle between buy/rent
@@ -36,6 +37,10 @@ const HeroSearchCard = () => {
 		setIsSearching(true);
 
 		try {
+			if (searchData.budget < PRICE_RANGES.MIN) {
+				throw Error(`Budget can't be less than ${PRICE_RANGES.MIN}`);
+			}
+
 			const searchParams = {
 				...searchData,
 				purpose: activeTab // Add buy/rent preference
@@ -52,7 +57,8 @@ const HeroSearchCard = () => {
 			// Navigate to properties page with search parameters
 			router.push(`${ROUTES.PROPERTIES.ROOT}?${urlParams.toString()}`);
 		} catch (error) {
-			console.error('Search error:', error);
+			// console.error('Search error:', error.message);
+			toast.error(error.message);
 		} finally {
 			setIsSearching(false);
 		}

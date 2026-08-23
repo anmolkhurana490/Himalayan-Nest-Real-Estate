@@ -38,3 +38,4 @@ export const MESSAGE = {
 }
 
 export const PROPERTY_REDIS_EXPIRY_SECONDS = 60 * 60; // 1 hour in seconds
+export const PROPERTY_VIEW_REDIS_EXPIRY_SECONDS = 30 * 60; // 30 min in seconds

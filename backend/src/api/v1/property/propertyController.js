@@ -3,6 +3,7 @@
 
 import propertyService from './propertyService.js';
 import { HTTP_STATUS } from '../../../constants/httpStatus.js';
+import crypto from 'crypto';
 
 class PropertyController {
     /**
@@ -31,8 +32,11 @@ class PropertyController {
     async getPropertyById(req, res, next) {
         const { id } = req.params;
 
+        const raw = `${req.ip}|${req.headers['user-agent'] || ''}`;
+        const visitorId = crypto.createHash('sha256').update(raw).digest('hex');
+
         try {
-            const property = await propertyService.getPropertyById(id, req.query);
+            const property = await propertyService.getPropertyById(id, raw, req.query);
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,

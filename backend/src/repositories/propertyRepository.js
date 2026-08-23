@@ -16,27 +16,21 @@ class PropertyRepository {
      * Find property by ID, and increment view count
      * @param {String} id - Property ID
      * @param {Object} options - Optional query options (for including associations, etc.)
-     * @param {Boolean} viewProperty - Whether to increment view count (true when viewing property details)
+     * @param {Boolean} views - New View Counts, 0 if not viewed
      * @returns {Promise<Property|null>}
      */
-    async findById(id, options = {}, viewProperty = false) {
+    async findById(id, options = {}, views = 0) {
         const include = options.includeAuthor ? {
             author: { select: SELECT_USER_ASSOCIATIONS }
         } : undefined;
 
-        const property = await prisma.property.findUnique({ where: { id } });
-        if (!property) return null;
-
-        // if not viewing the property, just return it without incrementing view count
-        if (!viewProperty) return property;
-
         // increment viewCount
-        const updated = await prisma.property.update({
+        const property = await prisma.property.update({
             where: { id },
-            data: { viewCount: { increment: 1 } },
+            data: { viewCount: { increment: views } },
             ...(include ? { include } : {})
         });
-        return updated;
+        return property;
     }
 
     /**

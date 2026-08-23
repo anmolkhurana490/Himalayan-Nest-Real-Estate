@@ -78,6 +78,50 @@ class CacheService {
             logger.warn(`Error clearing cache with pattern ${pattern}: ${error}`);
         }
     }
+
+    /**
+     * Deletes a cache entry by key from Redis and returns Value.
+     * @param {string} key - The cache key to delete
+     */
+    async getDel(key) {
+        try {
+            return await redisClient.getdel(key);
+        }
+        catch (error) {
+            logger.warn(`Error getdel cache for key ${key}: ${error}`);
+            return "";
+        }
+    }
+
+    /**
+     * Increment Value of key by 1
+     * @param {string} key - The cache key to delete
+     */
+    async incr(key) {
+        try {
+            return await redisClient.incr(key);
+        }
+        catch (error) {
+            logger.warn(`Error incr cache for key ${key}: ${error}`);
+            return "";
+        }
+    }
+
+    /**
+     * Mark Set (with expiration time) if not exists
+     * @param {string} key - The cache key to delete
+     * @param {number} ttl - Time to live in seconds (default: 3600)
+     */
+    async set_if_unseen(key, ttl = 3600) {
+        try {
+            const res = await redisClient.set(key, '1', 'EX', ttl, 'NX');
+            return res;
+        }
+        catch (error) {
+            logger.warn(`Error set if unseen cache for key ${key}: ${error}`);
+            return null;
+        }
+    }
 }
 
 export default new CacheService();
