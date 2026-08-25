@@ -114,7 +114,7 @@ export default function LoginView() {
                             />
                             <button
                                 type='button'
-                                className='absolute top-6 sm:top-8 right-2 z-10'
+                                className='absolute top-8 right-2 z-10'
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? <EyeOff /> : <Eye />}
