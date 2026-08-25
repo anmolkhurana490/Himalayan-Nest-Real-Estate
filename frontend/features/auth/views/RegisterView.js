@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
 import { USER_ROLES } from '@/config/constants/user'
 import ROUTES from '@/config/constants/routes'
-import { LoaderCircle } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { registerSchema } from '../validation'
 import Image from 'next/image';
 import { useForm } from '@/shared/hooks';
@@ -26,6 +26,9 @@ export default function RegisterView() {
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [status, setStatus] = useState('idle'); // 'idle', 'registering', 'signing-in', 'success'
     const [message, setMessage] = useState({});
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Define initial form values
     const initialValues = {
@@ -192,7 +195,7 @@ export default function RegisterView() {
                     <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
                         Create your account
                     </h2>
-                    <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
+                    <p className="mt-2 text-center text-sm text-gray-600">
                         Already have an account?{' '}
                         <Link
                             href={ROUTES.LOGIN + redirectEncodedURI}
@@ -219,7 +222,7 @@ export default function RegisterView() {
                     <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             <div>
-                                <label htmlFor="firstName" className="block text-xs sm:text-sm font-medium text-gray-700">
+                                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                                     First Name *
                                 </label>
                                 <input
@@ -230,13 +233,13 @@ export default function RegisterView() {
                                     value={formData.name.split(' ')[0] || ''}
                                     disabled={oauthSignup && !oauthFieldsRequired.name}
                                     onChange={handleChange}
-                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm disabled:bg-gray-100"
+                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm disabled:bg-gray-100"
                                     placeholder="First name"
                                 />
                                 {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
                             </div>
                             <div>
-                                <label htmlFor="lastName" className="block text-xs sm:text-sm font-medium text-gray-700">
+                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                                     Last Name *
                                 </label>
                                 <input
@@ -247,14 +250,14 @@ export default function RegisterView() {
                                     value={formData.name.split(' ')[1] || ''}
                                     disabled={oauthSignup && !oauthFieldsRequired.name}
                                     onChange={handleChange}
-                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm disabled:bg-gray-100"
+                                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm disabled:bg-gray-100"
                                     placeholder="Last name"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email Address *
                             </label>
                             <input
@@ -266,14 +269,14 @@ export default function RegisterView() {
                                 value={formData.email}
                                 disabled={oauthSignup && !oauthFieldsRequired.email}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm disabled:bg-gray-100"
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm disabled:bg-gray-100"
                                 placeholder="Enter your email address"
                             />
                             {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                         </div>
 
                         <div>
-                            <label htmlFor="phone" className="block text-xs sm:text-sm font-medium text-gray-700">
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                                 Phone Number *
                             </label>
                             <input
@@ -284,14 +287,14 @@ export default function RegisterView() {
                                 value={formData.phone}
                                 disabled={oauthSignup && !oauthFieldsRequired.phone}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                                 placeholder="Enter your phone number"
                             />
                             {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
                         </div>
 
                         <div>
-                            <label htmlFor="userType" className="block text-xs sm:text-sm font-medium text-gray-700">
+                            <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
                                 I am a *
                             </label>
                             <select
@@ -300,27 +303,34 @@ export default function RegisterView() {
                                 value={formData.userType}
                                 onChange={handleChange}
                                 disabled={oauthSignup && !oauthFieldsRequired.userType}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                             >
                                 <option value={USER_ROLES.CUSTOMER}>Property Buyer/Seller</option>
                                 <option value={USER_ROLES.DEALER}>Real Estate Dealer/Agent</option>
                             </select>
                         </div>
 
-                        {!oauthSignup && <div>
-                            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700">
+                        {!oauthSignup && <div className='relative'>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password *
                             </label>
                             <input
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 required
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full pl-3 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                                 placeholder="Create a strong password"
                             />
+                            <button
+                                type='button'
+                                className='absolute top-8 right-2 z-10'
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </button>
                             {formData.password && (
                                 <div className="mt-2 text-xs">
                                     <p className="text-gray-600 mb-1">Password must have:</p>
@@ -342,20 +352,27 @@ export default function RegisterView() {
                             )}
                         </div>}
 
-                        {!oauthSignup && <div>
-                            <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium text-gray-700">
+                        {!oauthSignup && <div className='relative'>
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                                 Confirm Password *
                             </label>
                             <input
                                 id="confirmPassword"
                                 name="confirmPassword"
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"}
                                 required
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full pl-3 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                                 placeholder="Confirm your password"
                             />
+                            <button
+                                type='button'
+                                className='absolute top-8 right-2 z-10'
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? <EyeOff /> : <Eye />}
+                            </button>
                             {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                                 <p className="mt-1 text-xs text-red-600">Passwords do not match</p>
                             )}
@@ -372,7 +389,7 @@ export default function RegisterView() {
                                     className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                                     required
                                 />
-                                <label htmlFor="agreeToTerms" className="ml-2 block text-xs sm:text-sm text-gray-900">
+                                <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-900">
                                     I agree to the{' '}
                                     <a href="#" className="text-green-600 hover:text-green-500">
                                         Terms of Service
@@ -390,7 +407,7 @@ export default function RegisterView() {
                             <button
                                 type="submit"
                                 disabled={status !== 'idle' || passwordErrors.length > 0 || !formData.agreeToTerms || isSubmitting}
-                                className={'group relative w-full flex justify-center py-2 px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                                className={'group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed'
                                 }
                             >
                                 {status === 'registering' && (
@@ -422,7 +439,7 @@ export default function RegisterView() {
                         type="button"
                         onClick={() => handleOAuthSignIn('google')}
                         disabled={status !== 'idle'}
-                        className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Image
                             src="/logos/google-oauth.svg"
@@ -434,13 +451,13 @@ export default function RegisterView() {
                     </button>}
 
                     <div className="mt-6">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2 text-center">
+                        <p className="text-sm text-gray-600 mb-2 text-center">
                             Already have an Account?{' '}
                         </p>
 
                         <Link
                             href={ROUTES.LOGIN + redirectEncodedURI}
-                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Login to your account
                         </Link>
@@ -451,14 +468,14 @@ export default function RegisterView() {
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-300" />
                             </div>
-                            <div className="relative flex justify-center text-xs sm:text-sm">
+                            <div className="relative flex justify-center text-sm">
                                 <span className="px-2 bg-white text-gray-500">Or continue as</span>
                             </div>
                         </div>
 
                         <Link
                             href={ROUTES.PROPERTIES.ROOT}
-                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Guest User
                         </Link>

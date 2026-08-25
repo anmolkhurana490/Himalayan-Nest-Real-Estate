@@ -2,7 +2,7 @@
 // Handles user login with email/password and redirects based on user role
 
 "use client";
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthViewModel } from '../viewmodel/authViewModel'
@@ -11,6 +11,7 @@ import ROUTES from '@/config/constants/routes'
 import Image from 'next/image';
 import { useForm } from '@/shared/hooks';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginView() {
     const { loginUser, oauthSignIn, isSubmitting: vmSubmitting } = useAuthViewModel();
@@ -20,6 +21,8 @@ export default function LoginView() {
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get('redirect');
     const redirectEncodedURI = redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : "";
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const {
         formData,
@@ -75,7 +78,7 @@ export default function LoginView() {
                 <div className="bg-white py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6 shadow rounded-lg">
                     <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email address
                             </label>
                             <input
@@ -86,7 +89,7 @@ export default function LoginView() {
                                 required
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                                 placeholder="Enter your email address"
                             />
                             {errors.email && (
@@ -94,21 +97,28 @@ export default function LoginView() {
                             )}
                         </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700">
+                        <div className='relative'>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
                             <input
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 autoComplete="current-password"
                                 required
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-xs sm:text-sm"
+                                className="mt-1 appearance-none relative block w-full pl-3 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm"
                                 placeholder="Enter your password"
                             />
+                            <button
+                                type='button'
+                                className='absolute top-6 sm:top-8 right-2 z-10'
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </button>
                             {errors.password && (
                                 <p className="mt-1 text-xs text-red-600">{errors.password}</p>
                             )}
